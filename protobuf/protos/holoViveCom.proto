@@ -1,0 +1,54 @@
+syntax="proto3";
+
+//package unary;
+
+service Backend{
+    rpc LighthouseReport(stream LighthouseState ) returns (Status){}
+    rpc ProvideTrackerInfo(Status) returns ( TrackerState){}
+    rpc UpdateCalibrationInfo(CalibrationInfo) returns(Status){}
+}
+
+message Status{
+    string status=1;
+}
+
+/*
+/////////////////////
+    LIGHTHOUSE
+/////////////////////
+*/
+message LighthouseState{
+    Tracker holoTracker=1;
+    Tracker caliTracker=2;
+    HandheldController controller=3;
+}
+
+message TrackerState{
+    Tracker holoTracker=1;
+    Tracker caliTracker=2;
+}
+message Tracker{
+    string ID=1;
+    Quaternion rotation=2;
+    repeated float position=3; // x y z 
+}
+
+message HandheldController{
+    string ID=1;
+    Quaternion rotation=2;
+    repeated float position=3;
+    map<string,string> button_state=4; //#REVIEW: specifcially add the state? see holorob architecture
+}
+message Quaternion{
+    repeated float quat=1;//w i j k 
+}
+
+
+/*
+/////////////////////
+    Hololens-Vive-Calibration
+/////////////////////
+*/
+message CalibrationInfo{
+    string status=1;
+}

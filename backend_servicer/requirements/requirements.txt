@@ -1,0 +1,6 @@
+python-decouple
+loguru
+grpcio
+grpcio-tools
+scipy
+numpy
