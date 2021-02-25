@@ -128,11 +128,3 @@ class VRState():
         if new_state.HasField("controller"):
             self._controller.update_state(new_state.controller)
             self._controller_set_event.set()
-
-
-if __name__ == "__main__":
-    t = ViveController(
-        "1929", np.array([1, 2, 3]),
-        np.array([0.2, 0.0, 0.9, 1]),
-        button_state={"x": True})
-    # print(await t.get_state_as_string())
