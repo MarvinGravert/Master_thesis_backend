@@ -25,17 +25,14 @@ class TcpIPServer():
     async def communicate_hololens(self, reader: StreamReader, writer: StreamWriter):
         # wait to receive a message => shows that the hololens wants to know the state
         # of the controller
-        await self.vr_state._controller_set_event.wait()  # wait till  VRObjects are init
-        data = await reader.read(100)
-        message = data.decode()
-        logger.debug(self.vr_state.controller._button_state)
         # some debugging information
         addr = writer.get_extra_info('peername')
-        logger.debug(f"Received {message!r} from {addr!r}")
+        logger.debug(f"Received connetion from {addr!r}")
+        await self.vr_state._controller_set_event.wait()  # wait till  VRObjects are init
+
         # now just keep communication open while always responding with the latest
         # controller state upon received request
         while True:
-
             data = await reader.read(100)
             message = data.decode()
             logger.debug(f"received: {message}")
