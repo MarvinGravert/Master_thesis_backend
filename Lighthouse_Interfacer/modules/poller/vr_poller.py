@@ -2,7 +2,7 @@
 it polls on a certain frequency and then pushes into a grpc interface
     """
 import time
-from typing import Dict
+from typing import Dict, Any
 
 from loguru import logger
 
@@ -19,7 +19,7 @@ class VRPoller(BasePoller):
         self.v = triad_openvr()
         logger.info(self.v.print_discovered_objects())
 
-    def poll(self) -> Dict[str, VRObject]:
+    def poll(self) -> Dict[str, Any]:
         """ Poll the Lighthouse for each object
         if its found add its data to a dictionnary which is passed back
         """
@@ -45,7 +45,7 @@ class VRPoller(BasePoller):
                 ID="controller",
                 location_rotation=[w, i, j, k],
                 location_tranlation=[x, y, z],
-                button_state=button_state)
+                button_state=button_state).get_as_grpc_object()
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -63,7 +63,7 @@ class VRPoller(BasePoller):
             state_dict["holo_tracker"] = ViveTracker(
                 ID="holotracker",
                 location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],)
+                location_tranlation=[x, y, z],).get_as_grpc_object()
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -80,7 +80,7 @@ class VRPoller(BasePoller):
             state_dict["calibration_tracker"] = ViveTracker(
                 ID="calibration_tracker",
                 location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],)
+                location_tranlation=[x, y, z],).get_as_grpc_object()
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
