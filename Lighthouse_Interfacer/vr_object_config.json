@@ -1,0 +1,29 @@
+{
+    "devices": [
+        {
+            "name": "hmd",
+            "type": "HMD",
+            "serial": "XXX-XXXXXXXX"
+        },
+        {
+            "name": "tracking_reference_1",
+            "type": "Tracking Reference",
+            "serial": "LHB-XXXXXXXX"
+        },
+        {
+            "name": "controller_1",
+            "type": "Controller",
+            "serial": "XXX-XXXXXXXX"
+        },
+        {
+            "name": "calibration_tracker",
+            "type": "Tracker",
+            "serial": "LHR-XXXXXXXX"
+        }
+        {
+            "name": "holo_tracker",
+            "type": "Tracker",
+            "serial": "LHR-XXXXXXXX"
+        }
+    ]
+}
