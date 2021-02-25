@@ -58,7 +58,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         logger.info(f"Received a connection from {context.peer()}")
 
         async for part in stream:
-            logger.debug("Received information")
+            logger.debug(f"Received information {part}")
             # Holo Tracker
             if part.HasField("holoTracker"):
                 if self._vr_state._holo_tracker_set_event.is_set():
@@ -77,7 +77,6 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
                     self._vr_state.update_controller(part.controller)
                 else:
                     self._vr_state.init_controller(part.controller)
-
         return Status()
 
     async def ProvideTrackerInfo(self, request, context) -> TrackerState:
