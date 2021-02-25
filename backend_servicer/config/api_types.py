@@ -65,7 +65,8 @@ class ViveController(VRObject):
         menuButton = self._button_state["menu_button"]
         gripButton = self._button_state["grip_button"]
 
-        s = ",".join([str(i) for i in self.loc_trans+self.loc_rot])+":"
+        s = ",".join([str(i) for i in self.loc_trans])+":"
+        s += ",".join([str(i) for i in self.loc_rot])+":"
         # add the rest of the buttons to it
         s += xState+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
         return s
