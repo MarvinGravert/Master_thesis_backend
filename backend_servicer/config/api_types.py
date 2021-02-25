@@ -41,29 +41,29 @@ class ViveController(VRObject):
                  location_tranlation: List[float],
                  button_state: Dict[str, str]) -> None:
         super().__init__(ID, location_rotation, location_tranlation)
-        self._button_state = button_state
+        self._button_state = self._adjust_button_states(button_state)
 
     def update_state(self, new_data: HandheldController):
         # first check if id is the same=>correct controller has been passed
-        if self.ID is None:
-            self.ID = new_data.ID
+        logger.debug("updating controller state")
         if self.ID != new_data.ID:
             logger.warning("WRONG Controller. ID mismatch")
             return
-        self.loc_rot = new_data.rotation.quat
-        self.loc_trans = new_data.position
+        self.loc_rot = list(new_data.rotation.quat)
+        self.loc_trans = list(new_data.position)
+        # logger.debug()
         temp_button = self._adjust_button_states(new_data.button_state)
         self._button_state = temp_button
 
     def get_state_as_string(self) -> str:
         # x,y,z:w,i,j,k:x_trackpad:trigger,trackpad_pressed, menuButton,grip_button
         # str(bool(triggerButton))+","+str(trackpadPressed)+","+str(menuButton)+","+str(bool(gripButton))
-        xState = self._button_state['trackpad_x']
-        yState = self._button_state['trackpad_y']
-        trackpadPressed = self._button_state['trackpad_pressed']
-        triggerButton = self._button_state['trigger']
-        menuButton = self._button_state['menu_button']
-        gripButton = self._button_state['grip_button']
+        xState = self._button_state["trackpad_x"]
+        yState = self._button_state["trackpad_y"]
+        trackpadPressed = self._button_state["trackpad_pressed"]
+        triggerButton = self._button_state["trigger"]
+        menuButton = self._button_state["menu_button"]
+        gripButton = self._button_state["grip_button"]
 
         s = ",".join([str(i) for i in self.loc_trans+self.loc_rot])+":"
         # add the rest of the buttons to it
@@ -73,17 +73,12 @@ class ViveController(VRObject):
     def _adjust_button_states(self, button_state: Dict[str, str]) -> Dict[str, str]:
         """Adjusts the button states to the liking of the user
         """
-        if float(self._button_state['trigger']) < 0.5:
-            self._button_state['trigger'] = "False"
+        if float(button_state['trigger']) < 0.5:
+            button_state['trigger'] = "False"
         else:
-            self._button_state['trigger'] = "True"
+            button_state['trigger'] = "True"
 
-        # if float(self._button_state['grip_button']) < 0.1:
-        #     self._button_state['grip_button'] = "False"
-        # else:
-        #     self._button_state['grip_button'] = "True"
-
-        return dict()
+        return button_state
 
 
 class VRState():
@@ -121,15 +116,15 @@ class VRState():
 
     def update_holo_tracker(self, new_state: Tracker) -> None:
         logger.debug("Updating HoloTracker")
-        self._holo_tracker.update_state(new_state.holoTracker)
+        self._holo_tracker.update_state(new_state)
 
     def update_calibration_tracker(self, new_state: Tracker) -> None:
         logger.debug("Updating CaliTracker")
-        self._calibration_tracker.update_state(new_state.caliTracker)
+        self._calibration_tracker.update_state(new_state)
 
     def update_controller(self, new_state: HandheldController) -> None:
         logger.debug("Updating Controller")
-        self._controller.update_state(new_state.controller)
+        self._controller.update_state(new_state)
 
     def init_holo_tracker(self, new_state: Tracker) -> None:
 
@@ -153,4 +148,5 @@ class VRState():
                                           location_rotation=new_state.rotation.quat,
                                           location_tranlation=new_state.position,
                                           button_state=new_state.button_state)
+        logger.debug("Created object")
         self._controller_set_event.set()
