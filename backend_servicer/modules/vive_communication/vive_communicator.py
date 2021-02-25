@@ -24,7 +24,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         self._vr_state = vr_state
 
     async def start(self):
-        logger.info("Server started")
+        logger.info(f"Async gRPC Server started on {self._IP}:{self._port}")
         grpc.experimental.aio.init_grpc_aio()  # initialize the main loop
 
         server = grpc.experimental.aio.server()
@@ -41,7 +41,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         await server.wait_for_termination()
 
-    async def LighthouseReport(self, request, context) -> Status:
+    async def LighthouseReport(self, stream, context) -> Status:
         """receives update about all the connected VRObjects and update
         internal state
 
@@ -56,9 +56,27 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             Status: [description]
         """
         logger.info(f"Received a connection from {context.peer()}")
-        async for part in request:
-            logger.debug("Received information update")
-            self._vr_state.update_state(part)
+
+        async for part in stream:
+            logger.debug("Received information")
+            # Holo Tracker
+            if part.HasField("holoTracker"):
+                if self._vr_state._holo_tracker_set_event.is_set():
+                    self._vr_state.update_holo_tracker(part.holoTracker)
+                else:
+                    self._vr_state.init_holo_tracker(part.holoTracker)
+            # Calibration Tracker
+            if part.HasField("caliTracker"):
+                if self._vr_state._calibration_tracker_set_event.is_set():
+                    self._vr_state.update_calibration_tracker(part.caliTracker)
+                else:
+                    self._vr_state.init_calibration_tracker(part.caliTracker)
+            # Controller
+            if part.HasField("controller"):
+                if self._vr_state._controller_set_event.is_set():
+                    self._vr_state.update_controller(part.controller)
+                else:
+                    self._vr_state.init_controller(part.controller)
 
         return Status()
 

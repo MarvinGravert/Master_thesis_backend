@@ -78,10 +78,10 @@ class ViveController(VRObject):
         else:
             self._button_state['trigger'] = "True"
 
-        if float(self._button_state['grip_button']) < 0.1:
-            self._button_state['grip_button'] = "False"
-        else:
-            self._button_state['grip_button'] = "True"
+        # if float(self._button_state['grip_button']) < 0.1:
+        #     self._button_state['grip_button'] = "False"
+        # else:
+        #     self._button_state['grip_button'] = "True"
 
         return dict()
 
@@ -119,16 +119,38 @@ class VRState():
     def controller(self, new_controller: ViveController):
         self._controller = new_controller
 
-    def update_state(self, new_state: LighthouseState) -> None:
-        """updates the state of all vrobjects passed in the message
-        """
-        logger.debug("Updating State")
-        if new_state.HasField("holoTracker"):
-            self._holo_tracker.update_state(new_state.holoTracker)
-            self._holo_tracker_set_event.set()
-        if new_state.HasField("caliTracker"):
-            self._calibration_tracker.update_state(new_state.caliTracker)
-            self._calibration_tracker_set_event.set()
-        if new_state.HasField("controller"):
-            self._controller.update_state(new_state.controller)
-            self._controller_set_event.set()
+    def update_holo_tracker(self, new_state: Tracker) -> None:
+        logger.debug("Updating HoloTracker")
+        self._holo_tracker.update_state(new_state.holoTracker)
+
+    def update_calibration_tracker(self, new_state: Tracker) -> None:
+        logger.debug("Updating CaliTracker")
+        self._calibration_tracker.update_state(new_state.caliTracker)
+
+    def update_controller(self, new_state: HandheldController) -> None:
+        logger.debug("Updating Controller")
+        self._controller.update_state(new_state.controller)
+
+    def init_holo_tracker(self, new_state: Tracker) -> None:
+
+        logger.debug("Initing holo_tracker")
+        self._holo_tracker = ViveTracker(ID=new_state.ID,
+                                         location_rotation=new_state.rotation.quat,
+                                         location_tranlation=new_state.position)
+        self._holo_tracker_set_event.set()
+
+    def init_calibration_tracker(self, new_state: Tracker) -> None:
+
+        logger.debug("Initing calibration tracker")
+        self._calibration_tracker = ViveTracker(ID=new_state.ID,
+                                                location_rotation=new_state.rotation.quat,
+                                                location_tranlation=new_state.position)
+        self._calibration_tracker_set_event.set()
+
+    def init_controller(self, new_state: HandheldController):
+        logger.debug("Initing controller")
+        self._controller = ViveController(ID=new_state.ID,
+                                          location_rotation=new_state.rotation.quat,
+                                          location_tranlation=new_state.position,
+                                          button_state=new_state.button_state)
+        self._controller_set_event.set()
