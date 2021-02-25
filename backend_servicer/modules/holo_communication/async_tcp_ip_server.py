@@ -46,7 +46,7 @@ class TcpIPServer():
         # Prepare to send in format x,y,z:w,i,j,k:x_trackpad:trigger,trackpad_pressed, menuButton,grip_button:status
 
         controller_state = self.vr_state.controller.get_state_as_string()
-        status: str = "some message"
+        status: str = "some message\n"
         message = bytes(controller_state+":"+status, "utf-8")
         data_to_send = struct.pack(f"{len(message)}s", message)
         return data_to_send
