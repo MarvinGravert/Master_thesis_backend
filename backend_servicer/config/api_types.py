@@ -29,8 +29,8 @@ class ViveTracker(VRObject):
         self.loc_trans = new_data.position
 
     def get_as_grpc_object(self) -> Tracker:
-        quat = Quaternion(quat=list(self.loc_rot))
-        trans = list(self.loc_trans)
+        quat = Quaternion(quat=self.loc_rot)
+        trans = self.loc_trans
         return Tracker(ID=self.ID, rotation=quat, position=trans)
 
 
