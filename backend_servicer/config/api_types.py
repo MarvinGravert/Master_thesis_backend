@@ -20,6 +20,8 @@ class VRObject():
 class ViveTracker(VRObject):
     def update_state(self, new_data: Tracker):
         # first check if id is the same=>correct tracker if not dont update
+        if self.ID is None:
+            self.ID = new_data.ID
         if self.ID != new_data.ID:
             logger.warning("WRONG Tracker. ID mismatch")
             return
@@ -43,6 +45,8 @@ class ViveController(VRObject):
 
     def update_state(self, new_data: HandheldController):
         # first check if id is the same=>correct controller has been passed
+        if self.ID is None:
+            self.ID = new_data.ID
         if self.ID != new_data.ID:
             logger.warning("WRONG Controller. ID mismatch")
             return
