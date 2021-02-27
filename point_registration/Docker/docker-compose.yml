@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  point_registration:
+    container_name: point_registration
+    build:
+      context: ../
+      dockerfile: ./Docker/server.Dockerfile
+      # network: host
+    ports:
+      - "50051:50051"
+      
+
+
+
+    

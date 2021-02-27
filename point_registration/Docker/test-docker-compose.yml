@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  point_registration:
+    container_name: point_registration
+    build:
+      context: ../
+      dockerfile: ./Docker/server.Dockerfile
+    
+  test_point_registration:
+    container_name: test_point_registration
+    build: 
+      context:  ../
+      dockerfile: ./Docker/test_client.Dockerfile
+      
+    environment:
+      - "RUNTIME_HOST=point_registration"
+    depends_on: 
+      - point_registration
