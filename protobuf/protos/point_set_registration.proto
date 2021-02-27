@@ -1,0 +1,41 @@
+syntax ="proto3";
+
+service PointSetRegistering{
+    rpc registerPointSet(Input) returns (Output){}
+}
+message Input{
+    repeated Vector pointSet_1=1;
+    repeated Vector pointSet_2=2;
+    Algorithm algorithm=3;
+}
+message Output{
+    string status=1;
+    repeated MatrixRow rotationMatrix=2;
+    Vector translationVector=3;
+   
+}
+message MatrixRow{
+    repeated float row=1;
+}
+message Vector{
+    repeated float entries=1;
+}
+
+message Algorithm{
+    enum Type{
+        option allow_alias=true;
+        ARUN=0;
+        KABSCH=0;
+        OPENCV=1;
+        UMEYAMA=1;
+        //
+    }
+    Type type=1;
+    bool optimize=2;//optimize using Levenberg-Marquart y/n
+    RANSACParameters ransac=3;//if set RANSAC is used with parameters
+
+}
+message RANSACParameters{
+    float threshold=1;
+    float confidence=2;
+}
