@@ -38,8 +38,13 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         )
 
         await server.start()
-
-        await server.wait_for_termination()
+        try:
+            await server.wait_for_termination()
+        except KeyboardInterrupt:
+            # Shuts down the server with 0 seconds of grace period. During the
+            # grace period, the server won't accept new connections and allow
+            # existing RPCs to continue within the grace period.
+            await server.stop(0)
 
     async def LighthouseReport(self, stream, context) -> Status:
         """receives update about all the connected VRObjects and update
