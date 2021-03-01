@@ -8,16 +8,18 @@ import numpy as np
 
 
 class TcpIPServer():
-    def __init__(self, IP: str, port: int):
+    def __init__(self, IP: str, port: int, queue: asyncio.Queue):
         self.IP = IP
         self.port = port
-        # synchronize information (if new batch is being read into this will stop processing on the current batch)
-        self.updated_batch = asyncio.Event()
-        self._current_message_batch: str = ""
+        self.queue = queue
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")
-        server = await asyncio.start_server(self.communicate_hololens, self.IP, self.port)
+        try:
+            server = await asyncio.start_server(self.communicate_hololens, self.IP, self.port)
+        except Exception as e:
+            logger.error(e)
+            raise
         addr = server.sockets[0].getsockname()
         logger.debug(f"Serving on {addr}")
 
@@ -30,24 +32,20 @@ class TcpIPServer():
         # some debugging information
         addr = writer.get_extra_info('peername')
         logger.info(f"Received connection from {addr}")
-        # now just read the data into a data container and cancel the connection up the reception of a double
-        # line break in a single message
-        # synchronize the update using an asyncio.Evetn
+        # now just read the data into a data container and cancel the connection
+        # upon the reception of "end"
         message_container = list()
-        self.updated_batch.clear()
         while True:
             data = await reader.read(100)
             message = data.decode()
             logger.debug(f"received: {message}")
             message_container.append(message)
-            if message == "\n\n" or message[-2:] == "\n\n":
+            if "end" in message:  # using some message to signal the end of data transmission
                 break
-            # message should be irrelevant hence
+            # return message is  irrelevant hence random string
             data = b"s"
             writer.write(data)
             await writer.drain()
             # we will exit this when the outside connection breaks
-        self._current_message_batch = message_container
-        self.updated_batch.set()
-
-        logger.debug(f"Saved message: {self._current_message_batch}")
+        await self.queue.put(message_container)
+        logger.debug(f"Put message into queue: {message_container}")
