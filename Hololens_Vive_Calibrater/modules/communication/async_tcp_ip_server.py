@@ -13,7 +13,7 @@ class TcpIPServer():
         self.port = port
         # synchronize information (if new batch is being read into this will stop processing on the current batch)
         self.updated_batch = asyncio.Event()
-        self._current_message_batch = None
+        self._current_message_batch: str = ""
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")

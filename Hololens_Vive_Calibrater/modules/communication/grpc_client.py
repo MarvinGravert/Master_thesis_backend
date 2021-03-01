@@ -26,7 +26,7 @@ class GRPCCommunicator():
 
 
 class BackendCommunicator(GRPCCommunicator):
-    def get_tracker_pose(self) -> VRState:
+    async def get_tracker_pose(self) -> VRState:
         """Sends an empty status to the backend server and receives back the position of the both the trackers
         The returned trackerstate object is then used to create the vr_state
         """
@@ -51,7 +51,7 @@ class BackendCommunicator(GRPCCommunicator):
 
 
 class PointRegisterCommunicator(GRPCCommunicator):
-    def register_points(self, point_set_1: np.ndarray, point_set_2: np.ndarray) -> np.ndarray:
+    async def register_points(self, point_set_1: np.ndarray, point_set_2: np.ndarray) -> np.ndarray:
         """Creates the GRPC Stub to communicate with the point registration service
         forwards the received parameters and returns the rotation R and translation t
         Transformation is from Set 1 to Set 2
