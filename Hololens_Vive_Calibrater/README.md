@@ -1,20 +1,13 @@
-# Python Package Template
+# Holo Vive Calibrator
 
-This is used as an Template for python package structure. It will be extended further down the line. For the moment it functions as a testbed for learning about python packaging
+This repo is tasked with receiving the virtual position of the hololens calibration object via a tcp/ip connection. Afterwards it inquires about the position of the trackers (tracker on the hololens and tracker on the calibration object). The position of the virtual object and the postion of the tracker are thrown into a points calculator module which returns a number of points. These are matches together via points registration and finally the postion of the holo tracker relative to the virtual center of projection is calculated.
 
-## What has been learned
+## Architecture
 
-Hereafter, the lessons learned will be talked about. A pretty good baseline are [this write down](https://godatadriven.com/blog/a-practical-guide-to-using-setup-py/) and [this stackoverflow](https://stackoverflow.com/questions/51286928/what-is-where-argument-for-in-setuptools-find-packages). In theory also [this python packaging guide](https://packaging.python.org/guides/packaging-namespace-packages/), though I found a bit confusing as the provided examples are not matching up with the code in the guide. The overall documentation/explanation of the setuptool can be found [here](https://setuptools.readthedocs.io/en/latest/setuptools.html).
+There are multiple modules that are dedicated to one operation:
 
-### Package namespaces
-
-To allow access like `import package.subpackage.module`{:.language-python}. One needs a structure such as shown in this repository. The package is a folder in the top level repo (same level as the setup.py). One level further down the subpackages are stored which individually each have an ___init___.py. 
-
-Now it suffices to place find_packages in the setup.py to find all the subpackages and modules. 
-
-## Usage
-
-```bash
-testImportRunner 
-```
-This will write messages into the console
+* Async GRPC client to get data from the tracker via the backend server
+* Async TCP/IP server to receive data from hololens 
+* Async gRPC client to communicate with points registration server
+* Transformation module that manages applying the transformation
+* Point_correcpsondance, which finds the points of interest in the 3D object
