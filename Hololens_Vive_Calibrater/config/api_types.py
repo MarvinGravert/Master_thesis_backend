@@ -24,6 +24,18 @@ class ViveTracker(VRObject):
         trans = self.loc_trans
         return Tracker(ID=self.ID, rotation=quat, position=trans)
 
+    def get_as_hom_matrix(self) -> np.ndarray:
+        from scipy.spatial.transform import Rotation as R
+        rot_matrix = R.from_quat(self.loc_rot)
+        trans_vec = np.array(self.loc_trans).reshape([3, 1])
+        hom_matrix = np.hstack([
+            rot_matrix.as_matrix(),
+            trans_vec
+        ])  # reshape just to be safe
+        hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
+        logger.debug(f"Vive Tracker HOm Matrix is:\n {hom_matrix}")
+        return hom_matrix
+
 
 class VRState():
     def __init__(self):
