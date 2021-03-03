@@ -36,6 +36,8 @@ class TcpIPServer():
             data = await reader.read(100)
             message = data.decode()
             logger.debug(f"received: {message}")
+            if "X" not in message:
+                break  # hacky fix to stop receving a million messsages when unity turns off
             # message should be irrelevant hence
             data = self._get_data_to_send()
             logger.debug(f"Send: {data!r}")  # turn data back into readable string
