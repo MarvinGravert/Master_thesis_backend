@@ -75,7 +75,7 @@ async def worker(queue: asyncio.Queue):
         # now e can get the transformatoin from the virtual cetner to the vive tracker
         target_hom_matrix = hom_matrix_virtual_to_LH@tracker_hom_matrix
         logger.info(
-            f"The transformatoin matrix from virutal center to trakcer is:\n {target_hom_matrix}")
+            f"The transformatoin matrix from virutal center to tracker is:\n {target_hom_matrix}")
         queue.task_done()
 
 
@@ -91,7 +91,7 @@ class InformationProcessor():
         3. list of n points
 
         The transmission format is as follows:
-        1. "x,y,z,w,i,j,k"
+        1. "x,y,z:w,i,j,k"
         2. "x11,x12,x13,x14\nx21,x22,x23,x24\nx31,x32,x33,x34"
         3. "x11,x12,x13\nx21,x22,x23\n.....xn1,xn2,xn3\n"
 
@@ -101,6 +101,13 @@ class InformationProcessor():
             message_container (str): list of all the data transmitted to us 
 
         Returns:
-            np.ndarray: a transformation matrix OR a list of n points
+            np.ndarray: a list of n points
         """
-        return np.empty([4, 4])
+        # split the message into indivudal components
+        position = message_container.split(":")[0].split(",")
+        rotation = message_container.split(":")[1].split(",")
+
+        position = [float(x) for x in position]
+        rotation = [float(x) for x in rotation]
+
+        return get_points_virtual_object(unity_trans=position, unity_rot=rotation)
