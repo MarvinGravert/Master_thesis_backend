@@ -231,7 +231,9 @@ class triad_openvr():
             for i in range(openvr.k_unMaxTrackedDeviceCount):
                 if poses[i].bDeviceIsConnected:
                     device_serial = self.vr.getStringTrackedDeviceProperty(
-                        i, openvr.Prop_SerialNumber_String).decode('utf-8')
+                        i, openvr.Prop_SerialNumber_String)
+                    print(device_serial)
+                    # device_serial.decode('utf-8')
                     for device in config['devices']:
                         if device_serial == device['serial']:
                             device_name = device['name']
