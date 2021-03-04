@@ -40,17 +40,15 @@ class ForwardLighthouseData():
                 while True:
                     state_dict = self._poller.poll()
                     # logger.debug(state_dict)
-                    holo_tracker = state_dict.get("holo_tracker", Tracker())
-                    calibration_tracker = state_dict.get("calibration_tracker", Tracker())
-                    controller = state_dict.get("controller", HandheldController())
+                    holo_tracker = state_dict.get("holo_tracker", None)
+                    calibration_tracker = state_dict.get("calibration_tracker", None)
+                    controller = state_dict.get("controller", None)
                     t = LighthouseState(
                         holoTracker=holo_tracker,
                         caliTracker=calibration_tracker,
                         controller=controller)
                     logger.debug(t)
                     yield t
-                    # time.sleep(1)
-                    logger.debug("bu")
                     # run loop on frequency
                     current_time = time.time()
                     while current_time-last_time < 1/POLLING_FREQUENCY:
