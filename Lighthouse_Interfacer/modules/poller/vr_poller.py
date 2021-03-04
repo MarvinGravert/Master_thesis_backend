@@ -32,9 +32,10 @@ class VRPoller(BasePoller):
         ----------
         """
         try:
-
             # get the position and rotation
+            
             [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
+            
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
@@ -46,45 +47,49 @@ class VRPoller(BasePoller):
                 location_rotation=[w, i, j, k],
                 location_tranlation=[x, y, z],
                 button_state=button_state).get_as_grpc_object()
-        except (TypeError, ZeroDivisionError):
-            # this occurs when connection to device is lost
-            # just use the previously detected pose
-            # Zero divisoin error can happen during conversion to quaternion
-            pass
+        # except (TypeError, ZeroDivisionError) as e:
+        #     # this occurs when connection to device is lost
+        #     # just use the previously detected pose
+        #     # Zero divisoin error can happen during conversion to quaternion
+        #     logger.error(e)
+        #     pass
+        except Exception as e:
+            logger.error(e)
+
 
         """
         ----------
         Holo Tracker
         ----------
         """
-        try:
-            # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["tracker_1"].get_pose_quaternion()
-            state_dict["holo_tracker"] = ViveTracker(
-                ID="holotracker",
-                location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],).get_as_grpc_object()
-        except (TypeError, ZeroDivisionError):
-            # this occurs when connection to device is lost
-            # just use the previously detected pose
-            # Zero divisoin error can happen during conversion to quaternion
-            pass
-        """
-        ----------
-        Calibration Tracker
-        ----------
-        """
-        try:
-            # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["tracker_2"].get_pose_quaternion()
-            state_dict["calibration_tracker"] = ViveTracker(
-                ID="calibration_tracker",
-                location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],).get_as_grpc_object()
-        except (TypeError, ZeroDivisionError):
-            # this occurs when connection to device is lost
-            # just use the previously detected pose
-            # Zero divisoin error can happen during conversion to quaternion
-            pass
+        # try:
+        #     # get the position and rotation
+        #     [x, y, z, i, j, k, w] = self.v.devices["tracker_1"].get_pose_quaternion()
+        #     state_dict["holo_tracker"] = ViveTracker(
+        #         ID="holotracker",
+        #         location_rotation=[w, i, j, k],
+        #         location_tranlation=[x, y, z],).get_as_grpc_object()
+        # except (TypeError, ZeroDivisionError):
+        #     # this occurs when connection to device is lost
+        #     # just use the previously detected pose
+        #     # Zero divisoin error can happen during conversion to quaternion
+        #     pass
+        # """
+        # ----------
+        # Calibration Tracker
+        # ----------
+        # """
+        # try:
+        #     # get the position and rotation
+        #     [x, y, z, i, j, k, w] = self.v.devices["tracker_2"].get_pose_quaternion()
+        #     state_dict["calibration_tracker"] = ViveTracker(
+        #         ID="calibration_tracker",
+        #         location_rotation=[w, i, j, k],
+        #         location_tranlation=[x, y, z],).get_as_grpc_object()
+        # except (TypeError, ZeroDivisionError):
+        #     # this occurs when connection to device is lost
+        #     # just use the previously detected pose
+        #     # Zero divisoin error can happen during conversion to quaternion
+        #     pass
 
         return state_dict
