@@ -25,7 +25,8 @@ class ForwardLighthouseData():
             ("grpc.max_send_message_length", GRPC_MAX_MESSAGE_LENGTH),
             ("grpc.max_receive_message_length", GRPC_MAX_MESSAGE_LENGTH)
         ]
-        self._poller = MockPoller()
+        # self._poller = MockPoller()
+        self._poller= VRPoller()
         self._poller.start()
 
     def connect(self) -> None:
