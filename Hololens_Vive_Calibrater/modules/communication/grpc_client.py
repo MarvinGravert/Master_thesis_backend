@@ -40,6 +40,8 @@ class BackendCommunicator(GRPCCommunicator):
         """
         Process reponse and return
         """
+        logger.info("Received Tracker Data. Starting Parsing it")
+        # 10,10,10,0,0,1,0end
         return self.process_response(async_response=response)
 
     def process_response(self, async_response: TrackerState) -> VRState:
