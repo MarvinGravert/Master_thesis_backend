@@ -1,23 +1,37 @@
 """This module is gonna poll include the polling interface to the vive
 it polls on a certain frequency and then pushes into a grpc interface
+
+Multiple Exceptions are handeled herein:
+-no connection to openvr => openvr.error_code.InitError_Init_PathRegistryNotFound
+-no device found
     """
 import time
 from typing import Dict, Any
 
 from loguru import logger
+from openvr.error_code import InitError_Init_PathRegistryNotFound
 
 from config.api_types import VRObject, ViveController, ViveTracker
 from utils.triad_openvr import triad_openvr  # file from triad Repo
 from modules.poller.base_poller import BasePoller
+from config.api_types import (
+    OpenVRConnectionError
+)
 
 
 class VRPoller(BasePoller):
-    def __init__(self) -> None:
+    def __init__(self, config_file_path=None) -> None:
         self._last_time = time.time()
+        self._config_file_path = config_file_path  # Path to the setup file
 
     def start(self) -> None:
-        self.v = triad_openvr()
-        logger.info(self.v.print_discovered_objects())
+        try:
+            self.v = triad_openvr(configfile_path=self._config_file_path)
+
+            logger.info(self.v.print_discovered_objects())
+        except InitError_Init_PathRegistryNotFound:
+            logger.error("No connection to OpenVR")
+            raise OpenVRConnectionError
 
     def poll(self) -> Dict[str, Any]:
         """ Poll the Lighthouse for each object
@@ -33,9 +47,9 @@ class VRPoller(BasePoller):
         """
         try:
             # get the position and rotation
-            
+
             [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
-            
+
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
@@ -55,7 +69,6 @@ class VRPoller(BasePoller):
         #     pass
         except Exception as e:
             logger.error(e)
-
 
         """
         ----------

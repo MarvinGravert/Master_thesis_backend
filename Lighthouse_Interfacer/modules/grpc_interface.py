@@ -15,6 +15,9 @@ from config.const import (
 )
 from modules.poller.mock_poller import MockPoller
 from modules.poller.vr_poller import VRPoller
+from config.api_types import (
+    VRConfigError, OpenVRConnectionError, StartupError
+)
 
 
 class ForwardLighthouseData():
@@ -26,8 +29,11 @@ class ForwardLighthouseData():
             ("grpc.max_receive_message_length", GRPC_MAX_MESSAGE_LENGTH)
         ]
         # self._poller = MockPoller()
-        self._poller= VRPoller()
-        self._poller.start()
+        try:
+            self._poller = VRPoller(config_file_path="./vr_object_config.json")
+            self._poller.start()
+        except (VRConfigError, OpenVRConnectionError):
+            raise StartupError
 
     def connect(self) -> None:
 
