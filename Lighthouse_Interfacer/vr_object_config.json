@@ -11,15 +11,25 @@
             "serial": "LHB-XXXXXXXX"
         },
         {
+            "name": "lighthouse",
+            "type": "Tracking Reference",
+            "serial": "LHB-8F3CA9A0"
+        },
+        {
             "name": "controller_1",
             "type": "Controller",
             "serial": "XXX-XXXXXXXX"
         },
         {
+            "name": "handheld",
+            "type": "Controller",
+            "serial": "LHR-EB61CE69"
+        },
+        {
             "name": "calibration_tracker",
             "type": "Tracker",
             "serial": "LHR-XXXXXXXX"
-        }
+        },
         {
             "name": "holo_tracker",
             "type": "Tracker",
