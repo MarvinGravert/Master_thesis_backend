@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 import asyncio
 
 from loguru import logger
+from scipy.spatial.transform import Rotation as R
 import numpy as np
 
 from holoViveCom_pb2 import (
@@ -17,6 +18,18 @@ class VRObject():
         self.ID = ID
         self.loc_rot = location_rotation  # w i j k
         self.loc_trans = location_tranlation  # x y z
+
+    def get_pose_as_hom_matrix(self) -> np.ndarray:
+        """returns the current pose (postion+quat) as a 4x4 homogenous matrix
+
+        Returns:
+            np.ndarray: 4x4 homogenous matrix
+        """
+
+        rot = R.from_quat(self.loc_rot)
+        rot_matrix = rot.as_matrix()
+        hom_matrix = np.hstack([rot_matrix, np.array(self.loc_trans).reshape([3, 1])])
+        return np.vstack([hom_matrix, [0, 0, 0, 1]])
 
 
 class ViveTracker(VRObject):
@@ -72,6 +85,23 @@ class ViveController(VRObject):
         # add the rest of the buttons to it
         s += xState+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
         return s
+
+    def get_button_state_as_string(self) -> str:
+        """returns the current button state of the controller as a string
+
+        format: x_trackpad:trigger,trackpad_pressed, menuButton,grip_button
+        essentially the pose has been cut ouf
+
+        Returns:
+            str: button state as string in the described format
+        """
+        xState = self._button_state["trackpad_x"]
+        yState = self._button_state["trackpad_y"]
+        trackpadPressed = self._button_state["trackpad_pressed"]
+        triggerButton = self._button_state["trigger"]
+        menuButton = self._button_state["menu_button"]
+        gripButton = self._button_state["grip_button"]
+        return xState+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
 
     def _adjust_button_states(self, button_state: Dict[str, str]) -> Dict[str, str]:
         """Adjusts the button states to the liking of the user
