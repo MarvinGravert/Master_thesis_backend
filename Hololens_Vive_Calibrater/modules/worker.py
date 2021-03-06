@@ -80,10 +80,27 @@ async def worker(queue: asyncio.Queue):
         ------------------
         """
         tracker_hom_matrix = tracker_state.holo_tracker.get_as_hom_matrix()
+        """
+        ------------------
+        calculate desired transformation
+        ------------------
+        """
         # now e can get the transformatoin from the virtual cetner to the vive tracker
         target_hom_matrix = hom_matrix_virtual_to_LH@tracker_hom_matrix
         logger.info(
             f"The transformation matrix:  virutal center to tracker is:\n {target_hom_matrix}")
+        """
+        ------------------
+        update the other services about the changed calibration
+        ------------------
+        """
+        await backend_client.update_calibration_info(target_hom_matrix)
+        """
+        ------------------
+        Save the calibration to file
+        ------------------
+        """
+        # TODO: Save the config into a persistent memory
         queue.task_done()
 
 

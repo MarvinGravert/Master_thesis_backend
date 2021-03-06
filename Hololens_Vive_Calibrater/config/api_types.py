@@ -4,7 +4,7 @@ import asyncio
 from loguru import logger
 import numpy as np
 
-from holoViveCom_pb2 import HandheldController, LighthouseState, TrackerState, Quaternion, Tracker
+from holoViveCom_pb2 import HandheldController, LighthouseState, TrackerState, Quaternion, Tracker, CalibrationInfo
 
 
 class VRObject():
@@ -37,10 +37,58 @@ class ViveTracker(VRObject):
         return hom_matrix
 
 
+class Calibration():
+    """representation of the calibration matrix which maps from virtual to tracker
+    it saves this as a homogenous matrix which can be usd in processing
+
+    Furthermore, a boolean is used to check if calibration has been set as this 
+    is simply initialised with an empty calibration
+    """
+
+    def __init__(self):
+        """initialise the matrix with the base homogenous matrix
+        """
+        temp_matrix = np.hstack([np.identity(n=3), np.zeros([3, 1])])
+        temp_matrix = np.vstack([temp_matrix, np.array([0, 0, 0, 1])])
+        self._calibration_matrix: np.ndarray = temp_matrix
+        self._calibration_received: bool = False
+
+    @property
+    def calibration_matrix(self) -> np.ndarray:
+        return self._calibration_matrix
+
+    def set_calibration_via_grpc_object(self, calibration_info: CalibrationInfo) -> None:
+        """setting the calibration matrix when handed via gprc_object
+
+        the object is a flattend 4x4 matrix
+
+        Args:
+            calibration_info (CalibrationInfo): [description]
+        """
+        flattend_matrix: np.ndarray = calibration_info.calibrationMatrixRowMajor
+        self._calibration_matrix = flattend_matrix.reshape([4, 4])
+        logger.debug(f"New calibration has been set to: \n {self.calibration_matrix}")
+        # This signifies a received calibration
+        self._calibration_received = True
+
+    def get_calibration_as_grpc_object(self) -> CalibrationInfo:
+        """returns the calibration matrix as a calibrationInfo gRPC object
+        the matrix is simply flattend
+
+        Returns:
+            CalibrationInfo: grpc object has definedin proto
+        """
+        return CalibrationInfo(calibrationMatrixRowMajor=self.calibration_matrix.flatten())
+
+    def calibration_received(self) -> bool:
+        return self._calibration_received
+
+
 class VRState():
     def __init__(self):
         self._holo_tracker = None
         self._calibration_tracker = None
+        self.calibration = Calibration()
 
     @ property
     def holo_tracker(self) -> ViveTracker:

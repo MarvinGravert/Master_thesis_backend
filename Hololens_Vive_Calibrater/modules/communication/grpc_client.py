@@ -10,7 +10,7 @@ import grpc.aio
 from loguru import logger
 import numpy as np
 
-from holoViveCom_pb2 import Status, TrackerState
+from holoViveCom_pb2 import Status, TrackerState, CalibrationInfo
 from point_set_registration_pb2 import Input, Vector, RANSACParameters, Algorithm, Output
 
 import holoViveCom_pb2_grpc
@@ -51,10 +51,16 @@ class BackendCommunicator(GRPCCommunicator):
         vr_state.init_holo_tracker(async_response.holoTracker)
         return vr_state
 
-    async def UpdateCalibrationInfo(self) -> None:
+    async def update_calibration_info(self, calibration: np.ndarray) -> None:
         """sends the calibration thats was selected by the hololens user OR when a new calibration has been calculated
         """
-        pass
+        logger.info("Starting process to update backend service about the new calibration")
+        async with grpc.aio.insecure_channel(f"{self._server}:{self._port}") as channel:
+            logger.info(
+                f"Started {self.__class__.__name__} communicator on {self._server}:{self._port}")
+            stub = holoViveCom_pb2_grpc.BackendStub(channel=channel)
+            await stub.UpdateCalibrationInfo(CalibrationInfo(calibrationMatrixRowMajor=calibration.flatten()))
+        logger.debug("Message has been sent")
 
 
 class PointRegisterCommunicator(GRPCCommunicator):
