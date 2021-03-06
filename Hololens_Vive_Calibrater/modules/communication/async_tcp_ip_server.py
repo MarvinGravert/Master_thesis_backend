@@ -36,17 +36,21 @@ class TcpIPServer():
         # now just read the data into a data container and cancel the connection
         # upon the reception of "end"
         message_container = list()
-        while True:
-            data = await reader.read(100)
-            message = data.decode()
-            logger.debug(f"received: {message}")
-            message_container.append(message)
-            if "end" in message:  # using some message to signal the end of data transmission
-                break
-            # return message is  irrelevant hence random string
-            data = b"s"  # REVIEW: remove the writer
-            writer.write(data)
-            await writer.drain()
-            # we will exit this when the outside connection breaks
-        await self.queue.put(message_container)
-        logger.debug(f"Put message into queue: {message_container}")
+        try:
+            while True:
+                data = await reader.read(100)
+                message = data.decode()
+                logger.debug(f"received: {message}")
+                message_container.append(message)
+                if "end" in message:  # using some message to signal the end of data transmission
+                    await self.queue.put(message_container)
+                    message_container = []  # clear the container
+                    logger.debug(f"Put message into queue: {message_container}")
+                    # break
+                # return message is  irrelevant hence random string
+                data = b"s"  # REVIEW: remove the writer
+                writer.write(data)
+                await writer.drain()
+                # we will exit this when the outside connection breaks
+        except ConnectionResetError:
+            logger.warning(f"Remote connection {addr} was lost")
