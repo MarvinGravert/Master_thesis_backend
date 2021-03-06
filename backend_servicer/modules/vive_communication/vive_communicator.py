@@ -85,7 +85,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         waits until tracker has been set before returning information
         """
         logger.info(f"Received a connection from {context.peer()}")
-        logger.info("Checking if both trackers have been initialized")
+        logger.debug("Checking if both trackers have been initialized")
         await self._vr_state._holo_tracker_set_event.wait()
         await self._vr_state._calibration_tracker_set_event.wait()
         logger.info("Collected all information about trackers, returning data")
@@ -99,7 +99,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         """
         logger.info(f"Received a connection from {context.peer()}")
-        logger.info("Processing received calibration update")
+        logger.debug("Processing received calibration update")
         self._vr_state.calibration.set_calibration_via_grpc_object(request)
         logger.info("New calibration has been set and will be incorparated into the information flow")
         return Empty()
@@ -109,7 +109,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         """
         logger.info(f"Received a connection from {context.peer()}")
-        logger.info("Change the system state")
+        logger.debug("Change the system state")
         self._vr_state.status = request.status
         logger.info(f"New State has been set to: {self._vr_state.status}")
         return Empty()
