@@ -21,3 +21,4 @@ Note the **hololens** module is in its own repo
 * continous server side streaming of controller state
 * way point manager
 * robot calibration manager (manually)
+* graceful exiting and RPC crash handling
