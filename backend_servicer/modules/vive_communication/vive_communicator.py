@@ -106,5 +106,18 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
             caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
 
-    async def UpdateCalibrationInfo(self, request, context):
-        return super().UpdateCalibrationInfo(request, context)
+    async def UpdateCalibrationInfo(self, request, context) -> None:
+        """receives calibration and updates internal calibration
+
+        Args:
+            request ([type]): [description]
+            context ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
+        logger.info(f"Received a connection from {context.peer()}")
+        logger.info("Processing received calibration update")
+        self._vr_state.calibration.set_calibration_via_grpc_object(request)
+        logger.info("New calibration has been set and will be incorparated into the information flow")
+        return
