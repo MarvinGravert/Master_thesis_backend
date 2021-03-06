@@ -114,6 +114,7 @@ class Calibration():
         """
         flattend_matrix: np.ndarray = calibration_info.calibrationMatrixRowMajor
         self._calibration_matrix = flattend_matrix.reshape([4, 4])
+        logger.debug(f"New calibration has been set to: \n {self.calibration_matrix}")
         # This signifies a received calibration
         self._calibration_received = True
 
