@@ -4,6 +4,7 @@ world and hololens world
 it does so utliizing asnyc whereever necessary
 """
 import asyncio
+from typing import List
 
 import numpy as np
 from loguru import logger
@@ -13,6 +14,7 @@ from config.const import (
 )
 from modules.communication.grpc_client import BackendCommunicator, PointRegisterCommunicator
 from modules.point_correspondance.find_point_corresponder import get_points_real_object, get_points_virtual_object
+from config.api_types import IncorrectMessageFormat
 
 
 async def worker(queue: asyncio.Queue):
@@ -38,7 +40,7 @@ async def worker(queue: asyncio.Queue):
     ------------------
     """
     while True:
-        hololens_message = await queue.get()
+        hololens_message: List[str] = await queue.get()
         logger.info("New job has arrived. Start processing")
         # now we can get the data from the trackers
         tracker_state = await backend_client.get_tracker_pose()
@@ -51,21 +53,27 @@ async def worker(queue: asyncio.Queue):
         ------------------
         """
         info_processor = InformationProcessor()
-        virtual_cali_points = await info_processor.process_hololens_data(hololens_message)
+        try:
+            virtual_cali_points = await info_processor.process_hololens_data(hololens_message)
+        except IncorrectMessageFormat:
+            logger.error("Message has the incorrect format. Dicarding job")
+            queue.task_done()
+            continue
+
         real_cali_points = get_points_real_object(
             vive_trans=np.array(tracker_state.calibration_tracker.loc_trans),
             vive_rot=np.array(tracker_state.calibration_tracker.loc_rot)
         )
         """
         ------------------
-        calculate point registering 
+        calculate point registering
         ------------------
         """
         hom_matrix_virtual_to_LH = await points_register_client.register_points(
             point_set_1=real_cali_points,
             point_set_2=virtual_cali_points
         )
-        logger.info(f"LH to virtual center Matrix: {hom_matrix_virtual_to_LH} ")
+        logger.info(f"Transformtion-Matrix: LH to virtual center:\n {hom_matrix_virtual_to_LH} ")
         """
         ------------------
         get tracker transformation
@@ -75,14 +83,14 @@ async def worker(queue: asyncio.Queue):
         # now e can get the transformatoin from the virtual cetner to the vive tracker
         target_hom_matrix = hom_matrix_virtual_to_LH@tracker_hom_matrix
         logger.info(
-            f"The transformatoin matrix from virutal center to tracker is:\n {target_hom_matrix}")
+            f"The transformation matrix:  virutal center to tracker is:\n {target_hom_matrix}")
         queue.task_done()
 
 
 class InformationProcessor():
 
-    async def process_hololens_data(self, message_container: str) -> np.ndarray:
-        """ this method takes the data received from the hololens and processes 
+    async def process_hololens_data(self, message_container: List[str]) -> np.ndarray:
+        """ this method takes the data received from the hololens and processes
         into a data format which can be processed furhter
 
         The data may either be :
@@ -98,14 +106,32 @@ class InformationProcessor():
         There may be an number of additional line breaks at the end => strip them off
 
         Args:
-            message_container (str): list of all the data transmitted to us 
+            message_container (str): list of all the data transmitted to us
 
         Returns:
             np.ndarray: a list of n points
         """
+        # if there are, join the individual list entries
+        message = "".join(message_container)
+        # the last element should be "end" thus consider only until that
+        message = message.split("end")[0]
+        # there is no need to error handling before the next operations
+        # because the received job has to be a string that contains end
+        # otherwise the tcp ip client wouldnt have put it into the queue
+        # hence the above operation can not fail
+        logger.debug(f"the message after formatting and transforming: {message}")
         # split the message into indivudal components
-        position = message_container.split(":")[0].split(",")
-        rotation = message_container.split(":")[1].split(",")
+        try:
+            position = message.split(":")[0].split(",")
+            rotation = message.split(":")[1].split(",")
+        except IndexError as e:
+            logger.error(f"Received Message: {message_container} had an IndexError {e}")
+            raise IncorrectMessageFormat
+
+        if len(position) != 3 or len(rotation) != 4:
+            logger.error(
+                f"Received Message: {message_container} doesnt contain proper position/rotation")
+            raise IncorrectMessageFormat
 
         position = [float(x) for x in position]
         rotation = [float(x) for x in rotation]
