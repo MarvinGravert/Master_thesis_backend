@@ -96,7 +96,7 @@ class Calibration():
         """initialise the matrix with the base homogenous matrix
         """
         temp_matrix = np.hstack([np.identity(n=3), np.zeros([3, 1])])
-        temp_matrix = np.vstack([temp_matrix, np.ones([0, 0, 0, 1])])
+        temp_matrix = np.vstack([temp_matrix, np.array([0, 0, 0, 1])])
         self._calibration_matrix: np.ndarray = temp_matrix
         self._calibration_received: bool = False
 

@@ -9,7 +9,7 @@ import grpc.experimental.aio
 
 from holoViveCom_pb2 import (
     LighthouseState, CalibrationInfo, Quaternion,
-    HandheldController, TrackerState, Status, Tracker)
+    HandheldController, TrackerState, Status, Tracker, Empty)
 import holoViveCom_pb2_grpc
 
 from config.api_types import VRState
@@ -93,7 +93,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
             caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
 
-    async def UpdateCalibrationInfo(self, request, context) -> None:
+    async def UpdateCalibrationInfo(self, request, context) -> Empty:
         """receives calibration and updates internal calibration
 
 
@@ -102,14 +102,14 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         logger.info("Processing received calibration update")
         self._vr_state.calibration.set_calibration_via_grpc_object(request)
         logger.info("New calibration has been set and will be incorparated into the information flow")
-        return
+        return Empty()
 
-    async def ChangeStatus(self, request, context):
+    async def ChangeStatus(self, request, context) -> Empty:
         """Changes the internal state 
 
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.info("Change the system state")
-        self._vr_state.status = request.Status.status
-        logger.info(f"New State has been set to {request.Status.status}")
-        return
+        self._vr_state.status = request.status
+        logger.info(f"New State has been set to: {self._vr_state.status}")
+        return Empty()
