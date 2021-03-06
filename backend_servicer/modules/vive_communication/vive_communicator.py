@@ -52,13 +52,6 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         Data is streamed in continously. If the client ends the stream a
         status message is sent
-
-        Args:
-            request ([type]): [description]
-            context ([type]): [description]
-
-        Returns:
-            Status: [description]
         """
         logger.info(f"Received a connection from {context.peer()}")
 
@@ -90,15 +83,9 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         this is a unary unary RPC the incoming message is irrelevant to us
 
         waits until tracker has been set before returning information
-        Args:
-            request ([type]): [description]
-            context ([type]): [description]
-
-        Returns:
-            TrackerState: [description]
         """
         logger.info(f"Received a connection from {context.peer()}")
-        logger.info("Providing Information about Trackers")
+        logger.info("Checking if both trackers have been initialized")
         await self._vr_state._holo_tracker_set_event.wait()
         await self._vr_state._calibration_tracker_set_event.wait()
         logger.info("Collected all information about trackers, returning data")
@@ -109,15 +96,20 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
     async def UpdateCalibrationInfo(self, request, context) -> None:
         """receives calibration and updates internal calibration
 
-        Args:
-            request ([type]): [description]
-            context ([type]): [description]
 
-        Returns:
-            [type]: [description]
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.info("Processing received calibration update")
         self._vr_state.calibration.set_calibration_via_grpc_object(request)
         logger.info("New calibration has been set and will be incorparated into the information flow")
+        return
+
+    async def ChangeStatus(self, request, context):
+        """Changes the internal state 
+
+        """
+        logger.info(f"Received a connection from {context.peer()}")
+        logger.info("Change the system state")
+        self._vr_state.status = request.Status.status
+        logger.info(f"New State has been set to {request.Status.status}")
         return

@@ -151,6 +151,7 @@ class VRState():
         self._holo_tracker_set_event = asyncio.Event()
         self._calibration_tracker_set_event = asyncio.Event()
         self.calibration = Calibration()
+        self._status: str = "no_status"
 
     @ property
     def holo_tracker(self) -> ViveTracker:
@@ -171,6 +172,14 @@ class VRState():
     @ property
     def controller(self) -> ViveController:
         return self._controller
+
+    @property
+    def status(self) -> str:
+        return self._status
+
+    @status.setter
+    def status(self, new_status: str) -> None:
+        self._status = new_status
 
     @ controller.setter
     def controller(self, new_controller: ViveController):
