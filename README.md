@@ -19,3 +19,5 @@ Note the **hololens** module is in its own repo
 * Config File/config persistance 
 * ROS Integration
 * continous server side streaming of controller state
+* way point manager
+* robot calibration manager (manually)
