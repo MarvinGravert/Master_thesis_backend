@@ -58,4 +58,5 @@ message Quaternion{
 */
 message CalibrationInfo{
     string status=1;
+    repeated float calibrationMatrixRowMajor=2; //4x4 Matrix
 }
