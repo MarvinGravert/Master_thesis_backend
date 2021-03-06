@@ -71,3 +71,7 @@ class VRState():
         self._calibration_tracker = ViveTracker(ID=new_state.ID,
                                                 location_rotation=new_state.rotation.quat,
                                                 location_tranlation=new_state.position)
+
+
+class IncorrectMessageFormat(Exception):
+    pass
