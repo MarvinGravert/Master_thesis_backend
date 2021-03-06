@@ -113,14 +113,16 @@ class FirstCalibrationObject(BaseCalibrationObject):
         return np.array(points)
 
 
-def get_points_real_object(vive_trans: np.ndarray, vive_rot: np.ndarray) -> np.ndarray:
+def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np.ndarray:
     # triad sends the position as w i j k (scalar first)
     # rotation wants it scalar last
+    logger.debug("Starting points acquisition for vive calibration object")
+    logger.debug(f"The vive position: {vive_trans} \n and the vive rotation:{vive_trans}")
     w, i, j, k = vive_rot
     rot_matrix: R = R.from_quat([i, j, k, w])
     hom_matrix = np.hstack([
         rot_matrix.as_matrix(),
-        vive_trans.reshape([3, 1])
+        np.array(vive_trans).reshape([3, 1])
     ])  # reshape just to be safe
     hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
     # now run over all points and rotate them by the matrix=>give us all points in the
@@ -134,7 +136,7 @@ def get_points_real_object(vive_trans: np.ndarray, vive_rot: np.ndarray) -> np.n
     return np.array(transformed_points)[:, :3]
 
 
-def get_points_virtual_object(unity_trans, unity_rot) -> np.ndarray:
+def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) -> np.ndarray:
     """returns for a given pose (position+rotation) the points of the calibration object
     in reference to the reference used in unity (depends on the rotation+translation handed)
 
@@ -151,10 +153,11 @@ def get_points_virtual_object(unity_trans, unity_rot) -> np.ndarray:
         np.ndarray: [description]
     """
     # unity transmits i j k w and as rotation want the scalar last its all good
+    logger.debug("Starting points acquisition for unity calibration object")
     rot_matrix: R = R.from_quat(unity_rot)
     hom_matrix = np.hstack([
         rot_matrix.as_matrix(),
-        unity_trans.reshape([3, 1])
+        np.array(unity_trans).reshape([3, 1])
     ])  # reshape just to be safe
     hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
     # now run over all points and rotate them by the matrix=>give us all points in the
@@ -167,7 +170,9 @@ def get_points_virtual_object(unity_trans, unity_rot) -> np.ndarray:
     # cut away the homogenous part
     # just right for the transformation
     transformed_points = np.array(transformed_points)[:, :3]
-    transformed_points = map(_convert_left_to_right_hand_kos, transformed_points)
+    logger.debug("Converting to RH KOS")
+    transformed_points = [_convert_left_to_right_hand_kos(
+        position) for position in transformed_points]
     return np.array(transformed_points)
 
 
@@ -175,7 +180,7 @@ def _convert_left_to_right_hand_kos(pos: np.ndarray) -> np.ndarray:
     # we need to convert to a right hand kos before we can process the unity
     # object position
     # exchange y and z
-    logger.debug("Converting to RH KOS")
+
     position = np.array([pos[0], pos[2], pos[1]])
 
     # # negate the angles keep the sclar and swap j k
@@ -189,4 +194,7 @@ def _convert_left_to_right_hand_kos(pos: np.ndarray) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    get_points_virtual_object(unity_rot=[1, 0, 0, 1], unity_trans=[10, 20, 30])
+    t = get_points_virtual_object(unity_rot=[1, 0, 0, 1], unity_trans=[10, 20, 30])
+    print(t)
+    c = get_points_real_object(vive_rot=[1, 0, 0, 1], vive_trans=[10, 20, 30])
+    print(c)
