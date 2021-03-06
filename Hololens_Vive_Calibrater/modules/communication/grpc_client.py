@@ -36,7 +36,7 @@ class BackendCommunicator(GRPCCommunicator):
             logger.info(
                 f"Started {self.__class__.__name__} communicator on {self._server}:{self._port}")
             stub = holoViveCom_pb2_grpc.BackendStub(channel=channel)
-            response = stub.ProvideTrackerInfo(Status())
+            response = await stub.ProvideTrackerInfo([])
         """
         Process reponse and return
         """
@@ -50,6 +50,11 @@ class BackendCommunicator(GRPCCommunicator):
         vr_state.init_calibration_tracker(async_response.caliTracker)
         vr_state.init_holo_tracker(async_response.holoTracker)
         return vr_state
+
+    async def UpdateCalibrationInfo(self) -> None:
+        """sends the calibration thats was selected by the hololens user OR when a new calibration has been calculated
+        """
+        pass
 
 
 class PointRegisterCommunicator(GRPCCommunicator):
@@ -86,7 +91,7 @@ class PointRegisterCommunicator(GRPCCommunicator):
                 f"Started {self.__class__.__name__} communicator on {self._server}:{self._port}")
             stub = point_set_registration_pb2_grpc.PointSetRegisteringStub(channel=channel)
 
-            response = stub.registerPointSet(obj_to_send, timeout=10)
+            response = await stub.registerPointSet(obj_to_send, timeout=10)
         return self.process_response(response)
 
     def process_response(self, async_response: Output) -> np.ndarray:
