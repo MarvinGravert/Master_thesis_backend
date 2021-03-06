@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11holoViveCom.proto\"\x18\n\x06Status\x12\x0e\n\x06status\x18\x01 \x01(\t\"x\n\x0fLighthouseState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\x12\'\n\ncontroller\x18\x03 \x01(\x0b\x32\x13.HandheldController\"L\n\x0cTrackerState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\"F\n\x07Tracker\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\"\xc1\x01\n\x12HandheldController\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\x12:\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32$.HandheldController.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\nQuaternion\x12\x0c\n\x04quat\x18\x01 \x03(\x02\"!\n\x0f\x43\x61librationInfo\x12\x0e\n\x06status\x18\x01 \x01(\t2\xa2\x01\n\x07\x42\x61\x63kend\x12\x31\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x07.Status\"\x00(\x01\x12.\n\x12ProvideTrackerInfo\x12\x07.Status\x1a\r.TrackerState\"\x00\x12\x34\n\x15UpdateCalibrationInfo\x12\x10.CalibrationInfo\x1a\x07.Status\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x11holoViveCom.proto\"\x18\n\x06Status\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"x\n\x0fLighthouseState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\x12\'\n\ncontroller\x18\x03 \x01(\x0b\x32\x13.HandheldController\"L\n\x0cTrackerState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\"F\n\x07Tracker\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\"\xc1\x01\n\x12HandheldController\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\x12:\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32$.HandheldController.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\nQuaternion\x12\x0c\n\x04quat\x18\x01 \x03(\x02\"!\n\x0f\x43\x61librationInfo\x12\x0e\n\x06status\x18\x01 \x01(\t2\xf4\x01\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12-\n\x12ProvideTrackerInfo\x12\x06.Empty\x1a\r.TrackerState\"\x00\x12!\n\x0c\x43hangeStatus\x12\x07.Status\x1a\x06.Empty\"\x00\x12\x33\n\x15UpdateCalibrationInfo\x12\x10.CalibrationInfo\x1a\x06.Empty\"\x00\x12\x30\n\x12GetCalibrationInfo\x12\x06.Empty\x1a\x10.CalibrationInfo\"\x00\x62\x06proto3'
 )
 
 
@@ -54,6 +54,31 @@ _STATUS = _descriptor.Descriptor(
   ],
   serialized_start=21,
   serialized_end=45,
+)
+
+
+_EMPTY = _descriptor.Descriptor(
+  name='Empty',
+  full_name='Empty',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=47,
+  serialized_end=54,
 )
 
 
@@ -98,8 +123,8 @@ _LIGHTHOUSESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=47,
-  serialized_end=167,
+  serialized_start=56,
+  serialized_end=176,
 )
 
 
@@ -137,8 +162,8 @@ _TRACKERSTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=169,
-  serialized_end=245,
+  serialized_start=178,
+  serialized_end=254,
 )
 
 
@@ -183,8 +208,8 @@ _TRACKER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=247,
-  serialized_end=317,
+  serialized_start=256,
+  serialized_end=326,
 )
 
 
@@ -222,8 +247,8 @@ _HANDHELDCONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=463,
-  serialized_end=513,
+  serialized_start=472,
+  serialized_end=522,
 )
 
 _HANDHELDCONTROLLER = _descriptor.Descriptor(
@@ -274,8 +299,8 @@ _HANDHELDCONTROLLER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=320,
-  serialized_end=513,
+  serialized_start=329,
+  serialized_end=522,
 )
 
 
@@ -306,8 +331,8 @@ _QUATERNION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=515,
-  serialized_end=541,
+  serialized_start=524,
+  serialized_end=550,
 )
 
 
@@ -338,8 +363,8 @@ _CALIBRATIONINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=543,
-  serialized_end=576,
+  serialized_start=552,
+  serialized_end=585,
 )
 
 _LIGHTHOUSESTATE.fields_by_name['holoTracker'].message_type = _TRACKER
@@ -352,6 +377,7 @@ _HANDHELDCONTROLLER_BUTTONSTATEENTRY.containing_type = _HANDHELDCONTROLLER
 _HANDHELDCONTROLLER.fields_by_name['rotation'].message_type = _QUATERNION
 _HANDHELDCONTROLLER.fields_by_name['button_state'].message_type = _HANDHELDCONTROLLER_BUTTONSTATEENTRY
 DESCRIPTOR.message_types_by_name['Status'] = _STATUS
+DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 DESCRIPTOR.message_types_by_name['LighthouseState'] = _LIGHTHOUSESTATE
 DESCRIPTOR.message_types_by_name['TrackerState'] = _TRACKERSTATE
 DESCRIPTOR.message_types_by_name['Tracker'] = _TRACKER
@@ -366,6 +392,13 @@ Status = _reflection.GeneratedProtocolMessageType('Status', (_message.Message,),
   # @@protoc_insertion_point(class_scope:Status)
   })
 _sym_db.RegisterMessage(Status)
+
+Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
+  'DESCRIPTOR' : _EMPTY,
+  '__module__' : 'holoViveCom_pb2'
+  # @@protoc_insertion_point(class_scope:Empty)
+  })
+_sym_db.RegisterMessage(Empty)
 
 LighthouseState = _reflection.GeneratedProtocolMessageType('LighthouseState', (_message.Message,), {
   'DESCRIPTOR' : _LIGHTHOUSESTATE,
@@ -427,8 +460,8 @@ _BACKEND = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=579,
-  serialized_end=741,
+  serialized_start=588,
+  serialized_end=832,
   methods=[
   _descriptor.MethodDescriptor(
     name='LighthouseReport',
@@ -436,7 +469,7 @@ _BACKEND = _descriptor.ServiceDescriptor(
     index=0,
     containing_service=None,
     input_type=_LIGHTHOUSESTATE,
-    output_type=_STATUS,
+    output_type=_EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
@@ -445,18 +478,38 @@ _BACKEND = _descriptor.ServiceDescriptor(
     full_name='Backend.ProvideTrackerInfo',
     index=1,
     containing_service=None,
-    input_type=_STATUS,
+    input_type=_EMPTY,
     output_type=_TRACKERSTATE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='ChangeStatus',
+    full_name='Backend.ChangeStatus',
+    index=2,
+    containing_service=None,
+    input_type=_STATUS,
+    output_type=_EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
     name='UpdateCalibrationInfo',
     full_name='Backend.UpdateCalibrationInfo',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_CALIBRATIONINFO,
-    output_type=_STATUS,
+    output_type=_EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetCalibrationInfo',
+    full_name='Backend.GetCalibrationInfo',
+    index=4,
+    containing_service=None,
+    input_type=_EMPTY,
+    output_type=_CALIBRATIONINFO,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

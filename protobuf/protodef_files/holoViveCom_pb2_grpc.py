@@ -8,6 +8,7 @@ import holoViveCom_pb2 as holoViveCom__pb2
 class BackendStub(object):
     """package unary;
 
+    package unary;
     """
 
     def __init__(self, channel):
@@ -19,23 +20,34 @@ class BackendStub(object):
         self.LighthouseReport = channel.stream_unary(
                 '/Backend/LighthouseReport',
                 request_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
-                response_deserializer=holoViveCom__pb2.Status.FromString,
+                response_deserializer=holoViveCom__pb2.Empty.FromString,
                 )
         self.ProvideTrackerInfo = channel.unary_unary(
                 '/Backend/ProvideTrackerInfo',
-                request_serializer=holoViveCom__pb2.Status.SerializeToString,
+                request_serializer=holoViveCom__pb2.Empty.SerializeToString,
                 response_deserializer=holoViveCom__pb2.TrackerState.FromString,
+                )
+        self.ChangeStatus = channel.unary_unary(
+                '/Backend/ChangeStatus',
+                request_serializer=holoViveCom__pb2.Status.SerializeToString,
+                response_deserializer=holoViveCom__pb2.Empty.FromString,
                 )
         self.UpdateCalibrationInfo = channel.unary_unary(
                 '/Backend/UpdateCalibrationInfo',
                 request_serializer=holoViveCom__pb2.CalibrationInfo.SerializeToString,
-                response_deserializer=holoViveCom__pb2.Status.FromString,
+                response_deserializer=holoViveCom__pb2.Empty.FromString,
+                )
+        self.GetCalibrationInfo = channel.unary_unary(
+                '/Backend/GetCalibrationInfo',
+                request_serializer=holoViveCom__pb2.Empty.SerializeToString,
+                response_deserializer=holoViveCom__pb2.CalibrationInfo.FromString,
                 )
 
 
 class BackendServicer(object):
     """package unary;
 
+    package unary;
     """
 
     def LighthouseReport(self, request_iterator, context):
@@ -50,7 +62,23 @@ class BackendServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ChangeStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UpdateCalibrationInfo(self, request, context):
+        """Following function are used to manage the calribation information
+        One RPC to send and one to receive
+        GetCalibration is used from services on startup to get the calibrationinfo
+        UpdateCalibration is called when a new calibration becomes available or is set
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetCalibrationInfo(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -62,17 +90,27 @@ def add_BackendServicer_to_server(servicer, server):
             'LighthouseReport': grpc.stream_unary_rpc_method_handler(
                     servicer.LighthouseReport,
                     request_deserializer=holoViveCom__pb2.LighthouseState.FromString,
-                    response_serializer=holoViveCom__pb2.Status.SerializeToString,
+                    response_serializer=holoViveCom__pb2.Empty.SerializeToString,
             ),
             'ProvideTrackerInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.ProvideTrackerInfo,
-                    request_deserializer=holoViveCom__pb2.Status.FromString,
+                    request_deserializer=holoViveCom__pb2.Empty.FromString,
                     response_serializer=holoViveCom__pb2.TrackerState.SerializeToString,
+            ),
+            'ChangeStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.ChangeStatus,
+                    request_deserializer=holoViveCom__pb2.Status.FromString,
+                    response_serializer=holoViveCom__pb2.Empty.SerializeToString,
             ),
             'UpdateCalibrationInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateCalibrationInfo,
                     request_deserializer=holoViveCom__pb2.CalibrationInfo.FromString,
-                    response_serializer=holoViveCom__pb2.Status.SerializeToString,
+                    response_serializer=holoViveCom__pb2.Empty.SerializeToString,
+            ),
+            'GetCalibrationInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCalibrationInfo,
+                    request_deserializer=holoViveCom__pb2.Empty.FromString,
+                    response_serializer=holoViveCom__pb2.CalibrationInfo.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -84,6 +122,7 @@ def add_BackendServicer_to_server(servicer, server):
 class Backend(object):
     """package unary;
 
+    package unary;
     """
 
     @staticmethod
@@ -99,7 +138,7 @@ class Backend(object):
             metadata=None):
         return grpc.experimental.stream_unary(request_iterator, target, '/Backend/LighthouseReport',
             holoViveCom__pb2.LighthouseState.SerializeToString,
-            holoViveCom__pb2.Status.FromString,
+            holoViveCom__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -115,8 +154,25 @@ class Backend(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Backend/ProvideTrackerInfo',
-            holoViveCom__pb2.Status.SerializeToString,
+            holoViveCom__pb2.Empty.SerializeToString,
             holoViveCom__pb2.TrackerState.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ChangeStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Backend/ChangeStatus',
+            holoViveCom__pb2.Status.SerializeToString,
+            holoViveCom__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -133,6 +189,23 @@ class Backend(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Backend/UpdateCalibrationInfo',
             holoViveCom__pb2.CalibrationInfo.SerializeToString,
-            holoViveCom__pb2.Status.FromString,
+            holoViveCom__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetCalibrationInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Backend/GetCalibrationInfo',
+            holoViveCom__pb2.Empty.SerializeToString,
+            holoViveCom__pb2.CalibrationInfo.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

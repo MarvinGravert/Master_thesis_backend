@@ -2,15 +2,22 @@ syntax="proto3";
 
 //package unary;
 
+//package unary;
 service Backend{
-    rpc LighthouseReport(stream LighthouseState ) returns (Status){}
-    rpc ProvideTrackerInfo(Status) returns ( TrackerState){}
-    rpc UpdateCalibrationInfo(CalibrationInfo) returns(Status){}
-}
+    rpc LighthouseReport(stream LighthouseState ) returns (Empty){}//transmit the current State of all connected LH objects
+    rpc ProvideTrackerInfo(Empty) returns ( TrackerState){} // provide information about the connected trackers
+    rpc ChangeStatus(Status) returns (Empty){} //change the status which is sent to the hololens (mainly used to control from outside)
+    // Following function are used to manage the calribation information
+    // One RPC to send and one to receive
+    // GetCalibration is used from services on startup to get the calibrationinfo
+    // UpdateCalibration is called when a new calibration becomes available or is set
+    rpc UpdateCalibrationInfo(CalibrationInfo) returns(Empty){} 
+    rpc GetCalibrationInfo(Empty) returns (CalibrationInfo){}}
 
 message Status{
     string status=1;
 }
+message Empty{}
 
 /*
 /////////////////////
