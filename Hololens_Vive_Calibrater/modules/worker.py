@@ -132,8 +132,11 @@ class InformationProcessor():
             logger.error(
                 f"Received Message: {message_container} doesnt contain proper position/rotation")
             raise IncorrectMessageFormat
-
-        position = [float(x) for x in position]
-        rotation = [float(x) for x in rotation]
-
+        try:
+            position = [float(x) for x in position]
+            rotation = [float(x) for x in rotation]
+        except ValueError as e:
+            logger.error(
+                f"Received Message: {message_container} contains objets not transformable into numbers")
+            raise IncorrectMessageFormat
         return get_points_virtual_object(unity_trans=position, unity_rot=rotation)
