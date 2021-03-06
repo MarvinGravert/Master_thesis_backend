@@ -12,6 +12,7 @@ class TcpIPServer():
         self.IP = IP
         self.port = port
         self.queue = queue
+    # TODO: Handle the case when message cuts of at e -nd or en-d
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")
@@ -43,7 +44,7 @@ class TcpIPServer():
             if "end" in message:  # using some message to signal the end of data transmission
                 break
             # return message is  irrelevant hence random string
-            data = b"s"
+            data = b"s"  # REVIEW: remove the writer
             writer.write(data)
             await writer.drain()
             # we will exit this when the outside connection breaks
