@@ -18,3 +18,4 @@ Note the **hololens** module is in its own repo
 * Multi User Config Management on Hololens
 * Config File/config persistance 
 * ROS Integration
+* continous server side streaming of controller state
