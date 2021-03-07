@@ -26,10 +26,11 @@ class ViveTracker(VRObject):
 
     def get_as_hom_matrix(self) -> np.ndarray:
         from scipy.spatial.transform import Rotation as R
-        rot_matrix = R.from_quat(self.loc_rot)
+        w, i, j, k = self.loc_rot
+        rot = R.from_quat([i, j, k, w])  # scipy wants scalar last
         trans_vec = np.array(self.loc_trans).reshape([3, 1])
         hom_matrix = np.hstack([
-            rot_matrix.as_matrix(),
+            rot.as_matrix(),
             trans_vec
         ])  # reshape just to be safe
         hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])

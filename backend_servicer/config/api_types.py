@@ -25,8 +25,8 @@ class VRObject():
         Returns:
             np.ndarray: 4x4 homogenous matrix
         """
-
-        rot = R.from_quat(self.loc_rot)
+        w, i, j, k = self.loc_rot
+        rot = R.from_quat([i, j, k, w])  # scipy wants scalar last)
         rot_matrix = rot.as_matrix()
         hom_matrix = np.hstack([rot_matrix, np.array(self.loc_trans).reshape([3, 1])])
         return np.vstack([hom_matrix, [0, 0, 0, 1]])

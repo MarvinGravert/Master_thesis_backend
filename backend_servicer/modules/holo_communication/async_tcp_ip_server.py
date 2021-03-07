@@ -98,8 +98,10 @@ class TcpIPServer():
 
         rot_matrix = controller_to_hololens[:3, :3]
         quaternion_rot = R.from_matrix(rot_matrix).as_quat()
+        # vive normally transmits scalar first hence we need to adjust
+        i, j, k, w = quaternion_rot
         position = controller_to_hololens[:3, 3]
-        return [position, quaternion_rot]
+        return [position, np.array([w, i, j, k])]
 
     def _turn_pose_into_string(self, pose: List[np.ndarray]) -> str:
         """turn the received pose into a string
