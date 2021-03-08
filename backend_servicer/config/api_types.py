@@ -71,10 +71,10 @@ class ViveController(VRObject):
         self._button_state = temp_button
 
     def get_state_as_string(self) -> str:
-        # x,y,z:w,i,j,k:x_trackpad:trigger,trackpad_pressed, menuButton,grip_button
+        # x,y,z:w,i,j,k:x_trackpad,y_trackpad:trigger,trackpad_pressed, menuButton,grip_button
         # str(bool(triggerButton))+","+str(trackpadPressed)+","+str(menuButton)+","+str(bool(gripButton))
-        xState = self._button_state["trackpad_x"]
-        yState = self._button_state["trackpad_y"]
+        x_trackpad = self._button_state["trackpad_x"]
+        y_trackpad = self._button_state["trackpad_y"]
         trackpadPressed = self._button_state["trackpad_pressed"]
         triggerButton = self._button_state["trigger"]
         menuButton = self._button_state["menu_button"]
@@ -83,7 +83,7 @@ class ViveController(VRObject):
         s = ",".join([str(i) for i in self.loc_trans])+":"
         s += ",".join([str(i) for i in self.loc_rot])+":"
         # add the rest of the buttons to it
-        s += xState+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
+        s += x_trackpad+","+y_trackpad+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
         return s
 
     def get_button_state_as_string(self) -> str:
@@ -95,13 +95,13 @@ class ViveController(VRObject):
         Returns:
             str: button state as string in the described format
         """
-        xState = self._button_state["trackpad_x"]
-        yState = self._button_state["trackpad_y"]
+        x_trackpad = self._button_state["trackpad_x"]
+        y_trackpad = self._button_state["trackpad_y"]
         trackpadPressed = self._button_state["trackpad_pressed"]
         triggerButton = self._button_state["trigger"]
         menuButton = self._button_state["menu_button"]
         gripButton = self._button_state["grip_button"]
-        return xState+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
+        return x_trackpad+","+y_trackpad+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
 
     def _adjust_button_states(self, button_state: Dict[str, str]) -> Dict[str, str]:
         """Adjusts the button states to the liking of the user
