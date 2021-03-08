@@ -9,7 +9,7 @@ import time
 from typing import Dict, Any
 
 from loguru import logger
-from openvr.error_code import InitError_Init_PathRegistryNotFound
+from openvr.error_code import InitError_Init_PathRegistryNotFound, InitError_Init_HmdNotFoundPresenceFailed
 
 from config.api_types import VRObject, ViveController, ViveTracker
 from utils.triad_openvr import triad_openvr  # file from triad Repo
@@ -31,6 +31,9 @@ class VRPoller(BasePoller):
             logger.info(self.v.print_discovered_objects())
         except InitError_Init_PathRegistryNotFound:
             logger.error("No connection to OpenVR")
+            raise OpenVRConnectionError
+        except InitError_Init_HmdNotFoundPresenceFailed:
+            logger.error("No HMD Found. Forgot to set null driver probably")
             raise OpenVRConnectionError
 
     def poll(self) -> Dict[str, Any]:
@@ -61,48 +64,51 @@ class VRPoller(BasePoller):
                 location_rotation=[w, i, j, k],
                 location_tranlation=[x, y, z],
                 button_state=button_state).get_as_grpc_object()
-        # except (TypeError, ZeroDivisionError) as e:
-        #     # this occurs when connection to device is lost
-        #     # just use the previously detected pose
-        #     # Zero divisoin error can happen during conversion to quaternion
-        #     logger.error(e)
-        #     pass
-        except Exception as e:
+        except (TypeError, ZeroDivisionError) as e:
+            # this occurs when connection to device is lost
+            # just use the previously detected pose
+            # Zero divisoin error can happen during conversion to quaternion
             logger.error(e)
+            pass
+        except KeyError as e:
+            logger.warning(f"Controller wasnt found: {e}")
 
         """
         ----------
         Holo Tracker
         ----------
         """
-        # try:
-        #     # get the position and rotation
-        #     [x, y, z, i, j, k, w] = self.v.devices["tracker_1"].get_pose_quaternion()
-        #     state_dict["holo_tracker"] = ViveTracker(
-        #         ID="holotracker",
-        #         location_rotation=[w, i, j, k],
-        #         location_tranlation=[x, y, z],).get_as_grpc_object()
-        # except (TypeError, ZeroDivisionError):
-        #     # this occurs when connection to device is lost
-        #     # just use the previously detected pose
-        #     # Zero divisoin error can happen during conversion to quaternion
-        #     pass
-        # """
-        # ----------
-        # Calibration Tracker
-        # ----------
-        # """
-        # try:
-        #     # get the position and rotation
-        #     [x, y, z, i, j, k, w] = self.v.devices["tracker_2"].get_pose_quaternion()
-        #     state_dict["calibration_tracker"] = ViveTracker(
-        #         ID="calibration_tracker",
-        #         location_rotation=[w, i, j, k],
-        #         location_tranlation=[x, y, z],).get_as_grpc_object()
-        # except (TypeError, ZeroDivisionError):
-        #     # this occurs when connection to device is lost
-        #     # just use the previously detected pose
-        #     # Zero divisoin error can happen during conversion to quaternion
-        #     pass
-
+        try:
+            # get the position and rotation
+            [x, y, z, i, j, k, w] = self.v.devices["tracker_1"].get_pose_quaternion()
+            state_dict["holo_tracker"] = ViveTracker(
+                ID="holotracker",
+                location_rotation=[w, i, j, k],
+                location_tranlation=[x, y, z],).get_as_grpc_object()
+        except (TypeError, ZeroDivisionError):
+            # this occurs when connection to device is lost
+            # just use the previously detected pose
+            # Zero divisoin error can happen during conversion to quaternion
+            pass
+        except KeyError as e:
+            logger.warning(f"HoloTracker wasnt found: {e}")
+        """
+        ----------
+        Calibration Tracker
+        ----------
+        """
+        try:
+            # get the position and rotation
+            [x, y, z, i, j, k, w] = self.v.devices["tracker_2"].get_pose_quaternion()
+            state_dict["calibration_tracker"] = ViveTracker(
+                ID="calibration_tracker",
+                location_rotation=[w, i, j, k],
+                location_tranlation=[x, y, z],).get_as_grpc_object()
+        except (TypeError, ZeroDivisionError):
+            # this occurs when connection to device is lost
+            # just use the previously detected pose
+            # Zero divisoin error can happen during conversion to quaternion
+            pass
+        except KeyError as e:
+            logger.warning(f"CalibrationTracker wasnt found: {e}")
         return state_dict
