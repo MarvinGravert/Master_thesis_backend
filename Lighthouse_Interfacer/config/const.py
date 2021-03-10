@@ -1,7 +1,7 @@
 from decouple import config
 
 
-POLLING_FREQUENCY = config("POLLING_FREQUENCY", cast=float, default=1)
+POLLING_FREQUENCY = config("POLLING_FREQUENCY", cast=float, default=20)
 
 GRPC_HOST_IP = config("GRPC_HOST_IP", cast=str, default="[::1]")
 GRPC_HOST_PORT = config("GRPC_HOST_PORT", cast=int, default="50051")

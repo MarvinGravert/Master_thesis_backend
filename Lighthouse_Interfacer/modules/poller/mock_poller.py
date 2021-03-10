@@ -26,7 +26,7 @@ class MockPoller(BasePoller):
             'trackpad_x': 0.4,
             'trackpad_y': 0.2,
             'trackpad_pressed': False,
-            'trigger': 0.1,
+            'trigger': 0.6,
             'trackpad_touched': False,
             'grip_button': False,
             'menu_button': False
