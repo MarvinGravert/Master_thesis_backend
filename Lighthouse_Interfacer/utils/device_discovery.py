@@ -14,6 +14,15 @@ def print_controller_pose(config_file=None):
         print(pose)
         time.sleep(1)
 
+def print_tracker_pose(config_file=None):
+    v=triad_openvr(configfile_path=config_file)
+    import time
+    while True:
+        pose = v.devices["tracker_1"].get_pose_quaternion()
+
+        print(pose)
+        time.sleep(1)
+
 
 def print_controller_button_state(config_file=None):
     v=triad_openvr(config_file)
