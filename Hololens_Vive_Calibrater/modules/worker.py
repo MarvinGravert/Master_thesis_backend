@@ -94,7 +94,7 @@ async def worker(queue: asyncio.Queue):
         update the other services about the changed calibration
         ------------------
         """
-        await backend_client.update_calibration_info(target_hom_matrix)
+        # await backend_client.update_calibration_info(target_hom_matrix)
         """
         ------------------
         Save the calibration to file
