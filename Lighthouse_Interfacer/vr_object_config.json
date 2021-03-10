@@ -28,12 +28,12 @@
         {
             "name": "calibration_tracker",
             "type": "Tracker",
-            "serial": "LHR-XXXXXXXX"
+            "serial": "LHR-506121A7"
         },
         {
             "name": "holo_tracker",
             "type": "Tracker",
-            "serial": "LHR-XXXXXXXX"
+            "serial": "LHR-2F3B022B"
         }
     ]
 }
