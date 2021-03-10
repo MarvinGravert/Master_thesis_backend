@@ -80,7 +80,7 @@ class VRPoller(BasePoller):
         """
         try:
             # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["tracker_1"].get_pose_quaternion()
+            [x, y, z, i, j, k, w] = self.v.devices["holo_tracker"].get_pose_quaternion()
             state_dict["holo_tracker"] = ViveTracker(
                 ID="holotracker",
                 location_rotation=[w, i, j, k],
@@ -99,7 +99,7 @@ class VRPoller(BasePoller):
         """
         try:
             # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["tracker_2"].get_pose_quaternion()
+            [x, y, z, i, j, k, w] = self.v.devices["calibration_tracker"].get_pose_quaternion()
             state_dict["calibration_tracker"] = ViveTracker(
                 ID="calibration_tracker",
                 location_rotation=[w, i, j, k],
