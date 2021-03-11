@@ -31,7 +31,7 @@ class TcpIPServer():
         # of the controller
         # some debugging information
         addr = writer.get_extra_info('peername')
-        logger.debug(f"Received connetion from {addr!r}")
+        logger.info(f"Received connetion from {addr!r}")
         await self.vr_state._controller_set_event.wait()  # wait till  VRObjects are init
 
         # now just keep communication open while always responding with the latest

@@ -4,7 +4,7 @@ world and hololens world
 it does so utliizing asnyc whereever necessary
 """
 import asyncio
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from loguru import logger
@@ -14,8 +14,8 @@ from config.const import (
 )
 from modules.communication.grpc_client import BackendCommunicator, PointRegisterCommunicator
 from modules.point_correspondance.find_point_corresponder import get_points_real_object, get_points_virtual_object
-from config.api_types import IncorrectMessageFormat
-
+from config.api_types import IncorrectMessageFormat, ViveTracker
+from modules.informationLogger.informationLogger import DataLogger
 
 async def worker(queue: asyncio.Queue):
     # Start server
@@ -46,7 +46,7 @@ async def worker(queue: asyncio.Queue):
         tracker_state = await backend_client.get_tracker_pose()
         # now  we can process the response we received from the hololens
         logger.debug("received information from trackers, now process information")
-
+        datalog=DataLogger()
         """
         ------------------
         work through the messages
@@ -54,12 +54,25 @@ async def worker(queue: asyncio.Queue):
         """
         info_processor = InformationProcessor()
         try:
-            virtual_cali_points = await info_processor.process_hololens_data(hololens_message)
+            cal_position,cal_rotation=await info_processor.process_hololens_data(hololens_message)
+            
         except IncorrectMessageFormat:
             logger.error("Message has the incorrect format. Dicarding job")
             queue.task_done()
             continue
-
+        ## Logging data
+        datalog.calibration_position=cal_position
+        datalog.calibration_rotation=cal_rotation
+        datalog.calibration_tracker=ViveTracker(ID="",location_rotation=tracker_state.calibration_tracker.loc_rot,
+                location_tranlation=tracker_state.calibration_tracker.loc_trans)
+        datalog.holo_tracker=ViveTracker(ID="ho",location_rotation=tracker_state.calibration_tracker.loc_rot,
+                location_tranlation=tracker_state.holo_tracker.loc_trans)
+        """
+        ------------------
+        get the point correspondances
+        ------------------
+        """
+        virtual_cali_points = get_points_virtual_object(unity_trans=cal_position, unity_rot=cal_rotation)
         real_cali_points = get_points_real_object(
             vive_trans=np.array(tracker_state.calibration_tracker.loc_trans),
             vive_rot=np.array(tracker_state.calibration_tracker.loc_rot)
@@ -69,11 +82,12 @@ async def worker(queue: asyncio.Queue):
         calculate point registering
         ------------------
         """
-        hom_matrix_virtual_to_LH = await points_register_client.register_points(
+        hom_matrix_LH_to_virtual = await points_register_client.register_points(
             point_set_1=real_cali_points,
             point_set_2=virtual_cali_points
         )
-        logger.info(f"Transformtion-Matrix: LH to virtual center:\n {hom_matrix_virtual_to_LH} ")
+        logger.info(f"Transformtion-Matrix: LH to virtual center:\n {hom_matrix_LH_to_virtual} ")
+        datalog.hom_LH_to_virtual=hom_matrix_LH_to_virtual
         """
         ------------------
         get tracker transformation
@@ -85,10 +99,11 @@ async def worker(queue: asyncio.Queue):
         calculate desired transformation
         ------------------
         """
-        # now e can get the transformatoin from the virtual cetner to the vive tracker
-        target_hom_matrix = hom_matrix_virtual_to_LH@tracker_hom_matrix
+        # now e can get the transformatoin from the tracker to the virtual center
+        target_hom_matrix = hom_matrix_LH_to_virtual@tracker_hom_matrix
         logger.info(
-            f"The transformation matrix:  virutal center to tracker is:\n {target_hom_matrix}")
+            f"The transformation matrix:  tracker to virtual is:\n {target_hom_matrix}")
+        datalog.hom_tracker_to_virtual=target_hom_matrix
         """
         ------------------
         update the other services about the changed calibration
@@ -100,13 +115,18 @@ async def worker(queue: asyncio.Queue):
         Save the calibration to file
         ------------------
         """
+        try:
+            datalog.write_to_file()
+        except Exception as e:
+            logger.error(e)
+        finally:
         # TODO: Save the config into a persistent memory
-        queue.task_done()
+            queue.task_done()
 
 
 class InformationProcessor():
 
-    async def process_hololens_data(self, message_container: List[str]) -> np.ndarray:
+    async def process_hololens_data(self, message_container: List[str]) -> Tuple[List[float],List[float]]:
         """ this method takes the data received from the hololens and processes
         into a data format which can be processed furhter
 
@@ -116,7 +136,7 @@ class InformationProcessor():
         3. list of n points
 
         The transmission format is as follows:
-        1. "x,y,z:w,i,j,k"
+        1. "x,y,z:i,j,k,w"
         2. "x11,x12,x13,x14\nx21,x22,x23,x24\nx31,x32,x33,x34"
         3. "x11,x12,x13\nx21,x22,x23\n.....xn1,xn2,xn3\n"
 
@@ -156,4 +176,4 @@ class InformationProcessor():
             logger.error(
                 f"Received Message: {message_container} contains objets not transformable into numbers")
             raise IncorrectMessageFormat
-        return get_points_virtual_object(unity_trans=position, unity_rot=rotation)
+        return position,rotation

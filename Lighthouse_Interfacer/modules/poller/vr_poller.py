@@ -6,10 +6,12 @@ Multiple Exceptions are handeled herein:
 -no device found
     """
 import time
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 from loguru import logger
 from openvr.error_code import InitError_Init_PathRegistryNotFound, InitError_Init_HmdNotFoundPresenceFailed
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 
 from config.api_types import VRObject, ViveController, ViveTracker
 from utils.triad_openvr import triad_openvr  # file from triad Repo
@@ -52,13 +54,14 @@ class VRPoller(BasePoller):
             # get the position and rotation
 
             [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
-
+            [x, y, z, w, i, j, k]=self.inject_calibration([x, y, z, w, i, j, k])
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
             button_state = self.v.devices["controller_1"].get_controller_inputs()
             # turn all button states into string
             button_state = {key: str(value) for key, value in button_state.items()}
+
             state_dict["controller"] = ViveController(
                 ID="controller",
                 location_rotation=[w, i, j, k],
@@ -112,3 +115,33 @@ class VRPoller(BasePoller):
         except KeyError as e:
             logger.warning(f"CalibrationTracker wasnt found: {e}")
         return state_dict
+
+    def inject_calibration(self,data:List[float])->List[float]:
+        # return data
+
+        [x, y, z, w, i, j, k]=data
+        
+        controller2LH_rot=R.from_quat([i,j,k,w])
+        controller_pos_in_LH=np.array([x,y,z]).reshape([3,1])
+        hom_controller_2_LH=np.hstack([controller2LH_rot.as_matrix(),controller_pos_in_LH])
+        hom_controller_2_LH=np.vstack([hom_controller_2_LH,np.array([0,0,0,1])])
+
+        hom_LH_2_virtual_center=np.array([
+            [1,2,3,9],
+            [2,3,4,19],
+            [3,3,2,20]
+        ])
+
+        hom_controller_2_virtual_center=hom_LH_2_virtual_center@hom_controller_2_LH
+
+        target_rot=hom_controller_2_virtual_center[:3,:3]
+        target_pos=hom_controller_2_virtual_center[:3,3]
+
+        rot=R.from_matrix(target_rot)
+
+        x,y,z=target_pos
+        i, j , k, w=rot.as_quat()
+
+        # convert to left hand and scal 
+
+        return [x, z, y, w, -i, -k, -j]
