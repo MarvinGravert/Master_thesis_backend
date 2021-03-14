@@ -112,4 +112,5 @@ class PointRegisterCommunicator(GRPCCommunicator):
         t = np.array(t).reshape([3, 1])
         hom_matrix = np.hstack([R, t])
         hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
-        return hom_matrix
+        reprojection_error = float(Output.status)
+        return reprojection_error, hom_matrix

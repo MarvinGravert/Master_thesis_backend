@@ -1,11 +1,17 @@
 from typing import Any, Dict, List
 import asyncio
+from enum import Enum
 
 from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 from holoViveCom_pb2 import HandheldController, LighthouseState, TrackerState, Quaternion, Tracker, CalibrationInfo
+
+
+class CalibrationObject(Enum):
+    FIRSTPROTOTYPE = "firstprototype"
+    PROTOTYPEV2 = "secondprototype"
 
 
 class VRObject():
@@ -16,17 +22,19 @@ class VRObject():
         self.ID = ID
         self.loc_rot = location_rotation  # w i j k
         self.loc_trans = location_tranlation  # x y z
-    def get_pose_as_hom_matrix(self) -> np.ndarray:
-            """returns the current pose (postion+quat) as a 4x4 homogenous matrix
 
-            Returns:
-                np.ndarray: 4x4 homogenous matrix
-            """
-            w, i, j, k = self.loc_rot
-            rot = R.from_quat([i, j, k, w])  # scipy wants scalar last)
-            rot_matrix = rot.as_matrix()
-            hom_matrix = np.hstack([rot_matrix, np.array(self.loc_trans).reshape([3, 1])])
-            return np.vstack([hom_matrix, [0, 0, 0, 1]])
+    def get_pose_as_hom_matrix(self) -> np.ndarray:
+        """returns the current pose (postion+quat) as a 4x4 homogenous matrix
+
+        Returns:
+            np.ndarray: 4x4 homogenous matrix
+        """
+        w, i, j, k = self.loc_rot
+        rot = R.from_quat([i, j, k, w])  # scipy wants scalar last)
+        rot_matrix = rot.as_matrix()
+        hom_matrix = np.hstack([rot_matrix, np.array(self.loc_trans).reshape([3, 1])])
+        return np.vstack([hom_matrix, [0, 0, 0, 1]])
+
 
 class ViveTracker(VRObject):
 
@@ -47,8 +55,14 @@ class ViveTracker(VRObject):
         logger.debug(f"Vive Tracker HOm Matrix is:\n {hom_matrix}")
         return hom_matrix
 
+    def get_pose_as_float_array(self) -> List[float]:
+        # x y z w i j k
+        return [*self.loc_trans, *self.loc_rot]
+
 # s = ",".join([str(i) for i in self.loc_trans])+":"
 #         s += ",".join([str(i) for i in self.loc_rot])+":"
+
+
 class Calibration():
     """representation of the calibration matrix which maps from virtual to tracker
     it saves this as a homogenous matrix which can be usd in processing

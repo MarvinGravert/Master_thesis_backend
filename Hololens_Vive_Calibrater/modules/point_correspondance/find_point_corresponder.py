@@ -22,7 +22,7 @@ get_points_unity_ref. They both return a nx3 matrix whic hcan be looped over to 
 in the base coordinate system
 """
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Union, Dict
 
 from loguru import logger
 import numpy as np
@@ -113,6 +113,15 @@ class FirstCalibrationObject(BaseCalibrationObject):
         return np.array(points)
 
 
+def _get_active_calibration_object() -> Union[FirstCalibrationObject]:
+    from config.api_types import CalibrationObject
+    from config.const import CALIBRATION_OBJECT
+    lookup_table: Dict[CalibrationObject, Union[FirstCalibrationObject]] = {
+        CalibrationObject.FIRSTPROTOTYPE: FirstCalibrationObject()
+    }
+    return lookup_table[CALIBRATION_OBJECT]
+
+
 def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np.ndarray:
     # triad sends the position as w i j k (scalar first)
     # rotation wants it scalar last
@@ -128,7 +137,7 @@ def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np
     # now run over all points and rotate them by the matrix=>give us all points in the
     # LH coordinate frame
     transformed_points = list()
-    cali_object = FirstCalibrationObject()
+    cali_object = _get_active_calibration_object()
     for point in cali_object.get_points_vive_ref():
         # concat the retrieved point to make it align with the homogenous matrix
         transformed_points.append(hom_matrix@np.concatenate([point, [1]]))
@@ -163,7 +172,7 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     # now run over all points and rotate them by the matrix=>give us all points in the
     # unity base frame
     transformed_points = list()
-    cali_object = FirstCalibrationObject()
+    cali_object = _get_active_calibration_object()
     for point in cali_object.get_points_unity_ref():
         # concat the retrieved point to make it align with the homogenous matrix
         transformed_points.append(hom_matrix@np.concatenate([point,  [1]]))
