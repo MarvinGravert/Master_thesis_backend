@@ -54,7 +54,7 @@ class VRPoller(BasePoller):
             # get the position and rotation
 
             [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
-            [x, y, z, w, i, j, k]=self.inject_calibration([x, y, z, w, i, j, k])
+            [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
@@ -116,32 +116,33 @@ class VRPoller(BasePoller):
             logger.warning(f"CalibrationTracker wasnt found: {e}")
         return state_dict
 
-    def inject_calibration(self,data:List[float])->List[float]:
+    def inject_calibration(self, data: List[float]) -> List[float]:
         # return data
 
-        [x, y, z, w, i, j, k]=data
-        
-        controller2LH_rot=R.from_quat([i,j,k,w])
-        controller_pos_in_LH=np.array([x,y,z]).reshape([3,1])
-        hom_controller_2_LH=np.hstack([controller2LH_rot.as_matrix(),controller_pos_in_LH])
-        hom_controller_2_LH=np.vstack([hom_controller_2_LH,np.array([0,0,0,1])])
+        [x, y, z, w, i, j, k] = data
 
-        hom_LH_2_virtual_center=np.array([
-            [1,2,3,9],
-            [2,3,4,19],
-            [3,3,2,20]
+        controller2LH_rot = R.from_quat([i, j, k, w])
+        controller_pos_in_LH = np.array([x, y, z]).reshape([3, 1])
+        hom_controller_2_LH = np.hstack([controller2LH_rot.as_matrix(), controller_pos_in_LH])
+        hom_controller_2_LH = np.vstack([hom_controller_2_LH, np.array([0, 0, 0, 1])])
+
+        hom_LH_2_virtual_center = np.array([
+            [1, 2, 3, 9],
+            [2, 3, 4, 19],
+            [3, 3, 2, 20],
+            [0, 0, 0, 1]
         ])
 
-        hom_controller_2_virtual_center=hom_LH_2_virtual_center@hom_controller_2_LH
+        hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH
 
-        target_rot=hom_controller_2_virtual_center[:3,:3]
-        target_pos=hom_controller_2_virtual_center[:3,3]
+        target_rot = hom_controller_2_virtual_center[:3, :3]
+        target_pos = hom_controller_2_virtual_center[:3, 3]
 
-        rot=R.from_matrix(target_rot)
+        rot = R.from_matrix(target_rot)
 
-        x,y,z=target_pos
-        i, j , k, w=rot.as_quat()
+        x, y, z = target_pos
+        i, j, k, w = rot.as_quat()
 
-        # convert to left hand and scal 
+        # convert to left hand and scal
 
         return [x, z, y, w, -i, -k, -j]
