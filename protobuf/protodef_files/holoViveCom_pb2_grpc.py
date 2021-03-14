@@ -22,10 +22,10 @@ class BackendStub(object):
                 request_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
                 response_deserializer=holoViveCom__pb2.Empty.FromString,
                 )
-        self.ProvideTrackerInfo = channel.unary_unary(
-                '/Backend/ProvideTrackerInfo',
-                request_serializer=holoViveCom__pb2.Empty.SerializeToString,
-                response_deserializer=holoViveCom__pb2.TrackerState.FromString,
+        self.ProvideLighthouseState = channel.unary_stream(
+                '/Backend/ProvideLighthouseState',
+                request_serializer=holoViveCom__pb2.InformationRequest.SerializeToString,
+                response_deserializer=holoViveCom__pb2.LighthouseState.FromString,
                 )
         self.ChangeStatus = channel.unary_unary(
                 '/Backend/ChangeStatus',
@@ -42,6 +42,11 @@ class BackendStub(object):
                 request_serializer=holoViveCom__pb2.Empty.SerializeToString,
                 response_deserializer=holoViveCom__pb2.CalibrationInfo.FromString,
                 )
+        self.PlaceWayPoint = channel.unary_unary(
+                '/Backend/PlaceWayPoint',
+                request_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
+                response_deserializer=holoViveCom__pb2.Empty.FromString,
+                )
 
 
 class BackendServicer(object):
@@ -56,7 +61,7 @@ class BackendServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ProvideTrackerInfo(self, request, context):
+    def ProvideLighthouseState(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -84,6 +89,13 @@ class BackendServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def PlaceWayPoint(self, request, context):
+        """special rpc which will be used to signal that a waypoint via the controller method shall be placed
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BackendServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -92,10 +104,10 @@ def add_BackendServicer_to_server(servicer, server):
                     request_deserializer=holoViveCom__pb2.LighthouseState.FromString,
                     response_serializer=holoViveCom__pb2.Empty.SerializeToString,
             ),
-            'ProvideTrackerInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.ProvideTrackerInfo,
-                    request_deserializer=holoViveCom__pb2.Empty.FromString,
-                    response_serializer=holoViveCom__pb2.TrackerState.SerializeToString,
+            'ProvideLighthouseState': grpc.unary_stream_rpc_method_handler(
+                    servicer.ProvideLighthouseState,
+                    request_deserializer=holoViveCom__pb2.InformationRequest.FromString,
+                    response_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
             ),
             'ChangeStatus': grpc.unary_unary_rpc_method_handler(
                     servicer.ChangeStatus,
@@ -111,6 +123,11 @@ def add_BackendServicer_to_server(servicer, server):
                     servicer.GetCalibrationInfo,
                     request_deserializer=holoViveCom__pb2.Empty.FromString,
                     response_serializer=holoViveCom__pb2.CalibrationInfo.SerializeToString,
+            ),
+            'PlaceWayPoint': grpc.unary_unary_rpc_method_handler(
+                    servicer.PlaceWayPoint,
+                    request_deserializer=holoViveCom__pb2.LighthouseState.FromString,
+                    response_serializer=holoViveCom__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -143,7 +160,7 @@ class Backend(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def ProvideTrackerInfo(request,
+    def ProvideLighthouseState(request,
             target,
             options=(),
             channel_credentials=None,
@@ -153,9 +170,9 @@ class Backend(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/Backend/ProvideTrackerInfo',
-            holoViveCom__pb2.Empty.SerializeToString,
-            holoViveCom__pb2.TrackerState.FromString,
+        return grpc.experimental.unary_stream(request, target, '/Backend/ProvideLighthouseState',
+            holoViveCom__pb2.InformationRequest.SerializeToString,
+            holoViveCom__pb2.LighthouseState.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -207,5 +224,22 @@ class Backend(object):
         return grpc.experimental.unary_unary(request, target, '/Backend/GetCalibrationInfo',
             holoViveCom__pb2.Empty.SerializeToString,
             holoViveCom__pb2.CalibrationInfo.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PlaceWayPoint(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Backend/PlaceWayPoint',
+            holoViveCom__pb2.LighthouseState.SerializeToString,
+            holoViveCom__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -5,19 +5,25 @@ syntax="proto3";
 //package unary;
 service Backend{
     rpc LighthouseReport(stream LighthouseState ) returns (Empty){}//transmit the current State of all connected LH objects
-    rpc ProvideTrackerInfo(Empty) returns ( TrackerState){} // provide information about the connected trackers
+    rpc ProvideLighthouseState(InformationRequest) returns (stream LighthouseState){} // provide information about the connected lighthosue objects
     rpc ChangeStatus(Status) returns (Empty){} //change the status which is sent to the hololens (mainly used to control from outside)
     // Following function are used to manage the calribation information
     // One RPC to send and one to receive
     // GetCalibration is used from services on startup to get the calibrationinfo
     // UpdateCalibration is called when a new calibration becomes available or is set
-    rpc UpdateCalibrationInfo(CalibrationInfo) returns(Empty){} 
-    rpc GetCalibrationInfo(Empty) returns (CalibrationInfo){}}
-
+    rpc UpdateCalibrationInfo(CalibrationInfo) returns (Empty){} 
+    rpc GetCalibrationInfo(Empty) returns (CalibrationInfo){}
+    // special rpc which will be used to signal that a waypoint via the controller method shall be placed
+    rpc PlaceWayPoint(LighthouseState) returns (Empty){}
+}
 message Status{
     string status=1;
 }
 message Empty{}
+
+message InformationRequest{// number of unique information bits
+    int32 informationNumber=1;
+}
 
 /*
 /////////////////////
@@ -30,10 +36,6 @@ message LighthouseState{
     HandheldController controller=3;
 }
 
-message TrackerState{
-    Tracker holoTracker=1;
-    Tracker caliTracker=2;
-}
 message Tracker{
     string ID=1;
     Quaternion rotation=2;
