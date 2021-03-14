@@ -12,6 +12,7 @@ message Output{
     string status=1;
     repeated MatrixRow rotationMatrix=2;
     Vector translationVector=3;
+    float reprojectionError=4;
    
 }
 message MatrixRow{
