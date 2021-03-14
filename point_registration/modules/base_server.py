@@ -11,6 +11,7 @@ from modules.algorithms.kabsch import KabschAlgorithm
 from modules.algorithms.opencv import OpencvAlgorithm
 from modules.optimization.optimize import Optimizer
 
+
 class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringServicer):
     def registerPointSet(self, request, context):
         """
@@ -20,11 +21,11 @@ class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringSer
         point_set_1, point_set_2 = self._prepare_data(request)
         if request.algorithm.type in [Algorithm.Type.ARUN, Algorithm.Type.KABSCH]:
             logger.info("Running Kabsch/Arun")
-            algorithm=KabschAlgorithm()
+            algorithm = KabschAlgorithm()
             R, t = algorithm.register_point_set(point_set_1, point_set_2)
         elif request.algorithm.type in [Algorithm.Type.OPENCV, Algorithm.Type.UMEYAMA]:
             logger.info("Running OpenCV")
-            algorithm=OpencvAlgorithm(request.algorithm.ransac)
+            algorithm = OpencvAlgorithm(request.algorithm.ransac)
             R, t = algorithm.register_point_set(point_set_1, point_set_2)
         else:
             logger.error("Wrong Algorithm Type")
@@ -33,20 +34,28 @@ class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringSer
         """
         Optimize
         """
-        if request.algorithm.optimize==True:
+        if request.algorithm.optimize == True:
             logger.info("Running Optimizer")
-            opt=Optimizer(point_set_1=point_set_1,point_set_2=point_set_2,R=R,t=t)
-            R,t=opt.find_optimal_transformation()
-            R=opt.correct_rotation_matrix(R)
+            opt = Optimizer(point_set_1=point_set_1, point_set_2=point_set_2, R=R, t=t)
+            R, t = opt.find_optimal_transformation()
+            R = opt.correct_rotation_matrix(R)
             logger.debug(f"Optimization Result: \n {R=}\n{t=}")
             logger.info("Done with Optimisation")
+        """
+        Calculate reprojection error
+        """
+        from utils.check_cost_function import check_cost_function
+        reprojection_error = check_cost_function(point_set_1=point_set_1,
+                                                 point_set_2=point_set_2,
+                                                 R=R, t=t)
         """
         Prepare response
         """
         logger.info("Building response")
         response = Output(
             rotationMatrix=[MatrixRow(row=x) for x in np.ndarray.tolist(R)],
-            translationVector=Vector(entries=t)
+            translationVector=Vector(entries=t),
+            reprojectionError=reprojection_error
         )
         return response
 
