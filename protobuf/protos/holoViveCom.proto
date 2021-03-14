@@ -21,8 +21,8 @@ message Status{
 }
 message Empty{}
 
-message InformationRequest{// number of unique information bits
-    int32 informationNumber=1;
+message InformationRequest{// number of unique information samples
+    int32 numberSamples=1;
 }
 
 /*
