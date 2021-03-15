@@ -10,9 +10,10 @@ import numpy as np
 from loguru import logger
 
 from config.const import (
-    POINT_REGISTER_HOST, POINT_REGISTER_PORT, BACKEND_HOST, BACKEND_PORT
+    POINT_REGISTER_HOST, POINT_REGISTER_PORT, BACKEND_HOST, BACKEND_PORT,
+    WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
 )
-from modules.communication.grpc_client import BackendCommunicator, PointRegisterCommunicator
+from modules.communication.grpc_client import BackendCommunicator, PointRegisterCommunicator, WayPointManagerCommunicator
 from modules.point_correspondance.find_point_corresponder import get_points_real_object, get_points_virtual_object
 from config.api_types import IncorrectMessageFormat, ViveTracker
 from utils.information_logger import DataLogger
@@ -36,6 +37,8 @@ async def worker(queue: asyncio.Queue):
     backend_client = BackendCommunicator(backend_host_ip, backend_host_port)
     points_register_client = PointRegisterCommunicator(
         points_register_host_ip, points_register_host_port)
+    waypoint_manager_client = WayPointManagerCommunicator(server_address=WAYPOINT_MANAGER_HOST,
+                                                          server_port=WAYPOINT_MANAGER_PORT)
     """
     ------------------
     Start the services
@@ -107,6 +110,9 @@ async def worker(queue: asyncio.Queue):
         ------------------
         """
         # await backend_client.update_calibration_info(target_hom_matrix)
+        # await waypoint_manager_client.update_calibration_info(target_hom_matrix)
+        asyncio.gather(backend_client.update_calibration_info(target_hom_matrix),
+                       waypoint_manager_client.update_calibration_info(target_hom_matrix))
         """
         ------------------
         Log data
