@@ -12,3 +12,5 @@ POINT_REGISTER_HOST = config("POINT_REGISTER_HOST", cast=str, default="[::1]")
 POINT_REGISTER_PORT = config("POINT_REGISTER_PORT", cast=int, default=50052)
 
 CALIBRATION_OBJECT = config("CALIBRATION_OBJECT", cast=CalibrationObject, default="firstprototype")
+
+NUM_LIGHTHOUSE_SAMPLES = config("NUM_LIGHTHOUSE_SAMPLES", cast=int, default=1)

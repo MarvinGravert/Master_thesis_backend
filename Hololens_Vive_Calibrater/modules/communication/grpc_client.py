@@ -3,20 +3,22 @@ backend servicer as well as the point registration module.
 
 Depending on the what to use call the register_points or the interfacing with the backend servicer to get the tracker positon
 """
-from typing import List
+from typing import List, Tuple
 
 import grpc
 import grpc.aio
 from loguru import logger
 import numpy as np
 
-from holoViveCom_pb2 import Status, TrackerState, CalibrationInfo
+from holoViveCom_pb2 import Status, LighthouseState, CalibrationInfo, InformationRequest
 from point_set_registration_pb2 import Input, Vector, RANSACParameters, Algorithm, Output
 
 import holoViveCom_pb2_grpc
 import point_set_registration_pb2_grpc
 
-from config.api_types import VRState
+from config.api_types import VRState, ViveTracker
+from config.const import NUM_LIGHTHOUSE_SAMPLES
+from utils.object_pose_averager import average_vr_pose
 
 
 class GRPCCommunicator():
@@ -26,31 +28,54 @@ class GRPCCommunicator():
 
 
 class BackendCommunicator(GRPCCommunicator):
+    """
+        ---------------------
+        ProvideLighthouseState
+        ---------------------
+    """
     async def get_tracker_pose(self) -> VRState:
         """Sends an empty status to the backend server and receives back the position of the both the trackers
         The returned trackerstate object is then used to create the vr_state
         """
-        logger.info("Star communication wiht server")
+        logger.info("Start communication wiht server")
 
         async with grpc.aio.insecure_channel(f"{self._server}:{self._port}") as channel:
             logger.info(
                 f"Started {self.__class__.__name__} communicator on {self._server}:{self._port}")
             stub = holoViveCom_pb2_grpc.BackendStub(channel=channel)
-            response = await stub.ProvideTrackerInfo([])
+            list_holo_tracker = list()
+            list_calibration_tracker = list()
+            async for async_response in stub.ProvideLighthouseState(
+                    InformationRequest(numberSamples=NUM_LIGHTHOUSE_SAMPLES)):
+                holo_tracker, cali_tracker = await self.process_response(async_response=async_response)
+                list_holo_tracker.append(holo_tracker)
+                list_calibration_tracker.append(cali_tracker)
         """
         Process reponse and return
         """
-        logger.info("Received Tracker Data. Starting Parsing it")
+        logger.info("Received Tracker Data. Starting Parsing and averaging it")
+        holo_tracker: ViveTracker = average_vr_pose(list_vr_object=list_holo_tracker)
+        cali_tracker: ViveTracker = average_vr_pose(list_vr_object=list_calibration_tracker)
+
         # 10,10,10,0,0,1,0end
-        return self.process_response(async_response=response)
+        return await self.build_vr_state(holo_tracker=holo_tracker, cali_tracker=cali_tracker)
 
-    def process_response(self, async_response: TrackerState) -> VRState:
+    async def process_response(self, async_response: LighthouseState) -> Tuple[ViveTracker, ViveTracker]:
         logger.debug(f"server response: {async_response}")
-        vr_state = VRState()
-        vr_state.init_calibration_tracker(async_response.caliTracker)
-        vr_state.init_holo_tracker(async_response.holoTracker)
-        return vr_state
+        holo_tracker = ViveTracker.set_pose_via_grpc_object(LighthouseState.holoTracker)
+        cali_tracker = ViveTracker.set_pose_via_grpc_object(LighthouseState.caliTracker)
+        return holo_tracker, cali_tracker
 
+    async def build_vr_state(self, holo_tracker: ViveTracker, cali_tracker: ViveTracker) -> VRState:
+        vr_state = VRState()
+        vr_state.holo_tracker = holo_tracker
+        vr_state.calibration_tracker = cali_tracker
+        return vr_state
+    """
+        ---------------------
+        UpdateCalibrationInfo
+        ---------------------
+    """
     async def update_calibration_info(self, calibration: np.ndarray) -> None:
         """sends the calibration thats was selected by the hololens user OR when a new calibration has been calculated
         """
@@ -64,7 +89,7 @@ class BackendCommunicator(GRPCCommunicator):
 
 
 class PointRegisterCommunicator(GRPCCommunicator):
-    async def register_points(self, point_set_1: np.ndarray, point_set_2: np.ndarray) -> np.ndarray:
+    async def register_points(self, point_set_1: np.ndarray, point_set_2: np.ndarray) -> Tuple[float, np.ndarray]:
         """Creates the GRPC Stub to communicate with the point registration service
         forwards the received parameters and returns the rotation R and translation t
         Transformation is from Set 1 to Set 2
@@ -100,7 +125,7 @@ class PointRegisterCommunicator(GRPCCommunicator):
             response = await stub.registerPointSet(obj_to_send, timeout=10)
         return self.process_response(response)
 
-    def process_response(self, async_response: Output) -> np.ndarray:
+    def process_response(self, async_response: Output) -> Tuple[float, np.ndarray]:
         logger.debug(f"server response: {async_response}")
         R = list()
         t = list()
@@ -112,5 +137,5 @@ class PointRegisterCommunicator(GRPCCommunicator):
         t = np.array(t).reshape([3, 1])
         hom_matrix = np.hstack([R, t])
         hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
-        reprojection_error = float(Output.status)
-        return reprojection_error, hom_matrix
+
+        return async_response.reprojectionError, hom_matrix

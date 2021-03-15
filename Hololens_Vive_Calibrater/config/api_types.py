@@ -6,7 +6,7 @@ from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from holoViveCom_pb2 import HandheldController, LighthouseState, TrackerState, Quaternion, Tracker, CalibrationInfo
+from holoViveCom_pb2 import HandheldController, LighthouseState, Quaternion, Tracker, CalibrationInfo
 
 
 class CalibrationObject(Enum):
@@ -58,6 +58,13 @@ class ViveTracker(VRObject):
     def get_pose_as_float_array(self) -> List[float]:
         # x y z w i j k
         return [*self.loc_trans, *self.loc_rot]
+
+    @classmethod
+    def set_pose_via_grpc_object(cls, grpc_tracker: Tracker):
+        loc_trans = grpc_tracker.position
+        loc_rot = grpc_tracker.rotation.quat
+        id = grpc_tracker.ID
+        return cls(ID=id, location_rotation=loc_rot, location_tranlation=loc_trans)
 
 # s = ",".join([str(i) for i in self.loc_trans])+":"
 #         s += ",".join([str(i) for i in self.loc_rot])+":"
