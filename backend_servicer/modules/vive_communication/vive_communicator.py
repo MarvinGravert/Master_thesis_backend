@@ -22,7 +22,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         super().__init__()
         self._IP = IP
         self._port = port
-        self._vr_state = vr_state
+        self._vr_state = vr_state  # TODO: Look into singleton pattern for python
 
     async def start(self):
         logger.info(f"Async gRPC Server started on {self._IP}:{self._port}")

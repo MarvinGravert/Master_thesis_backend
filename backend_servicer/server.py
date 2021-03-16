@@ -1,15 +1,7 @@
-import time
 import asyncio
+import sys
 
-import grpc
-import grpc.experimental.aio
 from loguru import logger
-
-from holoViveCom_pb2 import (
-    LighthouseState, CalibrationInfo,
-)
-import holoViveCom_pb2_grpc
-
 
 from config.const import (
     TCP_HOST, TCP_PORT, GRPC_HOST, GRPC_PORT
@@ -25,10 +17,8 @@ async def main():
     grpc_server = ViveCommunicator(IP=GRPC_HOST, port=GRPC_PORT, vr_state=vr_state)
     await asyncio.gather(grpc_server.start(), tcp_server.start())
 
-
 if __name__ == "__main__":
     logger.info("Starting Async backend server")
     logger.remove()
-    import sys
     logger.add(sink=sys.stderr, level="DEBUG")
     asyncio.run(main())
