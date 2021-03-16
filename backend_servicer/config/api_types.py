@@ -34,12 +34,6 @@ class VRObject():
 
 class ViveTracker(VRObject):
     def update_state(self, new_data: Tracker):
-        # first check if id is the same=>correct tracker if not dont update
-        if self.ID is None:
-            self.ID = new_data.ID
-        if self.ID != new_data.ID:
-            logger.warning("WRONG Tracker. ID mismatch")
-            return
         self.loc_rot = new_data.rotation.quat
         self.loc_trans = new_data.position
 
@@ -57,22 +51,46 @@ class ViveController(VRObject):
                  button_state: Dict[str, str]) -> None:
         super().__init__(ID, location_rotation, location_tranlation)
         self._button_state = self._adjust_button_states(button_state)
+        self._last_state_menu_button = False
 
     def update_state(self, new_data: HandheldController):
-        # first check if id is the same=>correct controller has been passed
-        logger.debug("updating controller state")
-        if self.ID != new_data.ID:
-            logger.warning("WRONG Controller. ID mismatch")
-            return
+        """updates the internal state of the controller and runs checks on the buttons
+
+        Args:
+            new_data (HandheldController): grpc object containing the new data
+        """
         self.loc_rot = list(new_data.rotation.quat)
         self.loc_trans = list(new_data.position)
-        # logger.debug()
-        temp_button = self._adjust_button_states(new_data.button_state)
-        self._button_state = temp_button
+        # run some checks on the received button state
+        self._button_state = self._check_and_adjust_button_states(new_data.button_state)
+
+    def _check_and_adjust_button_states(self, button_state: Dict[str, str]) -> Dict[str, str]:
+        """Checks for the menu button as well as changes the trigger value from
+        float to a bool 
+
+        If the menu button is pressed (False->True) a way point placing is triggered
+        """
+        if float(button_state['trigger']) < 0.5:
+            button_state['trigger'] = "False"
+        else:
+            button_state['trigger'] = "True"
+        if self._last_state_menu_button == True and \
+                button_state["menu_button"] == "True":
+            pass  # way point placing
+
+        return button_state
 
     def get_state_as_string(self) -> str:
-        # x,y,z:w,i,j,k:x_trackpad,y_trackpad:trigger,trackpad_pressed, menuButton,grip_button
-        # str(bool(triggerButton))+","+str(trackpadPressed)+","+str(menuButton)+","+str(bool(gripButton))
+        """returns the current state (pose+button_state) as a string
+        so that it can be passed to the tcp_ip communication
+
+            The format is as follows
+            x,y,z:w,i,j,k:x_trackpad,y_trackpad:trigger,trackpad_pressed, menuButton,grip_button
+
+        Returns:
+            str: [description]
+        """
+
         x_trackpad = self._button_state["trackpad_x"]
         y_trackpad = self._button_state["trackpad_y"]
         trackpadPressed = self._button_state["trackpad_pressed"]
@@ -82,7 +100,7 @@ class ViveController(VRObject):
 
         s = ",".join([str(i) for i in self.loc_trans])+":"
         s += ",".join([str(i) for i in self.loc_rot])+":"
-        # add the rest of the buttons to it
+
         s += x_trackpad+","+y_trackpad+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
         return s
 
@@ -102,16 +120,6 @@ class ViveController(VRObject):
         menuButton = self._button_state["menu_button"]
         gripButton = self._button_state["grip_button"]
         return x_trackpad+","+y_trackpad+":"+triggerButton+","+trackpadPressed+","+menuButton+","+gripButton
-
-    def _adjust_button_states(self, button_state: Dict[str, str]) -> Dict[str, str]:
-        """Adjusts the button states to the liking of the user
-        """
-        if float(button_state['trigger']) < 0.5:
-            button_state['trigger'] = "False"
-        else:
-            button_state['trigger'] = "True"
-
-        return button_state
 
     def get_as_grpc_object(self) -> HandheldController:
         quat = Quaternion(quat=self.loc_rot)
@@ -185,9 +193,9 @@ class VRState():
         self._holo_tracker = None
         self._calibration_tracker = None
         self._controller = None
-        self._controller_set_event = asyncio.Event()
-        self._holo_tracker_set_event = asyncio.Event()
-        self._calibration_tracker_set_event = asyncio.Event()
+        self._controller_initialized = asyncio.Event()
+        self._holo_tracker_initialized = asyncio.Event()
+        self._calibration_tracker_initialized = asyncio.Event()
         self.calibration = Calibration()
         self._status: str = "no_status"
         self.new_state_subscriber: Dict[str, asyncio.Event] = dict()
@@ -242,7 +250,7 @@ class VRState():
         self._holo_tracker = ViveTracker(ID=new_state.ID,
                                          location_rotation=new_state.rotation.quat,
                                          location_tranlation=new_state.position)
-        self._holo_tracker_set_event.set()
+        self._holo_tracker_initialized.set()
 
     def init_calibration_tracker(self, new_state: Tracker) -> None:
 
@@ -250,7 +258,7 @@ class VRState():
         self._calibration_tracker = ViveTracker(ID=new_state.ID,
                                                 location_rotation=new_state.rotation.quat,
                                                 location_tranlation=new_state.position)
-        self._calibration_tracker_set_event.set()
+        self._calibration_tracker_initialized.set()
 
     def init_controller(self, new_state: HandheldController):
         logger.debug("Initing controller")
@@ -259,4 +267,4 @@ class VRState():
                                           location_tranlation=new_state.position,
                                           button_state=new_state.button_state)
         logger.debug("Created object")
-        self._controller_set_event.set()
+        self._controller_initialized.set()
