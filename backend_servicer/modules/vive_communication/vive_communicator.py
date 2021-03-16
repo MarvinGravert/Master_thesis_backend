@@ -32,11 +32,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         server.add_insecure_port(f"{self._IP}:{self._port}")
 
-        holoViveCom_pb2_grpc.add_BackendServicer_to_server(
-
-            self, server
-
-        )
+        holoViveCom_pb2_grpc.add_BackendServicer_to_server(self, server)
 
         await server.start()
         try:
@@ -47,7 +43,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             # existing RPCs to continue within the grace period.
             await server.stop(0)
 
-    async def LighthouseReport(self, stream, context) -> Status:
+    async def LighthouseReport(self, stream, context) -> Empty:
         """receives update about all the connected VRObjects and update
         internal state
 
@@ -58,48 +54,77 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
         async for part in stream:
             logger.debug(f"Received information {part}")
-            # Holo Tracker
+            """
+            ----------
+            Holo Tracker
+            ----------
+            """
             if part.HasField("holoTracker"):
                 if self._vr_state._holo_tracker_set_event.is_set():
                     self._vr_state.update_holo_tracker(part.holoTracker)
                 else:
                     self._vr_state.init_holo_tracker(part.holoTracker)
-            # Calibration Tracker
+            """
+            ----------
+            Calibration Tracker
+            ----------
+            """
             if part.HasField("caliTracker"):
                 if self._vr_state._calibration_tracker_set_event.is_set():
                     self._vr_state.update_calibration_tracker(part.caliTracker)
                 else:
                     self._vr_state.init_calibration_tracker(part.caliTracker)
-            # Controller
+            """
+            ----------
+            Controller
+            ----------
+            """
             if part.HasField("controller"):
                 if self._vr_state._controller_set_event.is_set():
                     self._vr_state.update_controller(part.controller)
                 else:
                     self._vr_state.init_controller(part.controller)
+            """
+            ----------
+            Trigger new data listeners
+            ----------
+            """
             # tell subscribers about an update in data
-            # problem here=>update is triggered if maybe only device is detected
+            # problem here=>update is triggered if maybe only 1 device has changed
+            # => better may be to have seperate listeners for the devices
             if part is not None:
                 for event in self._vr_state.new_state_subscriber.values():
                     event.set()
-        return Status()
+        return Empty()
 
     async def ProvideLighthouseState(self, request, context):
         """returns information regarding tracker currently registered with the server
 
-        this is a unary unary RPC the incoming message is irrelevant to us
+        the client sends the number of unique information he wants to receive
 
-        waits until tracker has been set before returning information
+
+        this methods waits until controller and all trackers have been set
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Checking if both trackers have been initialized")
-        num_uniq_states: int = request.numberSamples
         client_id = str(context.peer())
         self._vr_state.new_state_subscriber[client_id] = asyncio.Event()
+        """
+            ----------
+            SETUP Done. Waiting for objects
+            ----------
+        """
         await self._vr_state._holo_tracker_set_event.wait()
         await self._vr_state._calibration_tracker_set_event.wait()
         await self._vr_state._controller_set_event.wait()
-        logger.info(f"Trackers are ready. Startin to assemble {num_uniq_states} unique data")
-        for _ in range(num_uniq_states):
+        self._vr_state.new_state_subscriber[client_id].set()  # there should be data now
+        logger.debug(f"Trackers are ready. Startin to assemble {request.numberSamples} unique data")
+        """
+            ----------
+            Stream back information
+            ----------
+        """
+        for _ in range(request.numberSamples):
             # wait until a new state arrives
             await self._vr_state.new_state_subscriber[client_id].wait()
             self._vr_state.new_state_subscriber[client_id].clear()
@@ -108,13 +133,16 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
                 controller=self._vr_state.controller.get_as_grpc_object(),
                 holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
                 caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
-        logger.debug(f"Connection {client_id} done. Cleaning up")
+        """
+            ----------
+            Stream is finished Clean up
+            ----------
+        """
+        logger.info(f"Connection {client_id} done. Cleaning up")
         del self._vr_state.new_state_subscriber[client_id]
 
     async def UpdateCalibrationInfo(self, request, context) -> Empty:
         """receives calibration and updates internal calibration
-
-
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Processing received calibration update")
