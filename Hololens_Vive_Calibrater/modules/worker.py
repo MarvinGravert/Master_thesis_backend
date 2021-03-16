@@ -111,8 +111,8 @@ async def worker(queue: asyncio.Queue):
         """
         # await backend_client.update_calibration_info(target_hom_matrix)
         # await waypoint_manager_client.update_calibration_info(target_hom_matrix)
-        asyncio.gather(backend_client.update_calibration_info(target_hom_matrix),
-                       waypoint_manager_client.update_calibration_info(target_hom_matrix))
+        # asyncio.gather(backend_client.update_calibration_info(target_hom_matrix),
+        #                waypoint_manager_client.update_calibration_info(target_hom_matrix))
         """
         ------------------
         Log data
@@ -135,13 +135,17 @@ async def worker(queue: asyncio.Queue):
         Save the log containing the calibration to file
         ------------------
         """
+        logger.debug("Starting writing data log to file")
         try:
             datalog.write_to_file()
         except Exception as e:
+            import traceback
             logger.error(e)
+            logger.error(traceback.format_exc())
         finally:
             # TODO: Save the config into a persistent memory
             queue.task_done()
+            logger.info("Task done")
 
 
 class InformationProcessor():

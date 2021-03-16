@@ -126,7 +126,7 @@ def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np
     # triad sends the position as w i j k (scalar first)
     # rotation wants it scalar last
     logger.debug("Starting points acquisition for vive calibration object")
-    logger.debug(f"The vive position: {vive_trans} \n and the vive rotation:{vive_trans}")
+    logger.debug(f"The vive position: {vive_trans} \n and the vive rotation:{vive_rot}")
     w, i, j, k = vive_rot
     rot_matrix: R = R.from_quat([i, j, k, w])
     hom_matrix = np.hstack([

@@ -6,7 +6,7 @@ import grpc.experimental.aio
 from loguru import logger
 
 from holoViveCom_pb2 import (
-    LighthouseState, TrackerState, CalibrationInfo,
+    LighthouseState, CalibrationInfo,
 )
 import holoViveCom_pb2_grpc
 
@@ -30,5 +30,5 @@ if __name__ == "__main__":
     logger.info("Starting Async backend server")
     logger.remove()
     import sys
-    logger.add(sink=sys.stderr,level="INFO")
+    logger.add(sink=sys.stderr, level="DEBUG")
     asyncio.run(main())

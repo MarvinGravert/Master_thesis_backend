@@ -1,5 +1,6 @@
 
 from typing import List
+import asyncio
 
 import numpy as np
 from loguru import logger
@@ -9,7 +10,7 @@ import grpc.experimental.aio
 
 from holoViveCom_pb2 import (
     LighthouseState, CalibrationInfo, Quaternion,
-    HandheldController, TrackerState, Status, Tracker, Empty)
+    HandheldController, Status, Tracker, Empty)
 import holoViveCom_pb2_grpc
 
 from config.api_types import VRState
@@ -75,9 +76,14 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
                     self._vr_state.update_controller(part.controller)
                 else:
                     self._vr_state.init_controller(part.controller)
+            # tell subscribers about an update in data
+            # problem here=>update is triggered if maybe only device is detected
+            if part is not None:
+                for event in self._vr_state.new_state_subscriber.values():
+                    event.set()
         return Status()
 
-    async def ProvideTrackerInfo(self, request, context) -> TrackerState:
+    async def ProvideLighthouseState(self, request, context):
         """returns information regarding tracker currently registered with the server
 
         this is a unary unary RPC the incoming message is irrelevant to us
@@ -86,12 +92,24 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Checking if both trackers have been initialized")
+        num_uniq_states: int = request.numberSamples
+        client_id = str(context.peer())
+        self._vr_state.new_state_subscriber[client_id] = asyncio.Event()
         await self._vr_state._holo_tracker_set_event.wait()
         await self._vr_state._calibration_tracker_set_event.wait()
-        logger.info("Collected all information about trackers, returning data")
-        return TrackerState(
-            holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
-            caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
+        await self._vr_state._controller_set_event.wait()
+        logger.info(f"Trackers are ready. Startin to assemble {num_uniq_states} unique data")
+        for _ in range(num_uniq_states):
+            # wait until a new state arrives
+            await self._vr_state.new_state_subscriber[client_id].wait()
+            self._vr_state.new_state_subscriber[client_id].clear()
+            logger.debug("yielding new tracker information")
+            yield LighthouseState(
+                controller=self._vr_state.controller.get_as_grpc_object(),
+                holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
+                caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
+        logger.debug(f"Connection {client_id} done. Cleaning up")
+        del self._vr_state.new_state_subscriber[client_id]
 
     async def UpdateCalibrationInfo(self, request, context) -> Empty:
         """receives calibration and updates internal calibration

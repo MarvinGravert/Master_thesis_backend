@@ -20,7 +20,7 @@ from config.api_types import ViveTracker
 
 class DataLogger():
     def __init__(self):
-        self.file_path = Path(".", "calibration_data",
+        self.file_path = Path(".", "calibration_information",
                               datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
         self.calibration_position: List[float] = None  # list[float]
         self.calibration_rotation: List[float] = None  # i j k w
@@ -56,7 +56,7 @@ class DataLogger():
             file.write("Marix LH->Virtual \n ")
             np.savetxt(file, self.hom_LH_to_virtual,)
             file.write("Reprojection error\n")
-            np.savetxt(file, self.reprojection_error)
+            file.write(f"{self.reprojection_error}\n")
             file.write("Matrix Virtual->Tracker\n")
             np.savetxt(file, self.hom_tracker_to_virtual)
             file.write("POINTS THAT WERE MATCHED\n\n")

@@ -6,7 +6,7 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 
 from holoViveCom_pb2 import (
-    HandheldController, LighthouseState, TrackerState, Quaternion, Tracker, CalibrationInfo
+    HandheldController, LighthouseState,  Quaternion, Tracker, CalibrationInfo
 )
 
 
@@ -113,6 +113,14 @@ class ViveController(VRObject):
 
         return button_state
 
+    def get_as_grpc_object(self) -> HandheldController:
+        quat = Quaternion(quat=self.loc_rot)
+        trans = self.loc_trans
+        return HandheldController(ID=self.ID,
+                                  rotation=quat,
+                                  position=trans,
+                                  button_state=self._button_state)
+
 
 class Calibration():
     """representation of the calibration matrix which maps from virtual to tracker
@@ -182,6 +190,7 @@ class VRState():
         self._calibration_tracker_set_event = asyncio.Event()
         self.calibration = Calibration()
         self._status: str = "no_status"
+        self.new_state_subscriber: Dict[str, asyncio.Event] = dict()
 
     @ property
     def holo_tracker(self) -> ViveTracker:
