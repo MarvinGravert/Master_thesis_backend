@@ -1,4 +1,4 @@
-"""this module serves to log all the information regarding the calibration so that it can be 
+"""this module serves to log all the information regarding the calibration so that it can be
 saved in a file to later check the transformation.
 
 This logs:
@@ -20,8 +20,9 @@ from config.api_types import ViveTracker
 
 class DataLogger():
     def __init__(self):
-        self.file_path = Path(".", "calibration_information",
-                              datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+        self.calibration_directory = Path(".", "calibration_information")
+        self.file_path = self.calibration_directory.joinpath(
+            datetime.datetime.now().strftime("%Y%m%d%H%M%S")+".txt")
         self.calibration_position: List[float] = None  # list[float]
         self.calibration_rotation: List[float] = None  # i j k w
         self.holo_tracker: ViveTracker = None  # VRTracker
@@ -34,33 +35,87 @@ class DataLogger():
         self.real_points: np.ndarray = None
 
     def write_to_file(self):
-
+        """writes the logged information to file. Hereby, the path may be created
+        """
+        self.calibration_directory.mkdir(parents=True, exist_ok=True)
         with self.file_path.open(mode="w") as file:
+            """
+            ------------------
+            Log data
+            ------------------
+            """
             file.write("Position and Rotation received from hololens \n")
-            file.write("Pay attention: Left handed KOS and quaternion with scalar last")
-            for i in self.calibration_position:
-                file.write(f"{i}   ")
+            file.write("Pay attention: Left handed KOS and quaternion with scalar last\n")
+            # for i in self.calibration_position:
+            position = " ".join([str(x) for x in self.calibration_position])
+            file.write(position)
             file.write("\n")
-            for i in self.calibration_rotation:
-                file.write(f"{i}   ")
+            rotation = " ".join([str(x) for x in self.calibration_rotation])
+            file.write(rotation)
             file.write("\n")
-            file.write(f"Holotracker_Pose \n")
-            file.write("x y z w i j k\n")
-            np.savetxt(file, np.array(self.holo_tracker.get_pose_as_float_array()))
+            """
+            ------------------
+            Log data
+            ------------------
+            """
+            file.write(f"Holotracker_Pose: Tracker->LH\n")
+            file.write("x y z\n")
+            position = " ".join([str(x) for x in self.holo_tracker.loc_trans])
+            file.write(f"{position}\n")
+            file.write("w i j k\n")
+            rotation = " ".join([str(x) for x in self.holo_tracker.loc_rot])
+            file.write(f"{rotation}\n")
+            file.write("Homogenous matrix of Holo Tracker\n")
             np.savetxt(file, self.holo_tracker.get_as_hom_matrix())
-            file.write(f"Calibrationtracker Pose \n")
-            file.write("x y z w i j k\n")
-            np.savetxt(file, np.array(self.calibration_tracker.get_pose_as_float_array()))
+            file.write("\n")
+            """
+            ------------------
+            Log data
+            ------------------
+            """
+            file.write(f"Calibrationtracker Pose: Tracker->LH\n")
+            file.write("x y z\n")
+            position = " ".join([str(x) for x in self.calibration_tracker.loc_trans])
+            file.write(f"{position}\n")
+            file.write("w i j k\n")
+            rotation = " ".join([str(x) for x in self.calibration_tracker.loc_rot])
+            file.write(f"{rotation}\n")
+            file.write("Homogenous matrix of Calibration Tracker\n")
             np.savetxt(file, self.calibration_tracker.get_as_hom_matrix())
-            file.write(f"CalibrationObject used : {self.calibration_object}")
-            file.write("Marix LH->Virtual \n ")
+            file.write("\n")
+            """
+            ------------------
+            Calibration object used
+            ------------------
+            """
+            file.write(f"CalibrationObject used : \n{self.calibration_object}")
+            file.write("\n")
+            """
+            ------------------
+            Point registration service + reprojection error
+            ------------------
+            """
+            file.write("\nMarix LH->Virtual\n")
             np.savetxt(file, self.hom_LH_to_virtual,)
-            file.write("Reprojection error\n")
-            file.write(f"{self.reprojection_error}\n")
-            file.write("Matrix Virtual->Tracker\n")
+            file.write("\nReprojection error\n")
+            file.write(f"{self.reprojection_error}")
+            file.write("\n")
+            """
+            ------------------
+            Virtual center to Tracker
+            ------------------
+            """
+            file.write("\nMatrix Virtual->Tracker\n")
             np.savetxt(file, self.hom_tracker_to_virtual)
+            file.write("\n")
+            """
+            ------------------
+            Point Data which was used for matching
+            ------------------
+            """
             file.write("POINTS THAT WERE MATCHED\n\n")
             file.write("Virtual points. Already transformed into Right Hand KOS \n")
             np.savetxt(file, self.virtual_points)
+            file.write("\n")
             file.write("Real points\n")
             np.savetxt(file, self.real_points)
