@@ -8,7 +8,7 @@ from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from config.api_types import VRState
+from api.general_types import VRState
 
 
 class TcpIPServer():
@@ -32,7 +32,7 @@ class TcpIPServer():
         # some debugging information
         addr = writer.get_extra_info('peername')
         logger.info(f"Received connetion from {addr!r}")
-        await self.vr_state._controller_set_event.wait()  # wait till  VRObjects are init
+        await self.vr_state._controller_initialized.wait()  # wait till  VRObjects are init
 
         # now just keep communication open while always responding with the latest
         # controller state upon received request

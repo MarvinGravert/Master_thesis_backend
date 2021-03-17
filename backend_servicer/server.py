@@ -6,7 +6,7 @@ from loguru import logger
 from config.const import (
     TCP_HOST, TCP_PORT, GRPC_HOST, GRPC_PORT
 )
-from config.api_types import VRState
+from api.general_types import VRState
 from modules.holo_communication.async_tcp_ip_server import TcpIPServer
 from modules.vive_communication.vive_communicator import ViveCommunicator
 

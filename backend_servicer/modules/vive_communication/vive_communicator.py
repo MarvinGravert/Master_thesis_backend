@@ -9,7 +9,7 @@ from holoViveCom_pb2 import (
     LighthouseState, Empty)
 import holoViveCom_pb2_grpc
 
-from config.api_types import VRState
+from api.general_types import VRState
 
 
 class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
