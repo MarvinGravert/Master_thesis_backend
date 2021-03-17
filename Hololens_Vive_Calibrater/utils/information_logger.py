@@ -4,10 +4,10 @@ saved in a file to later check the transformation.
 This logs:
 - the calibration pose received
 - both the tracker poses received
-(- which calibration object was used) ToBeDone
+- which calibration object was used
 - the matrix LH->Virtual
 - the matrix Virtual->Tracker
-(- the reprojectionError) ToBeDone
+- the reprojectionError
 """
 import datetime
 from pathlib import Path
@@ -20,9 +20,19 @@ from config.api_types import ViveTracker
 
 class DataLogger():
     def __init__(self):
+        """
+            ------------------
+            General setup
+            ------------------
+        """
         self.calibration_directory = Path(".", "calibration_information")
         self.file_path = self.calibration_directory.joinpath(
             datetime.datetime.now().strftime("%Y%m%d%H%M%S")+".txt")
+        """
+            ------------------
+            objects to log
+            ------------------
+        """
         self.calibration_position: List[float] = None  # list[float]
         self.calibration_rotation: List[float] = None  # i j k w
         self.holo_tracker: ViveTracker = None  # VRTracker
