@@ -33,6 +33,7 @@ class DataLogger():
             objects to log
             ------------------
         """
+        self.hololens_message: List[str] = None
         self.calibration_position: List[float] = None  # list[float]
         self.calibration_rotation: List[float] = None  # i j k w
         self.holo_tracker: ViveTracker = None  # VRTracker
@@ -51,9 +52,11 @@ class DataLogger():
         with self.file_path.open(mode="w") as file:
             """
             ------------------
-            Log data
+            Data virtual object
             ------------------
             """
+            file.write("Data received from the hololens:\n")
+            file.write(f'{"".join(self.hololens_message)}\n')
             file.write("Position and Rotation received from hololens \n")
             file.write("Pay attention: Left handed KOS and quaternion with scalar last\n")
             # for i in self.calibration_position:
@@ -65,10 +68,10 @@ class DataLogger():
             file.write("\n")
             """
             ------------------
-            Log data
+            Holotracker
             ------------------
             """
-            file.write(f"Holotracker_Pose: Tracker->LH\n")
+            file.write(f"Holotracker Pose: Tracker->LH\n")
             file.write("x y z\n")
             position = " ".join([str(x) for x in self.holo_tracker.loc_trans])
             file.write(f"{position}\n")
@@ -80,7 +83,7 @@ class DataLogger():
             file.write("\n")
             """
             ------------------
-            Log data
+            Calibrationtracker
             ------------------
             """
             file.write(f"Calibrationtracker Pose: Tracker->LH\n")

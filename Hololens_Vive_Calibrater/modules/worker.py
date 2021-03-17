@@ -118,6 +118,7 @@ async def worker(queue: asyncio.Queue):
         Log data
         ------------------
         """
+        datalog.hololens_message = hololens_message
         datalog.calibration_position = hologram_position
         datalog.calibration_rotation = hologram_rotation
         datalog.calibration_tracker = ViveTracker(
