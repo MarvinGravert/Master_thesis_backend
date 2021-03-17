@@ -18,6 +18,7 @@ from modules.point_correspondance.find_point_corresponder import get_points_real
 from config.api_types import IncorrectMessageFormat, ViveTracker
 from utils.information_logger import DataLogger
 from config.const import CALIBRATION_OBJECT
+from utils.averageQuaternion import averageQuaternions
 
 
 async def worker(queue: asyncio.Queue):
@@ -161,9 +162,8 @@ class InformationProcessor():
         3. list of n points
 
         The transmission format is as follows:
-        1. "x,y,z:i,j,k,w"
-        2. "x11,x12,x13,x14\nx21,x22,x23,x24\nx31,x32,x33,x34"
-        3. "x11,x12,x13\nx21,x22,x23\n.....xn1,xn2,xn3\n"
+        1. "x,y,z:i,j,k,w|x,y,z:i,j,k,w|....X"
+
 
         There may be an number of additional line breaks at the end => strip them off
 
@@ -173,32 +173,63 @@ class InformationProcessor():
         Returns:
             np.ndarray: a list of n points
         """
+        self.message_received = message_container
         # if there are, join the individual list entries
         message = "".join(message_container)
-        # the last element should be "end" thus consider only until that
-        message = message.split("end")[0]
+        # the last element should be "X" thus consider only until that
+        message = message.split("X")[0]
         # there is no need to error handling before the next operations
         # because the received job has to be a string that contains end
         # otherwise the tcp ip client wouldnt have put it into the queue
         # hence the above operation can not fail
         logger.debug(f"the message after formatting and transforming: {message}")
         # split the message into indivudal components
+        poses = message.split("|")
+        position_list = list()
+        rotation_list = list()
+        for individual_pose in poses:
+            position, rotation = await self._process_individual_information(individual_pose)
+            position_list.append(position)
+            # need to change to scalar first for averaging
+            i, j, k, w = rotation
+            rotation_list.append([w, i, j, k])
+        mean_pos = np.mean(np.array(position_list), axis=0).tolist()
+        [w, i, j, k] = averageQuaternions(Q=np.array(rotation_list)).tolist()
+        mean_quat = [i, j, k, w]
+        return mean_pos, mean_quat
+
+    async def _process_individual_information(self, message: str) -> Tuple[List[float], List[float]]:
+        """this method takes a string (potentially representing a transformation and attempts
+        to transform it into position, rotation
+
+            expected format:
+                x,y,z:i,j,k,w
+
+        Args:
+            message (str): message candidate
+
+        Raises:
+            IncorrectMessageFormat: if doesnt conform to expected format
+
+        Returns:
+            Tuple[List[float], List[float]]: position, rotation
+        """
         try:
             position = message.split(":")[0].split(",")
             rotation = message.split(":")[1].split(",")
         except IndexError as e:
-            logger.error(f"Received Message: {message_container} had an IndexError {e}")
+            logger.error(f"Received Message: {message} had an IndexError {e}")
             raise IncorrectMessageFormat
 
         if len(position) != 3 or len(rotation) != 4:
             logger.error(
-                f"Received Message: {message_container} doesnt contain proper position/rotation")
+                f"Received Message: {message} doesnt contain proper position/rotation")
             raise IncorrectMessageFormat
         try:
             position = [float(x) for x in position]
             rotation = [float(x) for x in rotation]
         except ValueError as e:
             logger.error(
-                f"Received Message: {message_container} contains objets not transformable into numbers")
+                f"Received Message: {message} contains objets not transformable into numbers")
             raise IncorrectMessageFormat
         return position, rotation
