@@ -120,19 +120,31 @@ class VRPoller(BasePoller):
         # return data
 
         [x, y, z, w, i, j, k] = data
-
+        """
+        ----------
+        Build homogenous matrix Controller->LH
+        ----------
+        """
         controller2LH_rot = R.from_quat([i, j, k, w])
         controller_pos_in_LH = np.array([x, y, z]).reshape([3, 1])
         hom_controller_2_LH = np.hstack([controller2LH_rot.as_matrix(), controller_pos_in_LH])
         hom_controller_2_LH = np.vstack([hom_controller_2_LH, np.array([0, 0, 0, 1])])
-
+        """
+        ----------
+        Setting the calibration matrix. LH->virtual center manually
+        ----------
+        """
         hom_LH_2_virtual_center = np.array([
             [1, 2, 3, 9],
             [2, 3, 4, 19],
             [3, 3, 2, 20],
             [0, 0, 0, 1]
         ])
-
+        """
+        ----------
+        Applying the transformation and extracting the rotation and transformation
+        ----------
+        """
         hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH
 
         target_rot = hom_controller_2_virtual_center[:3, :3]
@@ -143,6 +155,11 @@ class VRPoller(BasePoller):
         x, y, z = target_pos
         i, j, k, w = rot.as_quat()
 
-        # convert to left hand and scal
+        """
+        ----------
+        Convert to left hand KOS and change the quaternion scale to scalar first
+        as to be in line with what would be expected of the lighthouse output
+        ----------
+        """
 
         return [x, z, y, w, -i, -k, -j]
