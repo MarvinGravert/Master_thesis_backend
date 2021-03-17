@@ -1,5 +1,0 @@
-python-decouple
-loguru
-numpy
-scipy
-openvr

@@ -1,5 +1,0 @@
-python-decouple
-asyncio
-numpy
-scipy
-grpc

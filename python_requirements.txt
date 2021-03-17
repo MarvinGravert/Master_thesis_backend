@@ -1,7 +1,9 @@
+
 python-decouple
-numpy
+loguru
 grpcio
 grpcio-tools
 scipy
+numpy
+openvr  
 opencv-python
-loguru
