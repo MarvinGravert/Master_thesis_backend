@@ -82,6 +82,24 @@ class FirstCalibrationObject(BaseCalibrationObject):
             [0, 0.015, 0.051470],
             [0, -0.015, 0.05147],
         ]
+        points = [
+            [-0.04, 0.015, 0.007],  # 1 Point
+            [0.04, 0.015, 0.007],
+            [0.04, -0.015, 0.007],
+            [-0.04, -0.015, 0.0070],
+            [-0.04, 0.015, -0.0213],   # 5 Point
+            [0.04, 0.015, -0.0213],
+            [0.04, -0.015, -0.0213],
+            [-0.04, -0.015, -0.0213],
+            [-0.015, 0.015, -0.051470],  # 9 Point
+            [0.015, 0.015, -0.05147],
+            [0.015, -0.015, -0.05147],
+            [-0.015, -0.015, -0.05147],
+            [0, 0.015, 0.007],  # 13 Point
+            [0, -0.015, 0.007],
+            [0, 0.015, -0.051470],
+            [0, -0.015, -0.05147],
+        ]
         return np.array(points)
 
     def get_points_vive_ref(self) -> np.ndarray:
@@ -163,7 +181,10 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     """
     # unity transmits i j k w and as rotation want the scalar last its all good
     logger.debug("Starting points acquisition for unity calibration object")
-    rot_matrix: R = R.from_quat(unity_rot)
+    x,y,z=unity_trans
+    unity_trans=[x,z,y]
+    i,j,k,w=unity_rot
+    rot_matrix: R = R.from_quat([-i,-j,-k,w])
     hom_matrix = np.hstack([
         rot_matrix.as_matrix(),
         np.array(unity_trans).reshape([3, 1])
@@ -180,8 +201,8 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     # just right for the transformation
     transformed_points = np.array(transformed_points)[:, :3]
     logger.debug("Converting to RH KOS")
-    transformed_points = [_convert_left_to_right_hand_kos(
-        position) for position in transformed_points]
+    # transformed_points = [_convert_left_to_right_hand_kos(
+    #     position) for position in transformed_points]
     return np.array(transformed_points)
 
 

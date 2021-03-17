@@ -135,17 +135,32 @@ class VRPoller(BasePoller):
         ----------
         """
         hom_LH_2_virtual_center = np.array([
-            [1, 2, 3, 9],
-            [2, 3, 4, 19],
-            [3, 3, 2, 20],
+            [4.533626069835529349e-02, 6.997303117504556358e-01, -7.028980899056299636e-01, 4.219611811044243765e-01],
+            [1.912110256436589384e-01, 7.910909171907314352e-01, 8.422203791069963197e-01, 1.385585911580427432e+00],
+            [9.944879446649796950e-01,-6.947514368904809945e-02, 7.852769601981368641e-02, -2.859056822016421973e-01],
             [0, 0, 0, 1]
         ])
+        test_matrix=np.array([
+            [1 , 0,0,0],
+            [0,1,0,0],
+            [0,0,1,0],
+            [0,0,0,1]
+        ])
+#         7.345418930053710938e-01 4.780621230602264404e-01 -4.815685451030731201e-01 -2.049769639968872070e+00
+# 3.881218135356903076e-01 -8.781266808509826660e-01 -2.797272503376007080e-01 2.143110185861587524e-01
+# -6.893078088760375977e-01 2.351213097572326660e-01 -9.094136357307434082e-01 -1.647125363349914551e+00
+# 0.000000000000000000e+00 0.000000000000000000e+00 0.000000000000000000e+00 1.000000000000000000e+00
         """
         ----------
         Applying the transformation and extracting the rotation and transformation
         ----------
         """
-        hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH
+        hom_controller_2_virtual_center = test_matrix@hom_LH_2_virtual_center@hom_controller_2_LH
+        # hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
+
+
+        hom_controller_2_virtual_center[2,:]=-hom_controller_2_virtual_center[2,:]
+        hom_controller_2_virtual_center[:,2]=-hom_controller_2_virtual_center[:,2]
 
         target_rot = hom_controller_2_virtual_center[:3, :3]
         target_pos = hom_controller_2_virtual_center[:3, 3]
@@ -162,4 +177,5 @@ class VRPoller(BasePoller):
         ----------
         """
 
-        return [x, z, y, w, -i, -k, -j]
+        # return [x, z, y, w, -i, -k, -j]
+        return [x,y,z,w,i,j,k]
