@@ -50,8 +50,8 @@ class ViveController(VRObject):
                  location_tranlation: List[float],
                  button_state: Dict[str, str]) -> None:
         super().__init__(ID, location_rotation, location_tranlation)
-        self._button_state = self._adjust_button_states(button_state)
         self._last_state_menu_button = False
+        self._button_state = self._check_and_adjust_button_states(button_state)
 
     def update_state(self, new_data: HandheldController):
         """updates the internal state of the controller and runs checks on the buttons
