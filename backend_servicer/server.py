@@ -20,5 +20,5 @@ async def main():
 if __name__ == "__main__":
     logger.info("Starting Async backend server")
     logger.remove()
-    logger.add(sink=sys.stderr, level="DEBUG")
+    logger.add(sink=sys.stderr, level="INFO")
     asyncio.run(main())
