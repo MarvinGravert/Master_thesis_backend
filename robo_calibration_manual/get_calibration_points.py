@@ -25,10 +25,12 @@ def get_samples():
             res.append(part)
 
         logger.debug(f"Received {len(res)} messages")
-        reply = stub.PlaceWayPoint(LighthouseState(controller=controller_obj))
 
-    logger.info("Way point manager has been notified")
     return True
+
+
+def process_into_matrix():
+    l
 
 
 if __name__ == "__main__":
