@@ -182,16 +182,22 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     # unity transmits i j k w and as rotation want the scalar last its all good
     logger.debug("Starting points acquisition for unity calibration object")
     x,y,z=unity_trans
-    unity_trans=[x,z,y]
+    # unity_trans=[x,z,y]
     i,j,k,w=unity_rot
-    rot_matrix: R = R.from_quat([-i,-j,-k,w])
+    # rot_matrix: R = R.from_quat([-i,-j,-k,w])
+    rot_matrix: R = R.from_quat(unity_rot)
     hom_matrix = np.hstack([
         rot_matrix.as_matrix(),
         np.array(unity_trans).reshape([3, 1])
     ])  # reshape just to be safe
     hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
+    ###########################
+    hom_matrix[2,:]=-hom_matrix[2,:]
+    hom_matrix[:,2]=-hom_matrix[:,2]
+    ############################
     # now run over all points and rotate them by the matrix=>give us all points in the
     # unity base frame
+
     transformed_points = list()
     cali_object = _get_active_calibration_object()
     for point in cali_object.get_points_unity_ref():

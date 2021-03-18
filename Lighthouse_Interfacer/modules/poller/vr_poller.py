@@ -135,15 +135,21 @@ class VRPoller(BasePoller):
         ----------
         """
         hom_LH_2_virtual_center = np.array([
-            [4.533626069835529349e-02, 6.997303117504556358e-01, -7.028980899056299636e-01, 4.219611811044243765e-01],
-            [1.912110256436589384e-01, 7.910909171907314352e-01, 8.422203791069963197e-01, 1.385585911580427432e+00],
-            [9.944879446649796950e-01,-6.947514368904809945e-02, 7.852769601981368641e-02, -2.859056822016421973e-01],
+            [-4.487142264842987061e-01, 8.888139128684997559e-01, -1.297474950551986694e-01, -1.352661371231079102e+00],
+            [-1.601292043924331665e-01, 2.768145501613616943e-01, 1.110133647918701172e+00,  -3.270979523658752441e-01],
+            [9.045079350471496582e-01,4.252571165561676025e-01, -1.251194924116134644e-01, 2.557434082031250000e+00],
             [0, 0, 0, 1]
         ])
         test_matrix=np.array([
             [1 , 0,0,0],
             [0,1,0,0],
             [0,0,1,0],
+            [0,0,0,1]
+        ])
+        test_matrix=np.array([
+            [-4.487142264842987061e-01 , 0,-1.297474950551986694e-01,-0.35],
+            [0,1,0,-3.270979523658752441e-010],
+            [1.728849782662282841e-01,0,-7.538420706987380981e-02,2.557434082031250000e+00+2],
             [0,0,0,1]
         ])
 #         7.345418930053710938e-01 4.780621230602264404e-01 -4.815685451030731201e-01 -2.049769639968872070e+00
@@ -155,13 +161,14 @@ class VRPoller(BasePoller):
         Applying the transformation and extracting the rotation and transformation
         ----------
         """
-        hom_controller_2_virtual_center = test_matrix@hom_LH_2_virtual_center@hom_controller_2_LH
-        # hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
+        # hom_controller_2_virtual_center = test_matrix@hom_LH_2_virtual_center@hom_controller_2_LH
+        hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
 
 
-        hom_controller_2_virtual_center[2,:]=-hom_controller_2_virtual_center[2,:]
-        hom_controller_2_virtual_center[:,2]=-hom_controller_2_virtual_center[:,2]
+        # hom_controller_2_virtual_center[2,:]=-hom_controller_2_virtual_center[2,:]
+        # hom_controller_2_virtual_center[:,2]=-hom_controller_2_virtual_center[:,2]
 
+        ###################################################
         target_rot = hom_controller_2_virtual_center[:3, :3]
         target_pos = hom_controller_2_virtual_center[:3, 3]
 
@@ -177,5 +184,5 @@ class VRPoller(BasePoller):
         ----------
         """
 
-        # return [x, z, y, w, -i, -k, -j]
+        # return [x,y,z, w, -i, -j, -k]
         return [x,y,z,w,i,j,k]
