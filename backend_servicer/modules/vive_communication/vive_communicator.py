@@ -10,6 +10,9 @@ from holoViveCom_pb2 import (
 import holoViveCom_pb2_grpc
 
 from api.general_types import VRState
+from config.const import (
+    WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
+)
 
 
 class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
@@ -90,6 +93,10 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             if part is not None:
                 for event in self._vr_state.new_state_subscriber.values():
                     event.set()
+            if self._vr_state.controller._menu_button_pressed.is_set():
+                await self.notify_way_point()
+                self._vr_state.controller._menu_button_pressed.clear()
+
         return Empty()
 
     async def ProvideLighthouseState(self, request, context):
@@ -154,3 +161,22 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         self._vr_state.status = request.status
         logger.info(f"New State has been set to: {self._vr_state.status}")
         return Empty()
+
+    async def notify_way_point(self):
+        """this method notifies the way point manager that the menu button has been
+        pressed and thus a waypoint shall be placed.
+        Along with this the controller position is passed
+        """
+        logger.info("Starting Connection to waypoint manager")
+        async with grpc.aio.insecure_channel(f"{WAYPOINT_MANAGER_HOST}:{WAYPOINT_MANAGER_PORT}") as channel:
+            logger.info(
+                f"Started {self.__class__.__name__} communicator")
+            stub = holoViveCom_pb2_grpc.BackendStub(channel=channel)
+            """
+            Build the message and send
+            """
+            controller_obj = self._vr_state.controller.get_as_grpc_object()
+            logger.debug(f"Sending: {controller_obj}")
+            reply = stub.PlaceWayPoint(LighthouseState(controller=controller_obj))
+
+        logger.info("Way point manager has been notified")

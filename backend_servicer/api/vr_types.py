@@ -52,6 +52,7 @@ class ViveController(VRObject):
         super().__init__(ID, location_rotation, location_tranlation)
         self._last_state_menu_button = False
         self._button_state = self._check_and_adjust_button_states(button_state)
+        self._menu_button_pressed = asyncio.Event()
 
     def update_state(self, new_data: HandheldController):
         """updates the internal state of the controller and runs checks on the buttons
@@ -76,7 +77,7 @@ class ViveController(VRObject):
             button_state['trigger'] = "True"
         if self._last_state_menu_button == True and \
                 button_state["menu_button"] == "True":
-            pass  # way point placing
+            self._menu_button_pressed.set()
 
         return button_state
 
