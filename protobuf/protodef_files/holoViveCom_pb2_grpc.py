@@ -27,6 +27,11 @@ class BackendStub(object):
                 request_serializer=holoViveCom__pb2.InformationRequest.SerializeToString,
                 response_deserializer=holoViveCom__pb2.LighthouseState.FromString,
                 )
+        self.ProvideTrackerState = channel.unary_stream(
+                '/Backend/ProvideTrackerState',
+                request_serializer=holoViveCom__pb2.InformationRequest.SerializeToString,
+                response_deserializer=holoViveCom__pb2.LighthouseState.FromString,
+                )
         self.ChangeStatus = channel.unary_unary(
                 '/Backend/ChangeStatus',
                 request_serializer=holoViveCom__pb2.Status.SerializeToString,
@@ -62,6 +67,12 @@ class BackendServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def ProvideLighthouseState(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ProvideTrackerState(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -106,6 +117,11 @@ def add_BackendServicer_to_server(servicer, server):
             ),
             'ProvideLighthouseState': grpc.unary_stream_rpc_method_handler(
                     servicer.ProvideLighthouseState,
+                    request_deserializer=holoViveCom__pb2.InformationRequest.FromString,
+                    response_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
+            ),
+            'ProvideTrackerState': grpc.unary_stream_rpc_method_handler(
+                    servicer.ProvideTrackerState,
                     request_deserializer=holoViveCom__pb2.InformationRequest.FromString,
                     response_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
             ),
@@ -171,6 +187,23 @@ class Backend(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/Backend/ProvideLighthouseState',
+            holoViveCom__pb2.InformationRequest.SerializeToString,
+            holoViveCom__pb2.LighthouseState.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ProvideTrackerState(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/Backend/ProvideTrackerState',
             holoViveCom__pb2.InformationRequest.SerializeToString,
             holoViveCom__pb2.LighthouseState.FromString,
             options, channel_credentials,

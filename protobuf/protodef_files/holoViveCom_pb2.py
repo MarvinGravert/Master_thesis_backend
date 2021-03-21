@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11holoViveCom.proto\"\x18\n\x06Status\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"+\n\x12InformationRequest\x12\x15\n\rnumberSamples\x18\x01 \x01(\x05\"x\n\x0fLighthouseState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\x12\'\n\ncontroller\x18\x03 \x01(\x0b\x32\x13.HandheldController\"F\n\x07Tracker\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\"\xc1\x01\n\x12HandheldController\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\x12:\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32$.HandheldController.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\nQuaternion\x12\x0c\n\x04quat\x18\x01 \x03(\x02\"D\n\x0f\x43\x61librationInfo\x12\x0e\n\x06status\x18\x01 \x01(\t\x12!\n\x19\x63\x61librationMatrixRowMajor\x18\x02 \x03(\x02\x32\xb7\x02\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12\x43\n\x16ProvideLighthouseState\x12\x13.InformationRequest\x1a\x10.LighthouseState\"\x00\x30\x01\x12!\n\x0c\x43hangeStatus\x12\x07.Status\x1a\x06.Empty\"\x00\x12\x33\n\x15UpdateCalibrationInfo\x12\x10.CalibrationInfo\x1a\x06.Empty\"\x00\x12\x30\n\x12GetCalibrationInfo\x12\x06.Empty\x1a\x10.CalibrationInfo\"\x00\x12+\n\rPlaceWayPoint\x12\x10.LighthouseState\x1a\x06.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x11holoViveCom.proto\"\x18\n\x06Status\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"+\n\x12InformationRequest\x12\x15\n\rnumberSamples\x18\x01 \x01(\x05\"x\n\x0fLighthouseState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\x12\'\n\ncontroller\x18\x03 \x01(\x0b\x32\x13.HandheldController\"F\n\x07Tracker\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\"\xc1\x01\n\x12HandheldController\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\x12:\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32$.HandheldController.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\nQuaternion\x12\x0c\n\x04quat\x18\x01 \x03(\x02\"D\n\x0f\x43\x61librationInfo\x12\x0e\n\x06status\x18\x01 \x01(\t\x12!\n\x19\x63\x61librationMatrixRowMajor\x18\x02 \x03(\x02\x32\xf9\x02\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12\x43\n\x16ProvideLighthouseState\x12\x13.InformationRequest\x1a\x10.LighthouseState\"\x00\x30\x01\x12@\n\x13ProvideTrackerState\x12\x13.InformationRequest\x1a\x10.LighthouseState\"\x00\x30\x01\x12!\n\x0c\x43hangeStatus\x12\x07.Status\x1a\x06.Empty\"\x00\x12\x33\n\x15UpdateCalibrationInfo\x12\x10.CalibrationInfo\x1a\x06.Empty\"\x00\x12\x30\n\x12GetCalibrationInfo\x12\x06.Empty\x1a\x10.CalibrationInfo\"\x00\x12+\n\rPlaceWayPoint\x12\x10.LighthouseState\x1a\x06.Empty\"\x00\x62\x06proto3'
 )
 
 
@@ -459,7 +459,7 @@ _BACKEND = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=590,
-  serialized_end=901,
+  serialized_end=967,
   methods=[
   _descriptor.MethodDescriptor(
     name='LighthouseReport',
@@ -482,9 +482,19 @@ _BACKEND = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
+    name='ProvideTrackerState',
+    full_name='Backend.ProvideTrackerState',
+    index=2,
+    containing_service=None,
+    input_type=_INFORMATIONREQUEST,
+    output_type=_LIGHTHOUSESTATE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
     name='ChangeStatus',
     full_name='Backend.ChangeStatus',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_STATUS,
     output_type=_EMPTY,
@@ -494,7 +504,7 @@ _BACKEND = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='UpdateCalibrationInfo',
     full_name='Backend.UpdateCalibrationInfo',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=_CALIBRATIONINFO,
     output_type=_EMPTY,
@@ -504,7 +514,7 @@ _BACKEND = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='GetCalibrationInfo',
     full_name='Backend.GetCalibrationInfo',
-    index=4,
+    index=5,
     containing_service=None,
     input_type=_EMPTY,
     output_type=_CALIBRATIONINFO,
@@ -514,7 +524,7 @@ _BACKEND = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='PlaceWayPoint',
     full_name='Backend.PlaceWayPoint',
-    index=5,
+    index=6,
     containing_service=None,
     input_type=_LIGHTHOUSESTATE,
     output_type=_EMPTY,
