@@ -82,7 +82,8 @@ class VRState():
         self._calibration_tracker_initialized = asyncio.Event()
         self.calibration = Calibration()
         self._status: str = "no_status"
-        self.new_state_subscriber: Dict[str, asyncio.Event] = dict()
+        self.new_full_state_subscriber: Dict[str, asyncio.Event] = dict()
+        self.new_tracker_state_subscriber: Dict[str, asyncio.Event] = dict()
 
     @ property
     def holo_tracker(self) -> ViveTracker:
