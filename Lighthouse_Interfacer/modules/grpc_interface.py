@@ -28,12 +28,12 @@ class ForwardLighthouseData():
             ("grpc.max_send_message_length", GRPC_MAX_MESSAGE_LENGTH),
             ("grpc.max_receive_message_length", GRPC_MAX_MESSAGE_LENGTH)
         ]
-        # self._poller = MockPoller()
-        try:
-            self._poller = VRPoller(config_file_path="./vr_object_config.json")
-            self._poller.start()
-        except (VRConfigError, OpenVRConnectionError):
-            raise StartupError
+        self._poller = MockPoller()
+        # try:
+        #     self._poller = VRPoller(config_file_path="./vr_object_config.json")
+        #     self._poller.start()
+        # except (VRConfigError, OpenVRConnectionError):
+        #     raise StartupError
 
     def connect(self) -> None:
 
