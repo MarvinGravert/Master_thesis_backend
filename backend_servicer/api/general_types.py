@@ -74,12 +74,7 @@ class VRState():
     """
 
     def __init__(self):
-        self._holo_tracker = None
-        self._calibration_tracker = None
-        self._controller = None
-        self._controller_initialized = asyncio.Event()
-        self._holo_tracker_initialized = asyncio.Event()
-        self._calibration_tracker_initialized = asyncio.Event()
+        self.init_vr_objects()
         self.calibration = Calibration()
         self._status: str = "no_status"
         self.new_full_state_subscriber: Dict[str, asyncio.Event] = dict()
@@ -129,27 +124,23 @@ class VRState():
         logger.debug("Updating Controller")
         self._controller.update_state(new_state)
 
-    def init_holo_tracker(self, new_state: Tracker) -> None:
+    def init_vr_objects(self):
+        logger.debug("Initing vr objects")
+        zero_position = [0.0, 0, 0]
+        zero_rotation = [1.0, 0, 0, 0]
+        zero_button_state = {
+            "trackpad_x": "0.0",
+            "trackpad_y": "0.0",
+            "trackpad_pressed": "False",
+            "trigger": "0.0",
+            "menu_button": "False",
+            "grip_button": "False"
+        }
+        self._holo_tracker = ViveTracker(rotation=zero_rotation,
+                                         position=zero_position)
 
-        logger.debug("Initing holo_tracker")
-        self._holo_tracker = ViveTracker(ID=new_state.ID,
-                                         location_rotation=new_state.rotation.quat,
-                                         location_tranlation=new_state.position)
-        self._holo_tracker_initialized.set()
-
-    def init_calibration_tracker(self, new_state: Tracker) -> None:
-
-        logger.debug("Initing calibration tracker")
-        self._calibration_tracker = ViveTracker(ID=new_state.ID,
-                                                location_rotation=new_state.rotation.quat,
-                                                location_tranlation=new_state.position)
-        self._calibration_tracker_initialized.set()
-
-    def init_controller(self, new_state: HandheldController):
-        logger.debug("Initing controller")
-        self._controller = ViveController(ID=new_state.ID,
-                                          location_rotation=new_state.rotation.quat,
-                                          location_tranlation=new_state.position,
-                                          button_state=new_state.button_state)
-        logger.debug("Created object")
-        self._controller_initialized.set()
+        self._calibration_tracker = ViveTracker(rotation=zero_rotation,
+                                                position=zero_position)
+        self._controller = ViveController(rotation=zero_rotation,
+                                          position=zero_position,
+                                          button_state=zero_button_state)
