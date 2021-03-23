@@ -82,24 +82,24 @@ class FirstCalibrationObject(BaseCalibrationObject):
             [0, 0.015, 0.051470],
             [0, -0.015, 0.05147],
         ]
-        points = [
-            [-0.04, 0.015, 0.007],  # 1 Point
-            [0.04, 0.015, 0.007],
-            [0.04, -0.015, 0.007],
-            [-0.04, -0.015, 0.0070],
-            [-0.04, 0.015, -0.0213],   # 5 Point
-            [0.04, 0.015, -0.0213],
-            [0.04, -0.015, -0.0213],
-            [-0.04, -0.015, -0.0213],
-            [-0.015, 0.015, -0.051470],  # 9 Point
-            [0.015, 0.015, -0.05147],
-            [0.015, -0.015, -0.05147],
-            [-0.015, -0.015, -0.05147],
-            [0, 0.015, 0.007],  # 13 Point
-            [0, -0.015, 0.007],
-            [0, 0.015, -0.051470],
-            [0, -0.015, -0.05147],
-        ]
+        # points = [
+        #     [-0.04, 0.015, 0.007],  # 1 Point
+        #     [0.04, 0.015, 0.007],
+        #     [0.04, -0.015, 0.007],
+        #     [-0.04, -0.015, 0.0070],
+        #     [-0.04, 0.015, -0.0213],   # 5 Point
+        #     [0.04, 0.015, -0.0213],
+        #     [0.04, -0.015, -0.0213],
+        #     [-0.04, -0.015, -0.0213],
+        #     [-0.015, 0.015, -0.051470],  # 9 Point
+        #     [0.015, 0.015, -0.05147],
+        #     [0.015, -0.015, -0.05147],
+        #     [-0.015, -0.015, -0.05147],
+        #     [0, 0.015, 0.007],  # 13 Point
+        #     [0, -0.015, 0.007],
+        #     [0, 0.015, -0.051470],
+        #     [0, -0.015, -0.05147],
+        # ]
         return np.array(points)
 
     def get_points_vive_ref(self) -> np.ndarray:
@@ -111,22 +111,22 @@ class FirstCalibrationObject(BaseCalibrationObject):
             np.ndarray: [description]
         """
         points = [
-            [0.04, 0.02, -0.05217],  # 1 Point
-            [-0.04, 0.02, -0.05217],
-            [-0.04, -0.01, -0.05217],
-            [0.04, -0.01, -0.05217],
-            [0.04, 0.02, -0.03017],  # 5 Point
-            [-0.04, 0.02, -0.030170],
-            [-0.04, -0.01, -0.030170],
-            [0.04, -0.01, -0.030170],
-            [0.015, 0.02, 0],  # 9 Point
-            [-0.015, 0.02, 0],
-            [-0.015, -0.01, 0],
-            [0.015, -0.01, 0],
-            [0, 0.02, -0.052170],  # 13 Point
-            [0, -0.01, -0.052170],
-            [0, 0.02, 0],
-            [0, -0.01, 0],
+            [0.04, -0.02, 0.05217],  # 1 Point
+            [-0.04, -0.02, 0.05217],
+            [-0.04, 0.01, 0.05217],
+            [0.04, 0.01, 0.05217],
+            [0.04, -0.02, 0.03017],  # 5 Point
+            [-0.04, -0.02, 0.030170],
+            [-0.04, 0.01, 0.030170],
+            [0.04, 0.01, 0.030170],
+            [0.015, -0.02, 0],  # 9 Point
+            [-0.015, -0.02, 0],
+            [-0.015, 0.01, 0],
+            [0.015, 0.01, 0],
+            [0, -0.02, 0.052170],  # 13 Point
+            [0, 0.01, 0.052170],
+            [0, -0.02, 0],
+            [0, 0.01, 0],
         ]
         return np.array(points)
 
@@ -163,6 +163,55 @@ def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np
     return np.array(transformed_points)[:, :3]
 
 
+def get_points_virtual_object_old(unity_trans: List[float], unity_rot: List[float]) -> np.ndarray:
+    """returns for a given pose (position+rotation) the points of the calibration object
+    in reference to the reference used in unity (depends on the rotation+translation handed)
+
+    the received transformation (it shuold be from cali-object-KOS->reference in hololens world)
+    is first used to contruct a homogenous matrix.
+    Then this is used to calculate the calibration points in the reference KOS
+    Finally, the left hand KOS is transformed to a right hand KOS before returning
+
+    Args:
+        unity_trans (List[float]): position of unity 
+        unity_rot ([type]): [description]
+
+    Returns:
+        np.ndarray: [description]
+    """
+    # unity transmits i j k w and as rotation want the scalar last its all good
+    logger.debug("Starting points acquisition for unity calibration object")
+    x, y, z = unity_trans
+    # unity_trans=[x,z,y]
+    i, j, k, w = unity_rot
+    # rot_matrix: R = R.from_quat([-i,-j,-k,w])
+    rot_matrix: R = R.from_quat(unity_rot)
+    hom_matrix = np.hstack([
+        rot_matrix.as_matrix(),
+        np.array(unity_trans).reshape([3, 1])
+    ])  # reshape just to be safe
+    hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
+    ###########################
+    hom_matrix[2, :] = -hom_matrix[2, :]
+    hom_matrix[:, 2] = -hom_matrix[:, 2]
+    ############################
+    # now run over all points and rotate them by the matrix=>give us all points in the
+    # unity base frame
+
+    transformed_points = list()
+    cali_object = _get_active_calibration_object()
+    for point in cali_object.get_points_unity_ref():
+        # concat the retrieved point to make it align with the homogenous matrix
+        transformed_points.append(hom_matrix@np.concatenate([point,  [1]]))
+    # cut away the homogenous part
+    # just right for the transformation
+    transformed_points = np.array(transformed_points)[:, :3]
+    logger.debug("Converting to RH KOS")
+    # transformed_points = [_convert_left_to_right_hand_kos(
+    #     position) for position in transformed_points]
+    return np.array(transformed_points)
+
+
 def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) -> np.ndarray:
     """returns for a given pose (position+rotation) the points of the calibration object
     in reference to the reference used in unity (depends on the rotation+translation handed)
@@ -181,19 +230,14 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     """
     # unity transmits i j k w and as rotation want the scalar last its all good
     logger.debug("Starting points acquisition for unity calibration object")
-    x,y,z=unity_trans
-    # unity_trans=[x,z,y]
-    i,j,k,w=unity_rot
-    # rot_matrix: R = R.from_quat([-i,-j,-k,w])
+    x, y, z = unity_trans
+    i, j, k, w = unity_rot
     rot_matrix: R = R.from_quat(unity_rot)
     hom_matrix = np.hstack([
         rot_matrix.as_matrix(),
         np.array(unity_trans).reshape([3, 1])
     ])  # reshape just to be safe
     hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
-    ###########################
-    hom_matrix[2,:]=-hom_matrix[2,:]
-    hom_matrix[:,2]=-hom_matrix[:,2]
     ############################
     # now run over all points and rotate them by the matrix=>give us all points in the
     # unity base frame
@@ -217,7 +261,7 @@ def _convert_left_to_right_hand_kos(pos: np.ndarray) -> np.ndarray:
     # object position
     # exchange y and z
 
-    position = np.array([pos[0], pos[2], pos[1]])
+    position = np.array([pos[0], pos[1], -pos[2]])
 
     # # negate the angles keep the sclar and swap j k
     # rotation = np.array([
