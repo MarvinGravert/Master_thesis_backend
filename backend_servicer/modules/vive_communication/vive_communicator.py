@@ -22,7 +22,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         super().__init__()
         self._IP = IP
         self._port = port
-        self._vr_state = vr_state  # TODO: Look into singleton pattern for python
+        self.vr_state = vr_state  # TODO: Look into singleton pattern for python
 
     async def start(self):
         logger.info(f"Async gRPC Server started on {self._IP}:{self._port}")
@@ -67,10 +67,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             ----------
             """
             if part.HasField("holoTracker"):
-                if self._vr_state._holo_tracker_initialized.is_set():
-                    self._vr_state.update_holo_tracker(part.holoTracker)
-                else:
-                    self._vr_state.init_holo_tracker(part.holoTracker)
+                self.vr_state.update_holo_tracker(part.holoTracker)
                 full_update["holo_tracker"] = True
                 tracker_update["holo_tracker"] = True
             """
@@ -79,10 +76,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             ----------
             """
             if part.HasField("caliTracker"):
-                if self._vr_state._calibration_tracker_initialized.is_set():
-                    self._vr_state.update_calibration_tracker(part.caliTracker)
-                else:
-                    self._vr_state.init_calibration_tracker(part.caliTracker)
+                self.vr_state.update_calibration_tracker(part.caliTracker)
                 full_update["calibration_tracker"] = True
                 tracker_update["calibration_tracker"] = True
             """
@@ -91,10 +85,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             ----------
             """
             if part.HasField("controller"):
-                if self._vr_state._controller_initialized.is_set():
-                    self._vr_state.update_controller(part.controller)
-                else:
-                    self._vr_state.init_controller(part.controller)
+                self.vr_state.update_controller(part.controller)
                 full_update["controller"] = True
             """
             ----------
@@ -105,18 +96,18 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             # problem here=>update is triggered if maybe only 1 device has changed
             # => better may be to have seperate listeners for the devices
             if sum(full_update.values()) == 3:
-                for event in self._vr_state.new_full_state_subscriber.values():
+                for event in self.vr_state.new_full_state_subscriber.values():
                     event.set()
                 for key in full_update.keys():
                     full_update[key] = False
             if sum(full_update.values()) == 2:
-                for event in self._vr_state.new_tracker_state_subscriber.values():
+                for event in self.vr_state.new_tracker_state_subscriber.values():
                     event.set()
                 for key in tracker_update.keys():
                     tracker_update[key] = False
-            if self._vr_state.controller._menu_button_pressed.is_set():
+            if self.vr_state.controller._menu_button_pressed.is_set():
                 await self.notify_way_point()
-                self._vr_state.controller._menu_button_pressed.clear()
+                self.vr_state.controller._menu_button_pressed.clear()
 
         return Empty()
 
@@ -131,7 +122,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Checking if trackers and controllers have been initialized")
         client_id = str(context.peer())
-        self._vr_state.new_full_state_subscriber[client_id] = asyncio.Event()
+        self.vr_state.new_full_state_subscriber[client_id] = asyncio.Event()
         # TODO: put into try/except for connection lost so that the deletion of the key
         # is ensured
         """
@@ -139,11 +130,8 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             SETUP Done. Waiting for objects
             ----------
         """
-        await self._vr_state._holo_tracker_initialized.wait()
-        await self._vr_state._calibration_tracker_initialized.wait()
-        await self._vr_state._controller_initialized.wait()
-        self._vr_state.new_full_state_subscriber[client_id].set()  # there should be data now
-        logger.debug(f"Trackers are ready. Startin to assemble {request.numberSamples} unique data")
+        self.vr_state.new_full_state_subscriber[client_id].set()  # there should be data now
+        logger.debug(f"Starting to assemble {request.numberSamples} unique data")
         """
             ----------
             Stream back information
@@ -151,22 +139,24 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         for _ in range(request.numberSamples):
             # wait until a new state arrives
-            await self._vr_state.new_full_state_subscriber[client_id].wait()
-            self._vr_state.new_full_state_subscriber[client_id].clear()
+            await self.vr_state.new_full_state_subscriber[client_id].wait()
+            self.vr_state.new_full_state_subscriber[client_id].clear()
             logger.debug("yielding new controller/tracker information")
             yield LighthouseState(
-                controller=self._vr_state.controller.get_as_grpc_object(),
-                holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
-                caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
+                controller=self.vr_state.controller.get_as_grpc_object(),
+                holoTracker=self.vr_state.holo_tracker.get_as_grpc_object(),
+                caliTracker=self.vr_state.calibration_tracker.get_as_grpc_object())
         """
             ----------
             Stream is finished Clean up
             ----------
         """
         logger.info(f"Connection {client_id} done. Cleaning up")
-        del self._vr_state.new_full_state_subscriber[client_id]
+        del self.vr_state.new_full_state_subscriber[client_id]
 
     # TODO: refactor implementation to avoid code duplication
+    # NOTE: this method is necessary as the controller may not send update (e.g. not in sight)
+    # hence we would wait endlessy for a update
     async def ProvideTrackerState(self, request, context):
         """returns information regarding tracker currently registered with the server
 
@@ -178,16 +168,14 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Checking if both trackers have been initialized")
         client_id = str(context.peer())
-        self._vr_state.new_tracker_state_subscriber[client_id] = asyncio.Event()
+        self.vr_state.new_tracker_state_subscriber[client_id] = asyncio.Event()
         """
             ----------
             SETUP Done. Waiting for objects
             ----------
         """
-        await self._vr_state._holo_tracker_initialized.wait()
-        await self._vr_state._calibration_tracker_initialized.wait()
-        self._vr_state.new_tracker_state_subscriber[client_id].set()  # there should be data now
-        logger.debug(f"Trackers are ready. Startin to assemble {request.numberSamples} unique data")
+        self.vr_state.new_tracker_state_subscriber[client_id].set()  # there should be data now
+        logger.debug(f"Startin to assemble {request.numberSamples} unique data")
         """
             ----------
             Stream back information
@@ -195,26 +183,26 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         for _ in range(request.numberSamples):
             # wait until a new state arrives
-            await self._vr_state.new_tracker_state_subscriber[client_id].wait()
-            self._vr_state.new_tracker_state_subscriber[client_id].clear()
+            await self.vr_state.new_tracker_state_subscriber[client_id].wait()
+            self.vr_state.new_tracker_state_subscriber[client_id].clear()
             logger.debug("yielding new tracker information")
             yield LighthouseState(
-                holoTracker=self._vr_state.holo_tracker.get_as_grpc_object(),
-                caliTracker=self._vr_state.calibration_tracker.get_as_grpc_object())
+                holoTracker=self.vr_state.holo_tracker.get_as_grpc_object(),
+                caliTracker=self.vr_state.calibration_tracker.get_as_grpc_object())
         """
             ----------
             Stream is finished Clean up
             ----------
         """
         logger.info(f"Connection {client_id} done. Cleaning up")
-        del self._vr_state.new_tracker_state_subscriber[client_id]
+        del self.vr_state.new_tracker_state_subscriber[client_id]
 
     async def UpdateCalibrationInfo(self, request, context) -> Empty:
         """receives calibration and updates internal calibration
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Processing received calibration update")
-        self._vr_state.calibration.set_calibration_via_grpc_object(request)
+        self.vr_state.calibration.set_calibration_via_grpc_object(request)
         logger.info("New calibration has been set and will be incorparated into the information flow")
         return Empty()
 
@@ -224,8 +212,8 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Change the system state")
-        self._vr_state.status = request.status
-        logger.info(f"New State has been set to: {self._vr_state.status}")
+        self.vr_state.status = request.status
+        logger.info(f"New State has been set to: {self.vr_state.status}")
         return Empty()
 
     async def notify_way_point(self):
@@ -241,7 +229,7 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             """
             Build the message and send
             """
-            controller_obj = self._vr_state.controller.get_as_grpc_object()
+            controller_obj = self.vr_state.controller.get_as_grpc_object()
             logger.debug(f"Sending: {controller_obj}")
             reply = stub.PlaceWayPoint(LighthouseState(controller=controller_obj))
 
