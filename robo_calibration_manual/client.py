@@ -1,11 +1,11 @@
-"""This module allows the connection to the GRPC point registration 
+"""This module allows the connection to the GRPC point registration
 server via client interface
 
 As of the time of writing the server offers:
 - ARUN (default)
 - UMEYAMA called OPENCV (includes a RANSAC)
 as point registration algorithm.
-Moverover, an nonlinear least square optimizer can be called to further optimize 
+Moverover, an nonlinear least square optimizer can be called to further optimize
 the result (by default it is turned off though)
 
 In a later a RANSAC will be added. As of now the RANSAC parameters can be handed
@@ -14,8 +14,8 @@ over but these will only be used in UMEYAMA case
 The point sets are handed as nx3 numpy matrices either to run or run_with_config
 
 They differ in the way the service can be configured. While the first accepts
-the GRPC Algorithm object defining the algorithm specification directly the second 
-offers the option of passing a config dictionary which holds all teh parameters and can 
+the GRPC Algorithm object defining the algorithm specification directly the second
+offers the option of passing a config dictionary which holds all teh parameters and can
 be set without having to import the GRPC libraries
 """
 from loguru import logger
@@ -85,18 +85,18 @@ def run_with_config(point_set_1: np.ndarray,
     It is tried to align Point set 1 with Point set 2. Hence 1->2 is the direction
     of rotational alignment
 
-    The algorithm_config contains information about the algorithm to be performed 
+    The algorithm_config contains information about the algorithm to be performed
     on the point_sets. A blueprint looks as follows:
 
     algorithm_dict={
         "type": "ARUN"#"OPENCV", "KABSCH", "UMEYAMA"  are also options though the later two
         are repetition
         "optimize": True #boolean, False
-        "ranscac": [threshold, confidence] #list of floats 
+        "ranscac": [threshold, confidence] #list of floats
     }
 
     Args:
-        point_set_1 (np.ndarray): point set 1 
+        point_set_1 (np.ndarray): point set 1
         point_set_2 (np.ndarray): point set 2
         algorithm_config (Dict[str,str]): configuration describing the algorithm
 
@@ -139,11 +139,27 @@ if __name__ == "__main__":
     date = "20210318"
     algo = Algorithm(
         type=Algorithm.Type.OPENCV,
-        optimize=True,
-        ransac=RANSACParameters(threshold=3, confidence=2)
+        optimize=False,
+        ransac=RANSACParameters(threshold=3, confidence=0.99)
     )
     point_set_1, point_set_2 = get_vive_data(
         date=date, experiment=experiment), get_robot_data(
         date, experiment)
-    # print(point_set_2)
-    run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algo)
+    point_set_1 = point_set_1
+    R, t = run(point_set_1=point_set_2, point_set_2=point_set_1, algorithm=algo)
+    # print(R, t)
+    listed = list()
+    for i in range(23):
+
+        v = R@point_set_2[i].reshape([-1, 1])+t
+        # print(v)
+        # print(point_set_1[0])
+        listed.append(np.linalg.norm(v-point_set_1[i].reshape([-1, 1]))*1000)
+    print(np.mean(np.array(listed)))
+
+    v1 = (point_set_1[10]-point_set_1[1])
+    v1_c = (point_set_2[10]-point_set_2[1])
+    # print(np.linalg.norm(v1))
+    # print(np.linalg.norm(v1_c))
+    # print(np.linalg.norm(v1_c-v1))
+    print(R*1000)

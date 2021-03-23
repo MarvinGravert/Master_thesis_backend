@@ -54,7 +54,7 @@ def get_vive_calibration_positions(date: str, experiment_number: str) -> List[np
     return vive_tracker_pose_list
 
 
-def get_calibration_points(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarray:
+def get_calibration_points_quaternion(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarray:
     """calculates the position of the calibration point in LH coordinates
 
     For every 
@@ -66,7 +66,8 @@ def get_calibration_points(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarr
         np.ndarray: [description]
     """
     res = np.zeros([len(vive_tracker_pose_list), 3])
-    calibration_point_in_tracker_kos = np.array([0, 0, -DISTANCE_VIVE_ENDEFFECTOR]).reshape([-1, 1])
+    calibration_point_in_tracker_kos = np.array(
+        [0, 0, DISTANCE_VIVE_ENDEFFECTOR]).reshape([-1, 1])
     for a, calib_pose in enumerate(vive_tracker_pose_list):
         x, y, z, w, i, j, k = np.mean(calib_pose, axis=0)
         rot_matrix_tracker_2_LH = R.from_quat([i, j, k, w])
@@ -77,6 +78,48 @@ def get_calibration_points(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarr
     return res
 
 
+def get_calibration_points_matrix(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarray:
+    """calculates the position of the calibration point in LH coordinates
+
+    For every 
+
+    Args:
+        vive_tracker_pose_list (List[np.ndarray]): [description]
+
+    Returns:
+        np.ndarray: [description]
+    """
+    res = np.zeros([len(vive_tracker_pose_list), 3])
+    calibration_point_in_tracker_kos = np.array(
+        [0, 0, -DISTANCE_VIVE_ENDEFFECTOR]).reshape([-1, 1])
+    for a, calib_pose in enumerate(vive_tracker_pose_list):
+        calib_pose = np.mean(calib_pose, axis=0)
+        rot_matrix_tracker_2_LH = calib_pose.reshape([3, 4])
+        rot_matrix_tracker_2_LH = np.vstack([rot_matrix_tracker_2_LH, [0, 0, 0, 1]])
+        calib_point_in_LH = rot_matrix_tracker_2_LH@np.vstack([calibration_point_in_tracker_kos, 1])
+        res[a, :] = calib_point_in_LH.flatten()[:-1]
+    return res
+
+
+def get_calibration_points(vive_tracker_pose_list: List[np.ndarray]) -> np.ndarray:
+    """calculates the position of the calibration point in LH coordinates
+
+    For every 
+
+    Args:
+        vive_tracker_pose_list (List[np.ndarray]): [description]
+
+    Returns:
+        np.ndarray: [description]
+    """
+    if vive_tracker_pose_list[0].shape[1] == 12:
+        return get_calibration_points_matrix(vive_tracker_pose_list)
+    elif vive_tracker_pose_list[0].shape[1] == 7:
+        return get_calibration_points_quaternion(vive_tracker_pose_list)
+    else:
+        raise ValueError("The pose have incorrect format. Neither matrix nor quaternion")
+
+
 def get_robot_data(date: str, experiment_number: str) -> np.ndarray:
     file_dir = Path(PATH_TO_ROBOT_CALIBRATION)
     file_path = file_dir.joinpath(date+"_CalibrationSet_"+experiment_number+".txt")
@@ -84,8 +127,14 @@ def get_robot_data(date: str, experiment_number: str) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    experiment_number = "1"
-    date = "20200827"
+    experiment_number = "2"
+    date = "20210318"
     v = get_vive_calibration_positions(date=date, experiment_number=experiment_number)
-    print(np.array(v).shape)
-    print(get_calibration_points(v))
+    a = get_calibration_points(v)
+
+    experiment_number = "1"
+    v = get_vive_calibration_positions(date=date, experiment_number=experiment_number)
+    b = get_calibration_points(v)
+
+    print(b[0])
+    print(a[0])

@@ -16,8 +16,8 @@ POINT_REGISTER_PORT = config("POINT_REGISTER_PORT", cast=int, default=50052)
 RANASC Default Parameters
 """
 RANSAC_THRESHOLD = config("RANSAC_THRESHOLD", cast=float, default=0.15)
-RANSAC_CONFIDENCE = config("RANSAC_CONFIDENCE", cast=float, default=0.8)
+RANSAC_CONFIDENCE = config("RANSAC_CONFIDENCE", cast=float, default=0.99)
 """
 Hardware Parameters
 """
-DISTANCE_VIVE_ENDEFFECTOR = config("DISTANCE_VIVE_ENDEFFECTOR", cast=float, default=0.02)
+DISTANCE_VIVE_ENDEFFECTOR = config("DISTANCE_VIVE_ENDEFFECTOR", cast=float, default=0.07)
