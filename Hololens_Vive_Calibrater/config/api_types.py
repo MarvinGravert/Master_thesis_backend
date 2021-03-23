@@ -139,20 +139,6 @@ class VRState():
     def calibration_tracker(self, new_tracker: ViveTracker):
         self._calibration_tracker = new_tracker
 
-    def init_holo_tracker(self, new_state: Tracker) -> None:
-
-        logger.debug("Initing holo_tracker")
-        self._holo_tracker = ViveTracker(ID=new_state.ID,
-                                         location_rotation=new_state.rotation.quat,
-                                         location_tranlation=new_state.position)
-
-    def init_calibration_tracker(self, new_state: Tracker) -> None:
-
-        logger.debug("Initing calibration tracker")
-        self._calibration_tracker = ViveTracker(ID=new_state.ID,
-                                                location_rotation=new_state.rotation.quat,
-                                                location_tranlation=new_state.position)
-
 
 class IncorrectMessageFormat(Exception):
     pass
