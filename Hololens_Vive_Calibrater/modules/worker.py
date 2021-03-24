@@ -127,7 +127,7 @@ async def worker(queue: asyncio.Queue):
             ID="cali", location_rotation=tracker_state.calibration_tracker.loc_rot,
             location_tranlation=tracker_state.calibration_tracker.loc_trans)
         datalog.holo_tracker = ViveTracker(
-            ID="holo", location_rotation=tracker_state.calibration_tracker.loc_rot,
+            ID="holo", location_rotation=tracker_state.holo_tracker.loc_rot,
             location_tranlation=tracker_state.holo_tracker.loc_trans)
         datalog.reprojection_error = reprojection_error
         datalog.real_points = real_cali_points
