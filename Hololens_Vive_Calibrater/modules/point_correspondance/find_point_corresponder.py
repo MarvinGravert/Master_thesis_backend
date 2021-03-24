@@ -251,8 +251,8 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
     # just right for the transformation
     transformed_points = np.array(transformed_points)[:, :3]
     logger.debug("Converting to RH KOS")
-    # transformed_points = [_convert_left_to_right_hand_kos(
-    #     position) for position in transformed_points]
+    transformed_points = [_convert_left_to_right_hand_kos(
+        position) for position in transformed_points]
     return np.array(transformed_points)
 
 
@@ -261,7 +261,7 @@ def _convert_left_to_right_hand_kos(pos: np.ndarray) -> np.ndarray:
     # object position
     # exchange y and z
 
-    position = np.array([pos[0], pos[1], -pos[2]])
+    position = np.array([pos[0], pos[2], pos[1]])
 
     # # negate the angles keep the sclar and swap j k
     # rotation = np.array([

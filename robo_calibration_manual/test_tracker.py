@@ -22,6 +22,7 @@ def _create_hom_from_vive(data: openvr.HmdMatrix34_t) -> np.ndarray:
 if __name__ == "__main__":
 
     v = triad_openvr()
+    t = triad_openvr()
     v.print_discovered_objects()
 
     freq = 0.5
@@ -35,7 +36,10 @@ if __name__ == "__main__":
         # tracker_pose_in_LH = v.devices["tracker_1"].get_pose_matrix()
         # hom_tracker_2_LH = _create_hom_from_vive(tracker_pose_in_LH)
         # print("trackerPose: \n", np.linalg.inv(hom_tracker_2_LH))
-        print(v.devices["tracker_1"].get_pose_euler())
+        print(v.devices["tracker_1"].get_pose_quaternion())
+
+        print(v.devices["controller_1"].get_pose_quaternion())
+        print(t.devices["controller_1"].get_controller_inputs())
         if counter > numMeasurements:
             break
 
