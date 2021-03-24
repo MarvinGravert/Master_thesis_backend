@@ -126,13 +126,13 @@ class VRState():
 
     def init_vr_objects(self):
         logger.debug("Initing vr objects")
-        zero_position = [0.0, 0, 0]
-        zero_rotation = [1.0, 0, 0, 0]
+        zero_position = [0, 0, 0]
+        zero_rotation = [1, 0, 0, 0]
         zero_button_state = {
             "trackpad_x": "0.0",
             "trackpad_y": "0.0",
             "trackpad_pressed": "False",
-            "trigger": "0.0",
+            "trigger": "False",
             "menu_button": "False",
             "grip_button": "False"
         }
