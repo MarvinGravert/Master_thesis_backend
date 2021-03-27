@@ -105,9 +105,10 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
                     event.set()
                 for key in tracker_update.keys():
                     tracker_update[key] = False
-            if self.vr_state.controller._menu_button_pressed.is_set():
+            if self.vr_state.controller.menu_button_pressed_down:
+                self.vr_state.controller.menu_button_pressed_down = False
                 await self.notify_way_point()
-                self.vr_state.controller._menu_button_pressed.clear()
+                self.vr_state.status = "cmd_place_waypoint"
 
         return Empty()
 
@@ -231,6 +232,6 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
             """
             controller_obj = self.vr_state.controller.get_as_grpc_object()
             logger.debug(f"Sending: {controller_obj}")
-            reply = stub.PlaceWayPoint(LighthouseState(controller=controller_obj))
+            reply = await stub.PlaceWayPoint(LighthouseState(controller=controller_obj))
 
         logger.info("Way point manager has been notified")
