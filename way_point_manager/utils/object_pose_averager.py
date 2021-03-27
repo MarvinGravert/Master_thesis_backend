@@ -18,12 +18,12 @@ def average_vr_pose(list_vr_object: List[VRObject]) -> VRObject:
     position_list = list()
     rotation_list = list()
     for vr_obj in list_vr_object:
-        position_list.append(vr_obj.loc_trans)
-        rotation_list.append(vr_obj.loc_rot)
+        position_list.append(vr_obj.position)
+        rotation_list.append(vr_obj.rotation)
     position_list = np.array(position_list)  # nx3 matrix
     rotation_list = np.array(rotation_list)  # nx4 matrix with w i j k
     avg_position = np.mean(position_list, axis=0)
     avg_rotation = averageQuaternions(Q=rotation_list)
-    list_vr_object[0].loc_rot = avg_rotation.tolist()
-    list_vr_object[0].loc_trans = avg_position.tolist()
+    list_vr_object[0].rotation = avg_rotation.tolist()
+    list_vr_object[0].position = avg_position.tolist()
     return list_vr_object[0]
