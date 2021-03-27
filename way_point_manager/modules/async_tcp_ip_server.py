@@ -37,7 +37,7 @@ class TcpIPServer():
         # now just read the data into a data container and cancel the connection
         # upon the reception of "end"
         message_container = list()
-        end_connection = False
+        end_connection = False  # end connection as the hololens will not maintain a connection and soley send one request
         try:
             while True:
                 data = await reader.read(100)

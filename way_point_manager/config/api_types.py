@@ -115,22 +115,13 @@ class VRState():
     def holo_tracker(self, new_tracker: VRObject):
         self._holo_tracker = new_tracker
 
-
-<< << << < HEAD
-  @property
-   def controller(self) -> VRObject:
+    @property
+    def controller(self) -> VRObject:
         return self._controller
 
     @controller.setter
-== == ===
-  @ property
-   def controller(self) -> VRObject:
-        return self._controller
-
-    @ controller.setter
->>>>>> > 394fa251006390bfaa8b86eb70df6426b6082274
-  def calibration_tracker(self, new_controller: VRObject):
-       self._controller = new_controller
+    def calibration_tracker(self, new_controller: VRObject):
+        self._controller = new_controller
 
 
 class IncorrectMessageFormat(Exception):

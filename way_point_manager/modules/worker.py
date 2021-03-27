@@ -67,7 +67,7 @@ class WorkerClass():
 
     async def workflow_controller_waypoint(self,
                                            controller: VRObject,
-                                           tracker_state: VRState) -> np.ndarray:
+                                           ) -> np.ndarray:
         logger.debug("start controller waypoint workflow")
         """
         ------------------
@@ -75,7 +75,7 @@ class WorkerClass():
         ------------------
         """
         hom_matrix_controller_2_LH = controller.get_pose_as_hom_matrix()
-        waypointmarker = np.array([0, 0, 0.2])  # TODO: Change this
+        waypointmarker = np.array([0, 0, 0.2, 1])  # TODO: Change this
         """
         ------------------
         calculate desired transformation
@@ -83,7 +83,7 @@ class WorkerClass():
         """
         LH_2_robot_matrix = self._vr_state.calibration.LH_2_robot_matrix
 
-        return LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker
+        return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker)[:3]
 
     async def workflow_hololens_waypoint(self, hololens_message: List[str],
                                          tracker_state: VRState) -> np.ndarray:
@@ -107,9 +107,9 @@ class WorkerClass():
         LH_2_robot_matrix = self._vr_state.calibration.LH_2_robot_matrix
         LH_2_virtual_center = self._vr_state.calibration.LH_2_virtual_matrix
         # TODO: include the tracker instead of the direct transform
-        virtual_center_2_robo = LH_2_robot_matrix@np.linalg.inv(
+        hologram_2_robo = LH_2_robot_matrix@np.linalg.inv(
             LH_2_virtual_center)@hom_hologram_2_virtual_center
-        return virtual_center_2_robo
+        return hologram_2_robo
 
     def _transform_unity_quat_into_hom(
             self,
@@ -127,7 +127,7 @@ class WorkerClass():
         """
         x, y, z = unity_position
         i, j, k, w = unity_quaternion
-        rotation_matrix = R.from_quat([-i, -k, -j, w])
+        rotation_matrix = R.from_quat([-i, -k, -j, w]).as_matrix()
         position_vector = np.array([x, z, y])
         hom_matrix = np.hstack((rotation_matrix, position_vector.reshape((-1, 1))))
         return np.vstack((hom_matrix, [0, 0, 0, 1]))
