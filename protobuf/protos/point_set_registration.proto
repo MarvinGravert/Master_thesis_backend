@@ -10,14 +10,10 @@ message Input{
 }
 message Output{
     string status=1;
-    repeated MatrixRow rotationMatrix=2;
-    Vector translationVector=3;
-    float reprojectionError=4;
-   
+    repeated float transformationMatrixRowMajor=2;//4x4 homogenous matrix
+    float reprojectionError=3;
 }
-message MatrixRow{
-    repeated float row=1;
-}
+
 message Vector{
     repeated float entries=1;
 }

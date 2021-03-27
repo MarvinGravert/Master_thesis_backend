@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1cpoint_set_registration.proto\"`\n\x05Input\x12\x1b\n\npointSet_1\x18\x01 \x03(\x0b\x32\x07.Vector\x12\x1b\n\npointSet_2\x18\x02 \x03(\x0b\x32\x07.Vector\x12\x1d\n\talgorithm\x18\x03 \x01(\x0b\x32\n.Algorithm\"{\n\x06Output\x12\x0e\n\x06status\x18\x01 \x01(\t\x12\"\n\x0erotationMatrix\x18\x02 \x03(\x0b\x32\n.MatrixRow\x12\"\n\x11translationVector\x18\x03 \x01(\x0b\x32\x07.Vector\x12\x19\n\x11reprojectionError\x18\x04 \x01(\x02\"\x18\n\tMatrixRow\x12\x0b\n\x03row\x18\x01 \x03(\x02\"\x19\n\x06Vector\x12\x0f\n\x07\x65ntries\x18\x01 \x03(\x02\"\x9a\x01\n\tAlgorithm\x12\x1d\n\x04type\x18\x01 \x01(\x0e\x32\x0f.Algorithm.Type\x12\x10\n\x08optimize\x18\x02 \x01(\x08\x12!\n\x06ransac\x18\x03 \x01(\x0b\x32\x11.RANSACParameters\"9\n\x04Type\x12\x08\n\x04\x41RUN\x10\x00\x12\n\n\x06KABSCH\x10\x00\x12\n\n\x06OPENCV\x10\x01\x12\x0b\n\x07UMEYAMA\x10\x01\x1a\x02\x10\x01\"9\n\x10RANSACParameters\x12\x11\n\tthreshold\x18\x01 \x01(\x02\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x32<\n\x13PointSetRegistering\x12%\n\x10registerPointSet\x12\x06.Input\x1a\x07.Output\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x1cpoint_set_registration.proto\"`\n\x05Input\x12\x1b\n\npointSet_1\x18\x01 \x03(\x0b\x32\x07.Vector\x12\x1b\n\npointSet_2\x18\x02 \x03(\x0b\x32\x07.Vector\x12\x1d\n\talgorithm\x18\x03 \x01(\x0b\x32\n.Algorithm\"Y\n\x06Output\x12\x0e\n\x06status\x18\x01 \x01(\t\x12$\n\x1ctransformationMatrixRowMajor\x18\x02 \x03(\x02\x12\x19\n\x11reprojectionError\x18\x03 \x01(\x02\"\x19\n\x06Vector\x12\x0f\n\x07\x65ntries\x18\x01 \x03(\x02\"\x9a\x01\n\tAlgorithm\x12\x1d\n\x04type\x18\x01 \x01(\x0e\x32\x0f.Algorithm.Type\x12\x10\n\x08optimize\x18\x02 \x01(\x08\x12!\n\x06ransac\x18\x03 \x01(\x0b\x32\x11.RANSACParameters\"9\n\x04Type\x12\x08\n\x04\x41RUN\x10\x00\x12\n\n\x06KABSCH\x10\x00\x12\n\n\x06OPENCV\x10\x01\x12\x0b\n\x07UMEYAMA\x10\x01\x1a\x02\x10\x01\"9\n\x10RANSACParameters\x12\x11\n\tthreshold\x18\x01 \x01(\x02\x12\x12\n\nconfidence\x18\x02 \x01(\x02\x32<\n\x13PointSetRegistering\x12%\n\x10registerPointSet\x12\x06.Input\x1a\x07.Output\"\x00\x62\x06proto3'
 )
 
 
@@ -54,8 +54,8 @@ _ALGORITHM_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=b'\020\001',
-  serialized_start=406,
-  serialized_end=463,
+  serialized_start=346,
+  serialized_end=403,
 )
 _sym_db.RegisterEnumDescriptor(_ALGORITHM_TYPE)
 
@@ -122,22 +122,15 @@ _OUTPUT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotationMatrix', full_name='Output.rotationMatrix', index=1,
-      number=2, type=11, cpp_type=10, label=3,
+      name='transformationMatrixRowMajor', full_name='Output.transformationMatrixRowMajor', index=1,
+      number=2, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='translationVector', full_name='Output.translationVector', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='reprojectionError', full_name='Output.reprojectionError', index=3,
-      number=4, type=2, cpp_type=6, label=1,
+      name='reprojectionError', full_name='Output.reprojectionError', index=2,
+      number=3, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -155,39 +148,7 @@ _OUTPUT = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=130,
-  serialized_end=253,
-)
-
-
-_MATRIXROW = _descriptor.Descriptor(
-  name='MatrixRow',
-  full_name='MatrixRow',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='row', full_name='MatrixRow.row', index=0,
-      number=1, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=255,
-  serialized_end=279,
+  serialized_end=219,
 )
 
 
@@ -218,8 +179,8 @@ _VECTOR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=281,
-  serialized_end=306,
+  serialized_start=221,
+  serialized_end=246,
 )
 
 
@@ -265,8 +226,8 @@ _ALGORITHM = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=309,
-  serialized_end=463,
+  serialized_start=249,
+  serialized_end=403,
 )
 
 
@@ -304,21 +265,18 @@ _RANSACPARAMETERS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=465,
-  serialized_end=522,
+  serialized_start=405,
+  serialized_end=462,
 )
 
 _INPUT.fields_by_name['pointSet_1'].message_type = _VECTOR
 _INPUT.fields_by_name['pointSet_2'].message_type = _VECTOR
 _INPUT.fields_by_name['algorithm'].message_type = _ALGORITHM
-_OUTPUT.fields_by_name['rotationMatrix'].message_type = _MATRIXROW
-_OUTPUT.fields_by_name['translationVector'].message_type = _VECTOR
 _ALGORITHM.fields_by_name['type'].enum_type = _ALGORITHM_TYPE
 _ALGORITHM.fields_by_name['ransac'].message_type = _RANSACPARAMETERS
 _ALGORITHM_TYPE.containing_type = _ALGORITHM
 DESCRIPTOR.message_types_by_name['Input'] = _INPUT
 DESCRIPTOR.message_types_by_name['Output'] = _OUTPUT
-DESCRIPTOR.message_types_by_name['MatrixRow'] = _MATRIXROW
 DESCRIPTOR.message_types_by_name['Vector'] = _VECTOR
 DESCRIPTOR.message_types_by_name['Algorithm'] = _ALGORITHM
 DESCRIPTOR.message_types_by_name['RANSACParameters'] = _RANSACPARAMETERS
@@ -337,13 +295,6 @@ Output = _reflection.GeneratedProtocolMessageType('Output', (_message.Message,),
   # @@protoc_insertion_point(class_scope:Output)
   })
 _sym_db.RegisterMessage(Output)
-
-MatrixRow = _reflection.GeneratedProtocolMessageType('MatrixRow', (_message.Message,), {
-  'DESCRIPTOR' : _MATRIXROW,
-  '__module__' : 'point_set_registration_pb2'
-  # @@protoc_insertion_point(class_scope:MatrixRow)
-  })
-_sym_db.RegisterMessage(MatrixRow)
 
 Vector = _reflection.GeneratedProtocolMessageType('Vector', (_message.Message,), {
   'DESCRIPTOR' : _VECTOR,
@@ -376,8 +327,8 @@ _POINTSETREGISTERING = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=524,
-  serialized_end=584,
+  serialized_start=464,
+  serialized_end=524,
   methods=[
   _descriptor.MethodDescriptor(
     name='registerPointSet',
