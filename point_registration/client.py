@@ -18,9 +18,9 @@ the GRPC Algorithm object defining the algorithm specification directly the seco
 offers the option of passing a config dictionary which holds all teh parameters and can 
 be set without having to import the GRPC libraries
 """
-from loguru import logger
 from typing import Any, Tuple, Dict, List
 
+from loguru import logger
 import grpc
 import numpy as np
 
@@ -28,12 +28,13 @@ from point_set_registration_pb2 import Algorithm, Vector, Input, RANSACParameter
 import point_set_registration_pb2_grpc
 
 from config.config import GRPC_PORT, RUNTIME_HOST
+from utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 
-def run(point_set_1:np.ndarray,
-        point_set_2:np.ndarray,
-        algorithm:Algorithm=Algorithm(type=Algorithm.Type.ARUN)
-        )->Tuple[np.ndarray,np.ndarray]:
+def run(point_set_1: np.ndarray,
+        point_set_2: np.ndarray,
+        algorithm: Algorithm = Algorithm(type=Algorithm.Type.ARUN)
+        ) -> Tuple[np.ndarray, np.ndarray]:
     """Creates the GRPC Stub to communicate with the point registration service
     forwards the received parameters and returns the rotation R and translation t
 
@@ -63,24 +64,16 @@ def run(point_set_1:np.ndarray,
     logger.info("Received response, closing RPC")
     logger.debug(f"{response=}")
 
-    R = list()
-    t = list()
-    for row, entry in zip(response.rotationMatrix,
-                            response.translationVector.entries):
-        R.append(row.row)
-        t.append(entry)
-    R = np.array(R)
-    t = np.array(t).reshape([3, 1])
+    hom_matrix = np.reshape(response.transformationMatrixRowMajor, (4, 4))
+    R, t = separate_from_homogeneous_matrix(hom_matrix)
 
-    return R, t
+    return R, t.reshape((-1, 1))
 
 
-
-
-def run_with_config(point_set_1:np.ndarray,
-        point_set_2:np.ndarray,
-        algorithm_config:Dict[str,Any]
-        )->Tuple[np.ndarray,np.ndarray]:
+def run_with_config(point_set_1: np.ndarray,
+                    point_set_2: np.ndarray,
+                    algorithm_config: Dict[str, Any]
+                    ) -> Tuple[np.ndarray, np.ndarray]:
     """Creates GRPC request to poitn registration service with handed parameters
     and returns a rotation matrix R and a translation vector t
 
@@ -108,26 +101,25 @@ def run_with_config(point_set_1:np.ndarray,
     # just build the configuration from the dict and then use the run function
     logger.info("Starting the building the config from the dictionary")
     logger.debug(f"{algorithm_config=}")
-    optimize:bool=algorithm_config.get("optimize", False)
-    ransac_parameters:List[float,float]=algorithm_config.get("ransac", None)
-    type:str=algorithm_config.get("type", "ARUN")
+    optimize: bool = algorithm_config.get("optimize", False)
+    ransac_parameters: List[float, float] = algorithm_config.get("ransac", None)
+    type: str = algorithm_config.get("type", "ARUN")
 
     if ransac_parameters is not None:
-        algorithm=Algorithm(type=Algorithm.Type.Value(type),
-                            optimize=optimize,
-                            ransac=RANSACParameters(
-                                threshold=ransac_parameters[0],
-                                confidence=ransac_parameters[1]
-                                )
-                            )
-        return run(point_set_1=point_set_1,point_set_2=point_set_2,algorithm=algorithm)
+        algorithm = Algorithm(type=Algorithm.Type.Value(type),
+                              optimize=optimize,
+                              ransac=RANSACParameters(
+            threshold=ransac_parameters[0],
+            confidence=ransac_parameters[1]
+        )
+        )
+        return run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algorithm)
     else:
-        algorithm=Algorithm(type=Algorithm.Type.Value(type),
-                    optimize=optimize,
-                    )
-        return run(point_set_1=point_set_1,point_set_2=point_set_2,algorithm=algorithm)
+        algorithm = Algorithm(type=Algorithm.Type.Value(type),
+                              optimize=optimize,
+                              )
+        return run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algorithm)
 
-    
 
 def get_data_from_file(file_location_1="point_set_1.txt",
                        file_location_2="point_set_2.txt"
@@ -149,10 +141,10 @@ def get_data_from_file(file_location_1="point_set_1.txt",
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    algo=Algorithm(
+    algo = Algorithm(
         type=Algorithm.Type.OPENCV,
         optimize=True,
-        ransac=RANSACParameters(threshold=3,confidence=2)
+        ransac=RANSACParameters(threshold=3, confidence=2)
     )
     point_set_1, point_set_2 = get_data_from_file()
-    run(point_set_1=point_set_1, point_set_2=point_set_2 ,algorithm=algo)
+    run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algo)

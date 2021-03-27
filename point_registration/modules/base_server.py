@@ -1,15 +1,16 @@
 from typing import Tuple
-import numpy as np
 
+import numpy as np
 from loguru import logger
 
-from point_set_registration_pb2 import Output, MatrixRow, Vector, Algorithm
+from point_set_registration_pb2 import Output, Vector, Algorithm
 import point_set_registration_pb2_grpc
 
 
 from modules.algorithms.kabsch import KabschAlgorithm
 from modules.algorithms.opencv import OpencvAlgorithm
 from modules.optimization.optimize import Optimizer
+from utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 
 class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringServicer):
@@ -22,15 +23,17 @@ class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringSer
         if request.algorithm.type in [Algorithm.Type.ARUN, Algorithm.Type.KABSCH]:
             logger.info("Running Kabsch/Arun")
             algorithm = KabschAlgorithm()
-            R, t = algorithm.register_point_set(point_set_1, point_set_2)
+            hom_matrix = algorithm.register_point_set(point_set_1, point_set_2)
         elif request.algorithm.type in [Algorithm.Type.OPENCV, Algorithm.Type.UMEYAMA]:
             logger.info("Running OpenCV")
             algorithm = OpencvAlgorithm(request.algorithm.ransac)
-            R, t = algorithm.register_point_set(point_set_1, point_set_2)
+            hom_matrix = algorithm.register_point_set(point_set_1, point_set_2)
         else:
             logger.error("Wrong Algorithm Type")
             context.abort()
-        logger.debug(f"Result: \n {R=}\n{t=}")
+            return
+        logger.debug(f"Result: \n {hom_matrix=}")
+        R, t = separate_from_homogeneous_matrix(hom_matrix)
         """
         Optimize
         """
@@ -53,8 +56,7 @@ class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringSer
         """
         logger.info("Building response")
         response = Output(
-            rotationMatrix=[MatrixRow(row=x) for x in np.ndarray.tolist(R)],
-            translationVector=Vector(entries=t),
+            transformationMatrixRowMajor=hom_matrix.flatten(),
             reprojectionError=reprojection_error
         )
         return response

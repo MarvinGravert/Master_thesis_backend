@@ -9,15 +9,16 @@ from loguru import logger
 
 
 from modules.base_compute import BaseAlgorithm
+from utils.linear_algebra_helper import combine_to_homogeneous_matrix
 
 
 class KabschAlgorithm(BaseAlgorithm):
 
     def register_point_set(self, point_set_1: np.ndarray,
-                        point_set_2: np.ndarray
-                        ) -> Tuple[np.ndarray, np.ndarray]:
+                           point_set_2: np.ndarray
+                           ) -> np.ndarray:
         """Find transformation from set 1 to set 2 using Kabsch
-        
+
             inspired by:
                 https://github.com/nghiaho12/rigid_transform_3D
                 which is basically implementing the algorithm proposed by Arun
@@ -30,7 +31,7 @@ class KabschAlgorithm(BaseAlgorithm):
             ValueError: if sanity ccheck checking dimension of matrix fails
 
         Returns:
-            np.ndarray: returns R (3x3 rot matrix), t (3x1 matrix)
+            np.ndarray: returns 4x4 transformation matrix
         """
         # Input: expects 3xN matrix of points
         # Returns R,t
@@ -71,4 +72,4 @@ class KabschAlgorithm(BaseAlgorithm):
             R = Vt.T @ U.T
 
         t = -R @ centroid_A + centroid_B
-        return R, t
+        return combine_to_homogeneous_matrix(rotation_matrix=R, translation_vector=t)

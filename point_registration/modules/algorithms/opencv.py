@@ -11,18 +11,21 @@ from point_set_registration_pb2 import RANSACParameters
 
 from config.config import RANSAC_CONFIDENCE, RANSAC_THRESHOLD
 from modules.base_compute import BaseAlgorithm
+
+
 class OpencvAlgorithm(BaseAlgorithm):
 
-    def __init__(self,ransac_parameters:RANSACParameters):
+    def __init__(self, ransac_parameters: RANSACParameters):
         if ransac_parameters is not None:
-            self._threshold=ransac_parameters.threshold
-            self._confidence=ransac_parameters.confidence
+            self._threshold = ransac_parameters.threshold
+            self._confidence = ransac_parameters.confidence
         else:
-            self._threshold=RANSAC_THRESHOLD
-            self._confidence=RANSAC_CONFIDENCE
+            self._threshold = RANSAC_THRESHOLD
+            self._confidence = RANSAC_CONFIDENCE
+
     def register_point_set(self, point_set_1: np.ndarray,
-                        point_set_2: np.ndarray
-                        ) -> Tuple[np.ndarray, np.ndarray]:
+                           point_set_2: np.ndarray
+                           ) -> np.ndarray:
         """Find optimal affine transformation between the points sets 
 
 
@@ -33,7 +36,7 @@ class OpencvAlgorithm(BaseAlgorithm):
             point_set_2 (np.ndarray): 3xn
 
         Returns:
-            np.ndarray: returns R (3x3 rot matrix), t (3x1 matrix)
+            np.ndarray: returns 4x4 transformation matrix
         """
         # Input: expects 3xN matrix of points
         # Returns R,t
@@ -62,4 +65,4 @@ class OpencvAlgorithm(BaseAlgorithm):
         """)
         logger.info(f"Result: \n {out}")
 
-        return out[:, :3], out[:, 3]
+        return out
