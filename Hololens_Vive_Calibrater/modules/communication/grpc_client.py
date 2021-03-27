@@ -108,7 +108,7 @@ class PointRegisterCommunicator(GRPCCommunicator):
         """
         BUILD request
         """
-        algorithm: Algorithm = Algorithm(type=Algorithm.Type.OPENCV,
+        algorithm: Algorithm = Algorithm(type=Algorithm.Type.ARUN,
                                          ransac=RANSACParameters(
                                              threshold=3, confidence=0.95))
         point_set_1 = [Vector(entries=x) for x in point_set_1]
@@ -131,15 +131,5 @@ class PointRegisterCommunicator(GRPCCommunicator):
 
     def process_response(self, async_response: Output) -> Tuple[float, np.ndarray]:
         logger.debug(f"server response: {async_response}")
-        R = list()
-        t = list()
-        for row, entry in zip(async_response.rotationMatrix,
-                              async_response.translationVector.entries):
-            R.append(row.row)
-            t.append(entry)
-        R = np.array(R)
-        t = np.array(t).reshape([3, 1])
-        hom_matrix = np.hstack([R, t])
-        hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
-
+        hom_matrix = np.reshape(async_response.transformationMatrixRowMajor, (4, 4))
         return async_response.reprojectionError, hom_matrix
