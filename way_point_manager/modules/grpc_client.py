@@ -11,13 +11,12 @@ import grpc.aio
 from loguru import logger
 import numpy as np
 
-from holoViveCom_pb2 import Status, LighthouseState, CalibrationInfo, InformationRequest
-from point_set_registration_pb2 import Input, Vector, RANSACParameters, Algorithm, Output
+from holoViveCom_pb2 import LighthouseState, InformationRequest
 
 import holoViveCom_pb2_grpc
 import point_set_registration_pb2_grpc
 
-from config.api_types import VRState, ViveTracker
+from config.api_types import VRObject, VRState
 from config.const import NUM_LIGHTHOUSE_SAMPLES
 from utils.object_pose_averager import average_vr_pose
 
@@ -58,19 +57,19 @@ class BackendCommunicator(GRPCCommunicator):
             """
 
             logger.info("Received Tracker Data. Starting Parsing and averaging it")
-            holo_tracker: ViveTracker = average_vr_pose(list_vr_object=list_holo_tracker)
-            cali_tracker: ViveTracker = average_vr_pose(list_vr_object=list_calibration_tracker)
+            holo_tracker: VRObject = average_vr_pose(list_vr_object=list_holo_tracker)
+            cali_tracker: VRObject = average_vr_pose(list_vr_object=list_calibration_tracker)
 
         # 10,10,10,0,0,1,0end
         return await self.build_vr_state(holo_tracker=holo_tracker, cali_tracker=cali_tracker)
 
-    async def process_response(self, async_response: LighthouseState) -> Tuple[ViveTracker, ViveTracker]:
+    async def process_response(self, async_response: LighthouseState) -> Tuple[VRObject, VRObject]:
         logger.debug(f"server response: {async_response}")
-        holo_tracker = ViveTracker.set_pose_via_grpc_object(async_response.holoTracker)
-        cali_tracker = ViveTracker.set_pose_via_grpc_object(async_response.caliTracker)
+        holo_tracker = VRObject.set_pose_via_grpc_object(async_response.holoTracker)
+        cali_tracker = VRObject.set_pose_via_grpc_object(async_response.caliTracker)
         return holo_tracker, cali_tracker
 
-    async def build_vr_state(self, holo_tracker: ViveTracker, cali_tracker: ViveTracker) -> VRState:
+    async def build_vr_state(self, holo_tracker: VRObject, cali_tracker: VRObject) -> VRState:
         vr_state = VRState()
         vr_state.holo_tracker = holo_tracker
         vr_state.calibration_tracker = cali_tracker

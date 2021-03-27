@@ -44,14 +44,6 @@ class VRObject():
         return cls(position=position, rotation=rotation)
 
 
-class ViveTracker(VRObject):
-
-    def get_as_grpc_object(self) -> Tracker:
-        quat = Quaternion(quat=self.rotation)
-        trans = self.position
-        return Tracker(rotation=quat, position=trans)
-
-
 class Calibration():
     """class to hold the calibration matrices which are necessary to output
     the waypoint in the desired coordinate system. These are LH->virtual center
@@ -110,19 +102,19 @@ class VRState():
         self._controller = None
         self.calibration = Calibration()
 
-    @ property
-    def holo_tracker(self) -> ViveTracker:
+    @property
+    def holo_tracker(self) -> VRObject:
         return self._holo_tracker
 
-    @ holo_tracker.setter
-    def holo_tracker(self, new_tracker: ViveTracker):
+    @holo_tracker.setter
+    def holo_tracker(self, new_tracker: VRObject):
         self._holo_tracker = new_tracker
 
-    @ property
+    @property
     def controller(self) -> VRObject:
         return self._controller
 
-    @ controller.setter
+    @controller.setter
     def calibration_tracker(self, new_controller: VRObject):
         self._controller = new_controller
 
