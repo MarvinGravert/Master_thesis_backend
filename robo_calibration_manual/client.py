@@ -28,6 +28,7 @@ from point_set_registration_pb2 import Algorithm, Vector, Input, RANSACParameter
 import point_set_registration_pb2_grpc
 
 from config.consts import POINT_REGISTER_HOST, POINT_REGISTER_PORT
+from utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 
 def run(point_set_1: np.ndarray,
@@ -63,16 +64,10 @@ def run(point_set_1: np.ndarray,
     logger.info("Received response, closing RPC")
     logger.debug(f"{response=}")
 
-    R = list()
-    t = list()
-    for row, entry in zip(response.rotationMatrix,
-                          response.translationVector.entries):
-        R.append(row.row)
-        t.append(entry)
-    R = np.array(R)
-    t = np.array(t).reshape([3, 1])
+    hom_matrix = np.reshape(response.transformationMatrixRowMajor, (4, 4))
+    R, t = separate_from_homogeneous_matrix(hom_matrix)
 
-    return R, t
+    return R, t.reshape((-1, 1))
 
 
 def run_with_config(point_set_1: np.ndarray,
