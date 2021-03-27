@@ -30,7 +30,7 @@ class VRObject():
         return np.vstack([hom_matrix, [0, 0, 0, 1]])
 
     def get_pose_as_float_array(self) -> List[float]:
-        """returns position and rotation quaternion as a list of floats 
+        """returns position and rotation quaternion as a list of floats
 
         Returns:
             list (float): Format: x y z w i j k"""
@@ -42,6 +42,11 @@ class VRObject():
         rotation = grpc_object.rotation.quat
 
         return cls(position=position, rotation=rotation)
+
+    def get_as_grpc_object(self) -> Tracker:
+        quat = Quaternion(quat=self.rotation)
+        trans = self.position
+        return Tracker(rotation=quat, position=trans)
 
 
 class Calibration():
@@ -110,13 +115,22 @@ class VRState():
     def holo_tracker(self, new_tracker: VRObject):
         self._holo_tracker = new_tracker
 
-    @property
-    def controller(self) -> VRObject:
+
+<< << << < HEAD
+  @property
+   def controller(self) -> VRObject:
         return self._controller
 
     @controller.setter
-    def calibration_tracker(self, new_controller: VRObject):
-        self._controller = new_controller
+== == ===
+  @ property
+   def controller(self) -> VRObject:
+        return self._controller
+
+    @ controller.setter
+>>>>>> > 394fa251006390bfaa8b86eb70df6426b6082274
+  def calibration_tracker(self, new_controller: VRObject):
+       self._controller = new_controller
 
 
 class IncorrectMessageFormat(Exception):
