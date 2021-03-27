@@ -25,9 +25,15 @@ class Calibration():
     def __init__(self):
         """initialise the matrix with the base homogenous matrix
         """
-        temp_matrix = np.hstack([np.identity(n=3), np.zeros([3, 1])])
-        temp_matrix = np.vstack([temp_matrix, np.array([0, 0, 0, 1])])
-        self._calibration_matrix: np.ndarray = temp_matrix
+        LH_2_virtual_center = """
+        1 0 0 0
+        0 1 0 0
+        0 0 1 0
+        0 0 0 1
+        """
+        self._calibration_matrix: np.ndarray = np.fromstring(LH_2_virtual_center,
+                                                             dtype=float,
+                                                             sep=" ").reshape((4, 4))
         self._calibration_received: bool = False
 
     @property

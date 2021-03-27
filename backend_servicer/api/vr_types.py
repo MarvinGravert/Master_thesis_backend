@@ -1,12 +1,11 @@
-from typing import Any, Dict, List
-import asyncio
+from typing import Dict, List
 
 from loguru import logger
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 
 from holoViveCom_pb2 import (
-    HandheldController, LighthouseState,  Quaternion, Tracker, CalibrationInfo
+    HandheldController,  Quaternion, Tracker
 )
 
 
