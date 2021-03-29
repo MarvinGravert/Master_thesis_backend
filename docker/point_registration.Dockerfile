@@ -5,8 +5,8 @@ COPY point_registration/config config
 COPY point_registration/utils utils
 COPY point_registration/server.py .
 
-CMD [ "sleep","10" ] 
+# CMD [ "sleep","10" ] 
 
-# CMD [ "python","-u","server.py" ]
+CMD [ "python","-u","server.py" ]
 
 # docker-compose
