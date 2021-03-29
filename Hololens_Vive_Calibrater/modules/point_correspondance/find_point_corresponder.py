@@ -82,6 +82,9 @@ class FirstCalibrationObject(BaseCalibrationObject):
             [0, 0.015, 0.051470],
             [0, -0.015, 0.05147],
         ]
+        # swap axis y and z
+        points = np.array(points)
+        # points[:, [1, 2]] = points[:, [2, 1]]
         # points = [
         #     [-0.04, 0.015, 0.007],  # 1 Point
         #     [0.04, 0.015, 0.007],
@@ -100,7 +103,7 @@ class FirstCalibrationObject(BaseCalibrationObject):
         #     [0, 0.015, -0.051470],
         #     [0, -0.015, -0.05147],
         # ]
-        return np.array(points)
+        return points
 
     def get_points_vive_ref(self) -> np.ndarray:
         """return calibration points inthe tracker frame. This uses the KOS
@@ -237,6 +240,11 @@ def get_points_virtual_object(unity_trans: List[float], unity_rot: List[float]) 
         rot_matrix.as_matrix(),
         np.array(unity_trans).reshape([3, 1])
     ])  # reshape just to be safe
+    # rot_matrix: R = R.from_quat([-i, -k, -j, w])
+    # hom_matrix = np.hstack([
+    #     rot_matrix.as_matrix(),
+    #     np.array([x, z, y]).reshape([3, 1])
+    # ])  # reshape just to be safe
     hom_matrix = np.vstack([hom_matrix, [0, 0, 0, 1]])
     ############################
     # now run over all points and rotate them by the matrix=>give us all points in the

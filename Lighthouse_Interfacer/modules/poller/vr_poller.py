@@ -53,12 +53,12 @@ class VRPoller(BasePoller):
         try:
             # get the position and rotation
 
-            [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
+            [x, y, z, w, i, j, k] = self.v.devices["handheld"].get_pose_quaternion()
             [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
-            button_state = self.v.devices["controller_1"].get_controller_inputs()
+            button_state = self.v.devices["handheld"].get_controller_inputs()
             # turn all button states into string
             button_state = {key: str(value) for key, value in button_state.items()}
 
@@ -83,7 +83,7 @@ class VRPoller(BasePoller):
         """
         try:
             # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["holo_tracker"].get_pose_quaternion()
+            [x, y, z, w, i, j, k] = self.v.devices["holo_tracker"].get_pose_quaternion()
             state_dict["holo_tracker"] = ViveTracker(
                 ID="holotracker",
                 location_rotation=[w, i, j, k],
@@ -102,7 +102,7 @@ class VRPoller(BasePoller):
         """
         try:
             # get the position and rotation
-            [x, y, z, i, j, k, w] = self.v.devices["calibration_tracker"].get_pose_quaternion()
+            [x, y, z, w, i, j, k] = self.v.devices["calibration_tracker"].get_pose_quaternion()
             state_dict["calibration_tracker"] = ViveTracker(
                 ID="calibration_tracker",
                 location_rotation=[w, i, j, k],
@@ -120,20 +120,20 @@ class VRPoller(BasePoller):
         # return data
 
         [x, y, z, w, i, j, k] = data
-        wor = w
-        ior = i
-        jor = j
-        kor = k
-        R = np.array([
-            [-1, 9.979074001312255859e-01, -6.458293646574020386e-02],
-            [9.871731996536254883e-01, 1, 5.138471350073814392e-02],
-            [2.500897049903869629e-01, 3.596465336158871651e-03, -1]
-        ])
+        # wor = w
+        # ior = i
+        # jor = j
+        # kor = k
+        # R = np.array([
+        #     [-1, 9.979074001312255859e-01, -6.458293646574020386e-02],
+        #     [9.871731996536254883e-01, 1, 5.138471350073814392e-02],
+        #     [2.500897049903869629e-01, 3.596465336158871651e-03, -1]
+        # ])
 
-        x, y, z = R@np.array([x, y, z])+[5.620775818824768066e-01,
-                                         2.334415316581726074e-01, -2.949469089508056641e+00]
+        # x, y, z = R@np.array([x, y, z])+[5.620775818824768066e-01,
+        #                                  2.334415316581726074e-01, -2.949469089508056641e+00]
 
-        return [x-1.2, y, -z-0.33, w, i, -j, -k]
+        # return [x-1.2, y, -z-0.33, w, i, -j, -k]
         """
         ----------
         Build homogenous matrix Controller->LH
@@ -148,33 +148,44 @@ class VRPoller(BasePoller):
         Setting the calibration matrix. LH->virtual center manually
         ----------
         """
-        hom_LH_2_virtual_center = np.array([
-            [3.156447550281882286e-03, 9.979074001312255859e-01, -6.458293646574020386e-02, -
-             5.620775818824768066e-01],
-            [9.871731996536254883e-01, -4.313651006668806076e-03,
-                5.138471350073814392e-02, 2.334415316581726074e-01],
-            [2.500897049903869629e-01, 3.596465336158871651e-03, -1.147925734519958496e+00, -
-             2.949469089508056641e+00],
-            [0, 0, 0, 1]])
+        s = """
+        4.995881915092468262e-01 -3.909247927367687225e-03 8.662542104721069336e-01 6.140581965446472168e-01
+        8.662549257278442383e-01 6.575234234333038330e-03 -4.995589554309844971e-01 -1.447103857994079590e+00
+        -3.742924425750970840e-03 9.999707341194152832e-01 6.671314593404531479e-03 2.097773104906082153e-01
+        0.000000000000000000e+00 0.000000000000000000e+00 0.000000000000000000e+00 1.000000000000000000e+00
+        """
+        hom_LH_2_virtual_center = np.fromstring(s, dtype=float, sep=" ")
+        hom_LH_2_virtual_center = hom_LH_2_virtual_center.reshape((4, 4))
         test_matrix = np.array([
             [1, 0, 0, 0],
+            [0, 0, -1, 0],
             [0, 1, 0, 0],
+            [0, 0, 0, 1]
+        ])
+        test_matrix2 = np.array([
+            [1, 0, 0, 0],
+            [0, 0, -1, 0],
+            [0, 1, 0, 0],
+            [0, 0, 0, 1]
+        ])
+        test_matrix3 = np.array([
+            [-1, 0, 0, 0],
+            [0, -1, 0, 0],
             [0, 0, 1, 0],
             [0, 0, 0, 1]
         ])
-        # test_matrix = np.array([
-        #     [-4.487142264842987061e-01, 0, -1.297474950551986694e-01, -0.35],
-        #     [0, 1, 0, -3.270979523658752441e-010],
-        #     [1.728849782662282841e-01, 0, -7.538420706987380981e-02, 2.557434082031250000e+00+2],
-        #     [0, 0, 0, 1]
-        # ])
-
+        test_matrix4 = np.array([
+            [-1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, -1, 0],
+            [0, 0, 0, 1]
+        ])
         """
         ----------
         Applying the transformation and extracting the rotation and transformation
         ----------
         """
-        hom_controller_2_virtual_center = test_matrix@hom_LH_2_virtual_center@hom_controller_2_LH
+        hom_controller_2_virtual_center = hom_LH_2_virtual_center@test_matrix4@hom_controller_2_LH@test_matrix3@test_matrix  # @test_matrix2
         # hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
 
         # hom_controller_2_virtual_center[2,:]=-hom_controller_2_virtual_center[2,:]
@@ -196,5 +207,5 @@ class VRPoller(BasePoller):
         ----------
         """
 
-        return [x, y, -z, wor, ior, -jor, -kor]
-        return data  # [x,y,z,w,i,j,k]
+        return [x-3.2, z, y+1.3+0.22, w, -i, -k, -j]
+        # return [x, y, z, w, i, j, k]
