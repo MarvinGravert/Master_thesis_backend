@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+  backend_servicer:
+    container_name: backend_servicer
+    build:
+      context: ../
+      dockerfile: ./docker/backend_servicer.Dockerfile
+
+    ports:
+      - "50051:50051"
+      - "15004:15004"
+
+  holo_vive_calibrater:
+    container_name: holo_vive_calibrater
+    build:
+      context: ../
+      dockerfile: ./docker/holo_calibrater.Dockerfile
+
+    ports:
+      - "15005:15005"
+  waypoint_manager:
+    container_name: waypoint_manager
+    build:
+      context: ../
+      dockerfile: ./docker/waypoint_manager.Dockerfile
+
+    ports:
+      - "15006:15006"
+      - "50053:50053"
+
+  point_registration:
+    container_name: point_registration
+    build:
+      context: ../
+      dockerfile: ./docker/point_registration.Dockerfile
+
+    ports:
+      - "50052:50052"
+
+  state_manager:
+    container_name: state_manager
+    build:
+      context: ../
+      dockerfile: ./docker/state_manager.Dockerfile
+
+  lighthouse_interfacer:
+    container_name: lighthouse_interfacer
+    build:
+      context: ../
+      dockerfile: ./docker/lighthouse_interfacer.Dockerfile
