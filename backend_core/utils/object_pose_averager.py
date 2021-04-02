@@ -4,7 +4,7 @@ from typing import List
 
 import numpy as np
 
-from config.api_types import VRObject
+from api.vr_objects import VRObject
 from utils.averageQuaternion import averageQuaternions
 
 

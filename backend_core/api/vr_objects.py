@@ -1,12 +1,13 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from loguru import logger
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as R, rotation
 import numpy as np
 
 from holoViveCom_pb2 import (
     HandheldController,  Quaternion, Tracker
 )
+from utils.linear_algebra_helper import transform_to_homogenous_matrix
 
 
 class VRObject():
@@ -23,11 +24,21 @@ class VRObject():
         Returns:
             np.ndarray: 4x4 homogenous matrix
         """
-        w, i, j, k = self.rotation
-        rot = R.from_quat([i, j, k, w])  # scipy wants scalar last)
-        rot_matrix = rot.as_matrix()
-        hom_matrix = np.hstack([rot_matrix, np.array(self.position).reshape([3, 1])])
-        return np.vstack([hom_matrix, [0, 0, 0, 1]])
+        return transform_to_homogenous_matrix(position=self.position,
+                                              quaternion=self.rotation,
+                                              scalar_first=True)
+
+    def get_pose_as_float_array(self) -> List[float]:
+        # x y z w i j k
+        return [*self.position, *self.rotation]
+
+    @classmethod
+    def set_pose_via_grpc_object(cls,
+                                 grpc_object: Union[Tracker, HandheldController]):
+        position = grpc_object.position
+        rotation = grpc_object.rotation.quat
+
+        return cls(position=position, rotation=rotation)
 
 
 class ViveTracker(VRObject):
@@ -56,8 +67,8 @@ class ViveController(VRObject):
         Args:
             new_data (HandheldController): grpc object containing the new data
         """
-        self.rotation = list(new_data.rotation.quat)
-        self.position = list(new_data.position)
+        self.rotation = new_data.rotation.quat
+        self.position = new_data.position
         # run some checks on the received button state
         self._button_state = self._check_and_adjust_button_states(new_data.button_state)
 

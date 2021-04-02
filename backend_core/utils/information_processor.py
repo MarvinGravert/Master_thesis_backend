@@ -10,7 +10,7 @@ from typing import List, Tuple
 import numpy as np
 from loguru import logger
 
-from config.api_types import IncorrectMessageFormat
+from api.exceptions import IncorrectMessageFormat
 from utils.averageQuaternion import averageQuaternions
 
 
