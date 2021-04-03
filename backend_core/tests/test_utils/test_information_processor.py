@@ -3,7 +3,7 @@ import asyncio
 import pytest
 import numpy as np
 
-from utils.information_processor import InformationProcessor
+from backend_core.utils.information_processor import InformationProcessor
 
 
 @pytest.fixture

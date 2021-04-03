@@ -3,7 +3,7 @@ from scipy.spatial.transform import Rotation as R
 
 from holoViveCom_pb2 import CalibrationInfo
 
-from api.general import Calibration
+from backend_core.api.general import Calibration
 
 
 class TestCalibration:
