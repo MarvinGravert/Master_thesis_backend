@@ -66,8 +66,8 @@ class KabschAlgorithm(BaseAlgorithm):
 
         # special reflection case
         if np.linalg.det(R) < 0:
-            logger.info(
-                "det(R) < R, reflection detected!, correcting for it ...")
+            logger.warning(
+                "det(R) < 0, reflection detected!, correcting for it ...")
             Vt[2, :] *= -1
             R = Vt.T @ U.T
 
