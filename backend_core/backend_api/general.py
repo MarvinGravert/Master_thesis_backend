@@ -9,7 +9,7 @@ from holoViveCom_pb2 import (
     HandheldController, Tracker, CalibrationInfo
 )
 
-from api.vr_objects import (
+from backend_api.vr_objects import (
     ViveController, ViveTracker
 )
 

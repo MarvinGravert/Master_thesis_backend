@@ -7,7 +7,7 @@ import numpy as np
 from holoViveCom_pb2 import (
     HandheldController,  Quaternion, Tracker
 )
-from utils.linear_algebra_helper import transform_to_homogenous_matrix
+from backend_utils.linear_algebra_helper import transform_to_homogenous_matrix
 
 
 class VRObject():
