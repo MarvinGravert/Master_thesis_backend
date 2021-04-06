@@ -18,12 +18,12 @@ from config.const import (
 
 class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
-    def __init__(self, IP: str, port: int, queue: asyncio.Queue, vr_state: ServerState) -> None:
+    def __init__(self, IP: str, port: int, queue: asyncio.Queue, server_state: ServerState) -> None:
         super().__init__()
         self._IP = IP
         self._port = port
         self._queue = queue
-        self._vr_state = vr_state
+        self.server_state = server_state
 
     async def start(self):
         logger.info(f"Async gRPC Server started on {self._IP}:{self._port}")
@@ -60,6 +60,6 @@ class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         logger.info(f"Received a connection from {context.peer()}")
         logger.debug("Processing received calibration update")
-        self._vr_state.calibration.set_holo_calibration_via_grpc_object(request)
+        self.server_state.calibration.set_holo_calibration_via_grpc_object(request)
         logger.info("New calibration has been set and will be incorparated into the information flow")
         return Empty()
