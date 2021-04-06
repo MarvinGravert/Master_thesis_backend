@@ -2,8 +2,8 @@ import pytest
 
 import numpy as np
 
-from api.vr_objects import VRObject
-from utils.object_pose_averager import average_vr_pose
+from backend_core.api.vr_objects import VRObject
+from backend_utils.object_pose_averager import average_vr_pose
 
 
 class TestPoseAverage():
