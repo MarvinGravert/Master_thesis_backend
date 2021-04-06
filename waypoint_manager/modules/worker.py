@@ -5,28 +5,31 @@ world and hololens world
 it does so utliizing asnyc whereever necessary
 """
 import asyncio
-from modules.grpc_client import BackendCommunicator
 from typing import List, Union
 
 import numpy as np
 from loguru import logger
 from scipy.spatial.transform import Rotation as R
 
+
+from backend_utils.information_processor import InformationProcessor
+from backend_api.vr_objects import VRObject
+
 from config.const import (
     BACKEND_HOST, BACKEND_PORT
 )
-from utils.information_processor import InformationProcessor
-from config.api_types import IncorrectMessageFormat, VRObject, VRState
+from modules.grpc_client import BackendCommunicator
+from config.api_types import IncorrectMessageFormat, ServerState
 
 
 class WorkerClass():
     def __init__(self) -> None:
         self.information_processor = InformationProcessor()
 
-    async def worker(self, queue: asyncio.Queue, vr_state: VRState):
+    async def worker(self, queue: asyncio.Queue, server_state: ServerState):
         # Start server
         logger.info("Worker has started")
-        self._vr_state = vr_state
+        self.server_state = server_state
         backend_client = BackendCommunicator(server_address=BACKEND_HOST, server_port=BACKEND_PORT)
         """
         ------------------
@@ -81,12 +84,12 @@ class WorkerClass():
         calculate desired transformation
         ------------------
         """
-        LH_2_robot_matrix = self._vr_state.calibration.LH_2_robot_matrix
+        LH_2_robot_matrix = self.server_state.calibration.LH_2_robot_matrix
 
         return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker)[:3]
 
     async def workflow_hololens_waypoint(self, hololens_message: List[str],
-                                         tracker_state: VRState) -> np.ndarray:
+                                         tracker_state: ServerState) -> np.ndarray:
         logger.debug("start hololens workflow")
         hologram_position, hologram_rotation = await self.information_processor.process_hololens_data(hololens_message)
 
@@ -104,8 +107,8 @@ class WorkerClass():
         hom_hologram_2_virtual_center = self._transform_unity_quat_into_hom(
             unity_position=hologram_position,
             unity_quaternion=hologram_rotation)
-        LH_2_robot_matrix = self._vr_state.calibration.LH_2_robot_matrix
-        LH_2_virtual_center = self._vr_state.calibration.LH_2_virtual_matrix
+        LH_2_robot_matrix = self.server_state.calibration.LH_2_robot_matrix
+        LH_2_virtual_center = self.server_state.calibration.LH_2_virtual_matrix
         # TODO: include the tracker instead of the direct transform
         hologram_2_robo = LH_2_robot_matrix@np.linalg.inv(
             LH_2_virtual_center)@hom_hologram_2_virtual_center

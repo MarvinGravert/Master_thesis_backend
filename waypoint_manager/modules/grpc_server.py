@@ -8,8 +8,9 @@ import grpc.experimental.aio
 from holoViveCom_pb2 import (
     LighthouseState, Empty)
 import holoViveCom_pb2_grpc
+from backend_api.vr_objects import VRObject
 
-from config.api_types import VRObject, VRState
+from config.api_types import ServerState
 from config.const import (
     BACKEND_HOST, BACKEND_PORT
 )
@@ -17,7 +18,7 @@ from config.const import (
 
 class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
-    def __init__(self, IP: str, port: int, queue: asyncio.Queue, vr_state: VRState) -> None:
+    def __init__(self, IP: str, port: int, queue: asyncio.Queue, vr_state: ServerState) -> None:
         super().__init__()
         self._IP = IP
         self._port = port
