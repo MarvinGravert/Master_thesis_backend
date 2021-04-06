@@ -5,12 +5,11 @@ from loguru import logger
 
 from point_set_registration_pb2 import Output, Vector, Algorithm
 import point_set_registration_pb2_grpc
-
+from backend_utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 from modules.algorithms.kabsch import KabschAlgorithm
 from modules.algorithms.opencv import OpencvAlgorithm
 from modules.optimization.optimize import Optimizer
-from utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 
 class PointSetRegistering(point_set_registration_pb2_grpc.PointSetRegisteringServicer):
