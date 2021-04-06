@@ -97,7 +97,7 @@ async def worker(queue: asyncio.Queue):
         get tracker transformation
         ------------------
         """
-        tracker_hom_matrix = tracker_state.holo_tracker.get_as_hom_matrix()
+        tracker_hom_matrix = tracker_state.holo_tracker.get_pose_as_hom_matrix()
         """
         ------------------
         calculate desired transformation
@@ -126,11 +126,11 @@ async def worker(queue: asyncio.Queue):
         datalog.calibration_position = hologram_position
         datalog.calibration_rotation = hologram_rotation
         datalog.calibration_tracker = ViveTracker(
-            ID="cali", location_rotation=tracker_state.calibration_tracker.rotation,
-            location_tranlation=tracker_state.calibration_tracker.position)
+            rotation=tracker_state.calibration_tracker.rotation,
+            position=tracker_state.calibration_tracker.position)
         datalog.holo_tracker = ViveTracker(
-            ID="holo", location_rotation=tracker_state.holo_tracker.rotation,
-            location_tranlation=tracker_state.holo_tracker.position)
+            rotation=tracker_state.holo_tracker.rotation,
+            position=tracker_state.holo_tracker.position)
         datalog.reprojection_error = reprojection_error
         datalog.real_points = real_cali_points
         datalog.virtual_points = virtual_cali_points

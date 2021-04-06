@@ -79,7 +79,7 @@ class DataLogger():
             rotation = " ".join([str(x) for x in self.holo_tracker.rotation])
             file.write(f"{rotation}\n")
             file.write("Homogenous matrix of Holo Tracker\n")
-            np.savetxt(file, self.holo_tracker.get_as_hom_matrix())
+            np.savetxt(file, self.holo_tracker.get_pose_as_hom_matrix())
             file.write("\n")
             """
             ------------------
@@ -94,7 +94,7 @@ class DataLogger():
             rotation = " ".join([str(x) for x in self.calibration_tracker.rotation])
             file.write(f"{rotation}\n")
             file.write("Homogenous matrix of Calibration Tracker\n")
-            np.savetxt(file, self.calibration_tracker.get_as_hom_matrix())
+            np.savetxt(file, self.calibration_tracker.get_pose_as_hom_matrix())
             file.write("\n")
             """
             ------------------
