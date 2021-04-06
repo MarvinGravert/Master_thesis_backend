@@ -134,3 +134,6 @@ dmypy.json
 ## Test files
 
 **/test.py
+**/test[0-9].py
+
+**/*.txt
