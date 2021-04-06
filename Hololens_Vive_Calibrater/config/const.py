@@ -1,5 +1,5 @@
 from decouple import config
-from config.api_types import CalibrationObject
+from config.api import CalibrationObject
 
 
 TCP_HOST = config("TCP_HOST", cast=str, default="0.0.0.0")

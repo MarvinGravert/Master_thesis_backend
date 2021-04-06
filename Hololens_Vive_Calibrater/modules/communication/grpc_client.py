@@ -13,13 +13,15 @@ import numpy as np
 
 from holoViveCom_pb2 import Status, LighthouseState, CalibrationInfo, InformationRequest
 from point_set_registration_pb2 import Input, Vector, RANSACParameters, Algorithm, Output
-
 import holoViveCom_pb2_grpc
 import point_set_registration_pb2_grpc
+from backend_api.vr_objects import (
+    ViveTracker, ViveController
+)
+from backend_utils.object_pose_averager import average_vr_pose
 
-from config.api_types import VRState, ViveTracker
 from config.const import NUM_LIGHTHOUSE_SAMPLES
-from utils.object_pose_averager import average_vr_pose
+from config.api import VRState
 
 
 class GRPCCommunicator():
@@ -54,7 +56,6 @@ class BackendCommunicator(GRPCCommunicator):
         The returned trackerstate object is then used to create the vr_state
         """
         logger.info("Start communication wiht server")
-        test = asyncio.Event()
         async with grpc.aio.insecure_channel(f"{self._server}:{self._port}") as channel:
             logger.info(
                 f"Started {self.__class__.__name__} communicator on {self._server}:{self._port}")

@@ -15,7 +15,7 @@ from typing import List
 
 import numpy as np
 
-from config.api_types import ViveTracker
+from backend_api.vr_objects import ViveTracker
 
 
 class DataLogger():
@@ -73,10 +73,10 @@ class DataLogger():
             """
             file.write(f"Holotracker Pose: Tracker->LH\n")
             file.write("x y z\n")
-            position = " ".join([str(x) for x in self.holo_tracker.loc_trans])
+            position = " ".join([str(x) for x in self.holo_tracker.position])
             file.write(f"{position}\n")
             file.write("w i j k\n")
-            rotation = " ".join([str(x) for x in self.holo_tracker.loc_rot])
+            rotation = " ".join([str(x) for x in self.holo_tracker.rotation])
             file.write(f"{rotation}\n")
             file.write("Homogenous matrix of Holo Tracker\n")
             np.savetxt(file, self.holo_tracker.get_as_hom_matrix())
@@ -88,10 +88,10 @@ class DataLogger():
             """
             file.write(f"Calibrationtracker Pose: Tracker->LH\n")
             file.write("x y z\n")
-            position = " ".join([str(x) for x in self.calibration_tracker.loc_trans])
+            position = " ".join([str(x) for x in self.calibration_tracker.position])
             file.write(f"{position}\n")
             file.write("w i j k\n")
-            rotation = " ".join([str(x) for x in self.calibration_tracker.loc_rot])
+            rotation = " ".join([str(x) for x in self.calibration_tracker.rotation])
             file.write(f"{rotation}\n")
             file.write("Homogenous matrix of Calibration Tracker\n")
             np.savetxt(file, self.calibration_tracker.get_as_hom_matrix())
