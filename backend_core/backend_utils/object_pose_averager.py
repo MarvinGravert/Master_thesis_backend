@@ -4,8 +4,8 @@ from typing import List, Union
 
 import numpy as np
 
-from api.vr_objects import VRObject, ViveController, ViveTracker
-from utils.averageQuaternion import averageQuaternions
+from backend_api.vr_objects import VRObject, ViveController, ViveTracker
+from backend_utils.averageQuaternion import averageQuaternions
 
 
 def average_vr_pose(list_vr_object: List[Union[VRObject, ViveTracker, ViveController]]

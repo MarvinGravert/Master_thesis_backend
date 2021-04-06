@@ -10,8 +10,8 @@ from typing import List, Tuple
 import numpy as np
 from loguru import logger
 
-from api.exceptions import IncorrectMessageFormat
-from utils.averageQuaternion import averageQuaternions
+from backend_api.exceptions import IncorrectMessageFormat
+from backend_utils.averageQuaternion import averageQuaternions
 
 
 class InformationProcessor():
