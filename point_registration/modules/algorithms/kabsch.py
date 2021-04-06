@@ -4,12 +4,11 @@ Find Transformation from Point Set 1 to Point Set 1 using Kabsch algorithm
 from typing import Tuple
 
 import numpy as np
-
 from loguru import logger
 
+from backend_utils.linear_algebra_helper import combine_to_homogeneous_matrix
 
 from modules.base_compute import BaseAlgorithm
-from utils.linear_algebra_helper import combine_to_homogeneous_matrix
 
 
 class KabschAlgorithm(BaseAlgorithm):
@@ -66,8 +65,8 @@ class KabschAlgorithm(BaseAlgorithm):
 
         # special reflection case
         if np.linalg.det(R) < 0:
-            logger.info(
-                "det(R) < R, reflection detected!, correcting for it ...")
+            logger.warning(
+                "det(R) < 0, reflection detected!, correcting for it ...")
             Vt[2, :] *= -1
             R = Vt.T @ U.T
 

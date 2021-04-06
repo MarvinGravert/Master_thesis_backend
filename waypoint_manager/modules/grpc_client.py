@@ -15,10 +15,11 @@ from holoViveCom_pb2 import LighthouseState, InformationRequest
 
 import holoViveCom_pb2_grpc
 import point_set_registration_pb2_grpc
+from backend_utils.object_pose_averager import average_vr_pose
+from backend_api.vr_objects import VRObject
 
-from config.api_types import VRObject, VRState
+from config.api_types import ServerState
 from config.const import NUM_LIGHTHOUSE_SAMPLES
-from utils.object_pose_averager import average_vr_pose
 
 
 class GRPCCommunicator():
@@ -33,9 +34,9 @@ class BackendCommunicator(GRPCCommunicator):
         ProvideLighthouseState
         ---------------------
     """
-    async def get_tracker_pose(self) -> VRState:
+    async def get_tracker_pose(self) -> ServerState:
         """Sends an empty status to the backend server and receives back the position of the both the trackers
-        The returned trackerstate object is then used to create the vr_state
+        The returned trackerstate object is then used to create the server_state
         """
         logger.info("Start communication wiht server")
         test = asyncio.Event()
@@ -61,7 +62,7 @@ class BackendCommunicator(GRPCCommunicator):
             cali_tracker: VRObject = average_vr_pose(list_vr_object=list_calibration_tracker)
 
         # 10,10,10,0,0,1,0end
-        return await self.build_vr_state(holo_tracker=holo_tracker, cali_tracker=cali_tracker)
+        return await self.build_server_state(holo_tracker=holo_tracker, cali_tracker=cali_tracker)
 
     async def process_response(self, async_response: LighthouseState) -> Tuple[VRObject, VRObject]:
         logger.debug(f"server response: {async_response}")
@@ -69,8 +70,8 @@ class BackendCommunicator(GRPCCommunicator):
         cali_tracker = VRObject.set_pose_via_grpc_object(async_response.caliTracker)
         return holo_tracker, cali_tracker
 
-    async def build_vr_state(self, holo_tracker: VRObject, cali_tracker: VRObject) -> VRState:
-        vr_state = VRState()
-        vr_state.holo_tracker = holo_tracker
-        vr_state.calibration_tracker = cali_tracker
-        return vr_state
+    async def build_server_state(self, holo_tracker: VRObject, cali_tracker: VRObject) -> ServerState:
+        server_state = ServerState()
+        server_state.holo_tracker = holo_tracker
+        server_state.calibration_tracker = cali_tracker
+        return server_state

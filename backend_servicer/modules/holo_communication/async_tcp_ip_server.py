@@ -8,11 +8,11 @@ from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from api.general_types import VRState
+from api.general_types import ServerState
 
 
 class TcpIPServer():
-    def __init__(self, IP: str, port: int, vr_state: VRState):
+    def __init__(self, IP: str, port: int, vr_state: ServerState):
         self.IP = IP
         self.port = port
         self.vr_state = vr_state
@@ -57,7 +57,7 @@ class TcpIPServer():
         Returns:
             bytes: data in bytes
         """
-        if self.vr_state.calibration.calibration_received():
+        if False:  # self.vr_state.calibration.calibration_received():#TODO: integrate calibration
             controller_pose: List[np.ndarray] = self._calculate_post_calibration_controller_pose()
             controller_button_state: str = self.vr_state.controller.get_button_state_as_string()
             controller_state: str = self._turn_pose_into_string(pose=controller_pose) +\

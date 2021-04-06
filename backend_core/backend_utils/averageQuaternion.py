@@ -35,7 +35,7 @@
 #
 
 import numpy
-import numpy.matlib as npm
+# import numpy.matlib as npm
 
 # Q is a Nx4 numpy matrix and contains the quaternions to average in the rows.
 # The quaternions are arranged as (w,x,y,z), with w being the scalar
@@ -46,7 +46,7 @@ import numpy.matlib as npm
 def averageQuaternions(Q):
     # Number of quaternions to average
     M = Q.shape[0]
-    A = npm.zeros(shape=(4, 4))
+    A = numpy.zeros(shape=(4, 4))
 
     for i in range(0, M):
         q = Q[i, :]
@@ -60,7 +60,7 @@ def averageQuaternions(Q):
     # Sort by largest eigenvalue
     eigenVectors = eigenVectors[:, eigenValues.argsort()[::-1]]
     # return the real part of the largest eigenvector (has only real part)
-    return numpy.real(eigenVectors[:, 0].A1)
+    return numpy.real(eigenVectors[:, 0].flatten())
 
 
 # Average multiple quaternions with specific weights
@@ -69,7 +69,7 @@ def averageQuaternions(Q):
 def weightedAverageQuaternions(Q, w):
     # Number of quaternions to average
     M = Q.shape[0]
-    A = npm.zeros(shape=(4, 4))
+    A = numpy.zeros(shape=(4, 4))
     weightSum = 0
 
     for i in range(0, M):
@@ -87,4 +87,4 @@ def weightedAverageQuaternions(Q, w):
     eigenVectors = eigenVectors[:, eigenValues.argsort()[::-1]]
 
     # return the real part of the largest eigenvector (has only real part)
-    return numpy.real(eigenVectors[:, 0].A1)
+    return numpy.real(eigenVectors[:, 0].flatten())

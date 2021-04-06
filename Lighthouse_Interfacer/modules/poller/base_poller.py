@@ -1,7 +1,7 @@
 from typing import List
 from abc import ABC, abstractmethod
 
-from config.api_types import VRObject
+from backend_api.vr_objects import VRObject
 
 
 class BasePoller(ABC):

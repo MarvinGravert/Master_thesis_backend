@@ -10,7 +10,7 @@ from holoViveCom_pb2 import (
     LighthouseState, Empty)
 import holoViveCom_pb2_grpc
 
-from api.general_types import VRState
+from api.general_types import ServerState
 from config.const import (
     WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
 )
@@ -18,7 +18,7 @@ from config.const import (
 
 class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
-    def __init__(self, IP: str, port: int, vr_state: VRState) -> None:
+    def __init__(self, IP: str, port: int, vr_state: ServerState) -> None:
         super().__init__()
         self._IP = IP
         self._port = port

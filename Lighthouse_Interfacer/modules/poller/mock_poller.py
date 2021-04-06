@@ -4,7 +4,8 @@ from typing import Dict, Any
 from loguru import logger
 import numpy as np
 
-from config.api_types import VRObject, ViveController, ViveTracker
+from backend_api.vr_objects import VRObject, ViveController, ViveTracker
+
 from modules.poller.base_poller import BasePoller
 
 
@@ -33,9 +34,8 @@ class MockPoller(BasePoller):
         }
         button_state = {key: str(value) for key, value in button_state.items()}
         state_dict["controller"] = ViveController(
-            ID="controller",
-            location_rotation=[0, 1, 0, 0],
-            location_tranlation=np.random.randint([10, 10, 10]),
+            rotation=[0, 1, 0, 0],
+            position=np.random.randint([10, 10, 10]),
             button_state=button_state).get_as_grpc_object()
 
         """
@@ -45,9 +45,8 @@ class MockPoller(BasePoller):
         """
         # get the position and rotation
         state_dict["holo_tracker"] = ViveTracker(
-            ID="holotracker",
-            location_rotation=[0, 1, 0, 0],
-            location_tranlation=[1, 0, 2],).get_as_grpc_object()
+            rotation=[0, 1, 0, 0],
+            position=[1, 0, 2],).get_as_grpc_object()
 
         """
             ----------
@@ -56,8 +55,7 @@ class MockPoller(BasePoller):
         """
         # get the position and rotation
         state_dict["calibration_tracker"] = ViveTracker(
-            ID="calibration_tracker",
-            location_rotation=[0, 1, 0, 0],
-            location_tranlation=[1, 0, 2],).get_as_grpc_object()
+            rotation=[0, 1, 0, 0],
+            position=[1, 0, 2],).get_as_grpc_object()
 
         return state_dict
