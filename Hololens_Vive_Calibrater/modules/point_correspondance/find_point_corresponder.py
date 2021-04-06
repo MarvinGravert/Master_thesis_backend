@@ -135,7 +135,7 @@ class FirstCalibrationObject(BaseCalibrationObject):
 
 
 def _get_active_calibration_object() -> Union[FirstCalibrationObject]:
-    from config.api_types import CalibrationObject
+    from config.api import CalibrationObject
     from config.const import CALIBRATION_OBJECT
     lookup_table: Dict[CalibrationObject, Union[FirstCalibrationObject]] = {
         CalibrationObject.FIRSTPROTOTYPE: FirstCalibrationObject()

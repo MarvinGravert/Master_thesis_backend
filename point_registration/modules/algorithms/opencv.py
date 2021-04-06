@@ -26,13 +26,13 @@ class OpencvAlgorithm(BaseAlgorithm):
     def register_point_set(self, point_set_1: np.ndarray,
                            point_set_2: np.ndarray
                            ) -> np.ndarray:
-        """Find optimal affine transformation between the points sets 
+        """Find optimal affine transformation between the points sets
 
 
-                function used: 
+                function used:
                 https://docs.opencv.org/4.0.0/d9/d0c/group__calib3d.html#ga396afb6411b30770e56ab69548724715
         Args:
-            point_set_1 (np.ndarray): 3xn 
+            point_set_1 (np.ndarray): 3xn
             point_set_2 (np.ndarray): 3xn
 
         Returns:
@@ -65,4 +65,4 @@ class OpencvAlgorithm(BaseAlgorithm):
         """)
         logger.info(f"Result: \n {out}")
 
-        return out
+        return np.vstack((out, [0, 0, 0, 1]))

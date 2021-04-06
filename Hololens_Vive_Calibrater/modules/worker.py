@@ -9,17 +9,19 @@ from typing import List
 import numpy as np
 from loguru import logger
 
+from backend_api.vr_objects import ViveTracker
+from backend_api.exceptions import IncorrectMessageFormat
+from backend_utils.averageQuaternion import averageQuaternions
+from backend_utils.information_processor import InformationProcessor
+
 from config.const import (
     POINT_REGISTER_HOST, POINT_REGISTER_PORT, BACKEND_HOST, BACKEND_PORT,
     WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
 )
 from modules.communication.grpc_client import BackendCommunicator, PointRegisterCommunicator, WayPointManagerCommunicator
 from modules.point_correspondance.find_point_corresponder import get_points_real_object, get_points_virtual_object
-from config.api_types import IncorrectMessageFormat, ViveTracker
 from utils.information_logger import DataLogger
 from config.const import CALIBRATION_OBJECT
-from utils.averageQuaternion import averageQuaternions
-from utils.information_processor import InformationProcessor
 
 
 async def worker(queue: asyncio.Queue):
@@ -76,8 +78,8 @@ async def worker(queue: asyncio.Queue):
         virtual_cali_points = get_points_virtual_object(
             unity_trans=hologram_position, unity_rot=hologram_rotation)
         real_cali_points = get_points_real_object(
-            vive_trans=tracker_state.calibration_tracker.loc_trans,
-            vive_rot=tracker_state.calibration_tracker.loc_rot
+            vive_trans=tracker_state.calibration_tracker.position,
+            vive_rot=tracker_state.calibration_tracker.rotation
         )
         """
         ------------------
@@ -95,7 +97,7 @@ async def worker(queue: asyncio.Queue):
         get tracker transformation
         ------------------
         """
-        tracker_hom_matrix = tracker_state.holo_tracker.get_as_hom_matrix()
+        tracker_hom_matrix = tracker_state.holo_tracker.get_pose_as_hom_matrix()
         """
         ------------------
         calculate desired transformation
@@ -124,11 +126,11 @@ async def worker(queue: asyncio.Queue):
         datalog.calibration_position = hologram_position
         datalog.calibration_rotation = hologram_rotation
         datalog.calibration_tracker = ViveTracker(
-            ID="cali", location_rotation=tracker_state.calibration_tracker.loc_rot,
-            location_tranlation=tracker_state.calibration_tracker.loc_trans)
+            rotation=tracker_state.calibration_tracker.rotation,
+            position=tracker_state.calibration_tracker.position)
         datalog.holo_tracker = ViveTracker(
-            ID="holo", location_rotation=tracker_state.holo_tracker.loc_rot,
-            location_tranlation=tracker_state.holo_tracker.loc_trans)
+            rotation=tracker_state.holo_tracker.rotation,
+            position=tracker_state.holo_tracker.position)
         datalog.reprojection_error = reprojection_error
         datalog.real_points = real_cali_points
         datalog.virtual_points = virtual_cali_points

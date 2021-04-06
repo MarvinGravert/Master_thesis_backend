@@ -13,7 +13,8 @@ from openvr.error_code import InitError_Init_PathRegistryNotFound, InitError_Ini
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from config.api_types import VRObject, ViveController, ViveTracker
+from backend_api.vr_objects import VRObject, ViveController, ViveTracker
+
 from utils.triad_openvr import triad_openvr  # file from triad Repo
 from modules.poller.base_poller import BasePoller
 from config.api_types import (
@@ -63,9 +64,8 @@ class VRPoller(BasePoller):
             button_state = {key: str(value) for key, value in button_state.items()}
 
             state_dict["controller"] = ViveController(
-                ID="controller",
-                location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],
+                rotation=[w, i, j, k],
+                position=[x, y, z],
                 button_state=button_state).get_as_grpc_object()
         except (TypeError, ZeroDivisionError) as e:
             # this occurs when connection to device is lost
@@ -85,9 +85,8 @@ class VRPoller(BasePoller):
             # get the position and rotation
             [x, y, z, w, i, j, k] = self.v.devices["holo_tracker"].get_pose_quaternion()
             state_dict["holo_tracker"] = ViveTracker(
-                ID="holotracker",
-                location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],).get_as_grpc_object()
+                rotation=[w, i, j, k],
+                poosition=[x, y, z],).get_as_grpc_object()
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -104,9 +103,8 @@ class VRPoller(BasePoller):
             # get the position and rotation
             [x, y, z, w, i, j, k] = self.v.devices["calibration_tracker"].get_pose_quaternion()
             state_dict["calibration_tracker"] = ViveTracker(
-                ID="calibration_tracker",
-                location_rotation=[w, i, j, k],
-                location_tranlation=[x, y, z],).get_as_grpc_object()
+                rotation=[w, i, j, k],
+                position=[x, y, z],).get_as_grpc_object()
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
