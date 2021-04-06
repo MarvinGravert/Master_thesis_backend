@@ -10,7 +10,7 @@ setup(
     author='Marvin Gravert',
     author_email='marvin.gravert@gmail.com',
 
-    packages=find_packages(),
+    packages=find_packages(exclude=("tests",)),
     license='MIT',
     zip_safe=False,
 )
