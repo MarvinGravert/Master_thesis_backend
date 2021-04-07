@@ -27,8 +27,8 @@ import numpy as np
 from point_set_registration_pb2 import Algorithm, Vector, Input, RANSACParameters
 import point_set_registration_pb2_grpc
 
-from config.config import GRPC_PORT, RUNTIME_HOST
-from utils.linear_algebra_helper import separate_from_homogeneous_matrix
+from config.config import POINT_REGISTERING_HOST, POINT_REGISTERING_PORT
+from backend_utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 
 def run(point_set_1: np.ndarray,
@@ -48,9 +48,9 @@ def run(point_set_1: np.ndarray,
         R (np.ndarray): 3x3 rotation matrix
         t (np.ndarray): 3x1 translation vector
     """
-    with grpc.insecure_channel(f"{RUNTIME_HOST}:{GRPC_PORT}") as channel:
+    with grpc.insecure_channel(f"{POINT_REGISTERING_HOST}:{POINT_REGISTERING_PORT}") as channel:
         stub = point_set_registration_pb2_grpc.PointSetRegisteringStub(channel)
-        logger.info(f"Connecting to {RUNTIME_HOST}:{GRPC_PORT}")
+        logger.info(f"Connecting to {POINT_REGISTERING_HOST}:{POINT_REGISTERING_PORT}")
 
         point_set_1 = [Vector(entries=x) for x in point_set_1]
         point_set_2 = [Vector(entries=x) for x in point_set_2]
