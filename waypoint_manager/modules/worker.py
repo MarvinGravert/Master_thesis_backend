@@ -84,7 +84,7 @@ class WorkerClass():
         calculate desired transformation
         ------------------
         """
-        LH_2_robot_matrix = self.server_state.calibration.LH_2_robot_matrix
+        LH_2_robot_matrix = self.server_state.LH2Robo.matrix
 
         return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker)[:3]
 
@@ -107,8 +107,8 @@ class WorkerClass():
         hom_hologram_2_virtual_center = self._transform_unity_quat_into_hom(
             unity_position=hologram_position,
             unity_quaternion=hologram_rotation)
-        LH_2_robot_matrix = self.server_state.calibration.LH_2_robot_matrix
-        LH_2_virtual_center = self.server_state.calibration.LH_2_virtual_matrix
+        LH_2_robot_matrix = self.server_state.LH2Robo.matrix
+        LH_2_virtual_center = self.server_state.LH2Virtual.matrix
         # TODO: include the tracker instead of the direct transform
         hologram_2_robo = LH_2_robot_matrix@np.linalg.inv(
             LH_2_virtual_center)@hom_hologram_2_virtual_center
