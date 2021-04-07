@@ -4,8 +4,8 @@ from decouple import config
 """
 Server parameters
 """
-GRPC_PORT = config("GRPC_PORT", cast=int, default=50052)
-RUNTIME_HOST = config("RUNTIME_HOST", cast=str, default="[::]")
+POINT_REGISTERING_PORT = config("POINT_REGISTERING_PORT", cast=int, default=50052)
+POINT_REGISTERING_HOST = config("POINT_REGISTERING_HOST", cast=str, default="[::]")
 MAX_WORKERS = config("MAX_WORKERS", cast=int, default=2)
 
 
