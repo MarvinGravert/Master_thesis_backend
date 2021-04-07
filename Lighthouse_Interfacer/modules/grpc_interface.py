@@ -1,5 +1,3 @@
-from config.api_types import ViveTracker
-from logging import currentframe
 import grpc
 import time
 
@@ -10,6 +8,9 @@ from holoViveCom_pb2 import (
     LighthouseState, Tracker, HandheldController
 )
 
+from backend_api.vr_objects import (
+    ViveController, ViveTracker
+)
 from config.const import (
     GRPC_HOST_IP, GRPC_HOST_PORT, GRPC_MAX_MESSAGE_LENGTH, POLLING_FREQUENCY
 )
@@ -28,12 +29,12 @@ class ForwardLighthouseData():
             ("grpc.max_send_message_length", GRPC_MAX_MESSAGE_LENGTH),
             ("grpc.max_receive_message_length", GRPC_MAX_MESSAGE_LENGTH)
         ]
-        self._poller = MockPoller()
-        # try:
-        #     self._poller = VRPoller(config_file_path="./vr_object_config.json")
-        #     self._poller.start()
-        # except (VRConfigError, OpenVRConnectionError):
-        #     raise StartupError
+        # self._poller = MockPoller()
+        try:
+            self._poller = VRPoller(config_file_path="./vr_object_config.json")
+            self._poller.start()
+        except (VRConfigError, OpenVRConnectionError):
+            raise StartupError
 
     def connect(self) -> None:
 
@@ -54,7 +55,7 @@ class ForwardLighthouseData():
                         holoTracker=holo_tracker,
                         caliTracker=calibration_tracker,
                         controller=controller)
-                    logger.debug(t)
+                    # logger.debug(t)
                     yield t
                     # run loop on frequency
                     current_time = time.time()
