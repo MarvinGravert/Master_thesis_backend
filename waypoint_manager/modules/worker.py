@@ -78,7 +78,7 @@ class WorkerClass():
         ------------------
         """
         hom_matrix_controller_2_LH = controller.get_pose_as_hom_matrix()
-        waypointmarker = np.array([0, 0, 0.2, 1])  # TODO: Change this
+        waypointmarker = np.array([0, -0.012, 0.173, 1])  # NOTE: adjusted to unity values
         """
         ------------------
         calculate desired transformation
