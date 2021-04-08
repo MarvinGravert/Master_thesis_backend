@@ -68,6 +68,6 @@ if __name__ == "__main__":
     # v = triad_openvr()
     # v.print_discovered_objects()
 
-    file_dir = "./vive_calibration_data/20210406_CalibrationSet_1"  # CCR 05
+    file_dir = "./vive_calibration_data/20210408_CalibrationSet_1"  # CCR 05
     file_name = file_dir+"/"+get_new_filename(file_dir)
     take_measurements(filename=file_name)

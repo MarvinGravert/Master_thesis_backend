@@ -91,7 +91,7 @@ def get_calibration_points_matrix(vive_tracker_pose_list: List[np.ndarray]) -> n
     """
     res = np.zeros([len(vive_tracker_pose_list), 3])
     calibration_point_in_tracker_kos = np.array(
-        [0, 0, -DISTANCE_VIVE_ENDEFFECTOR]).reshape([-1, 1])
+        [0, 0, DISTANCE_VIVE_ENDEFFECTOR]).reshape([-1, 1])
     for a, calib_pose in enumerate(vive_tracker_pose_list):
         calib_pose = np.mean(calib_pose, axis=0)
         rot_matrix_tracker_2_LH = calib_pose.reshape([3, 4])
@@ -127,14 +127,14 @@ def get_robot_data(date: str, experiment_number: str) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    experiment_number = "2"
-    date = "20210318"
+    experiment_number = "1"
+    date = "20210406"
     v = get_vive_calibration_positions(date=date, experiment_number=experiment_number)
     a = get_calibration_points(v)
 
-    experiment_number = "1"
-    v = get_vive_calibration_positions(date=date, experiment_number=experiment_number)
-    b = get_calibration_points(v)
+    # experiment_number = "1"
+    # v = get_vive_calibration_positions(date=date, experiment_number=experiment_number)
+    # b = get_calibration_points(v)
 
-    print(b[0])
+    # print(b[0])
     print(a[0])

@@ -131,15 +131,15 @@ if __name__ == "__main__":
     from read_file import get_robot_data
     logger.info("Running client directly")
     experiment = "1"
-    date = "20210407"
+    date = "20210408"
     algo = Algorithm(
-        type=Algorithm.Type.ARUN,
+        type=Algorithm.Type.OPENCV,
         optimize=False,
-        ransac=RANSACParameters(threshold=3, confidence=0.99)
+        ransac=RANSACParameters(threshold=1, confidence=0.95)
     )
-    point_set_1 = get_vive_data(date=date, experiment=experiment)*1000  # mm
+    point_set_1 = get_vive_data(date=date, experiment=experiment)  # *1000  # mm
     point_set_2 = get_robot_data(date, experiment)
-    R, t = run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algo)
+    R, t = run(point_set_1=point_set_1[:21, :], point_set_2=point_set_2[:21, :], algorithm=algo)
     # print(R, t)
     reprojection_error = list()
     for i in range(24):
@@ -147,16 +147,15 @@ if __name__ == "__main__":
         v = R@point_set_1[i].reshape([-1, 1])+t
         # print(v)
         # print(point_set_1[0])
+        if i == 0:
+            print(point_set_1[i])
+            print(v)
+            print(point_set_2[i])
+            print(v-point_set_2[i].reshape([-1, 1]))
+            print(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
         reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
     print(np.mean(np.array(reprojection_error)))
 
-    v1 = (point_set_1[10]-point_set_1[1])
-    v1_c = (point_set_2[10]-point_set_2[1])
-    # print(np.linalg.norm(v1))
-    # print(np.linalg.norm(v1_c))
-    # print(np.linalg.norm(v1_c-v1))
-    # print(R*1000)
-    # print(point_set_2)
-    print(reprojection_error)
-    print(R)
-    print(t/1000)
+    # print(reprojection_error)
+    # print(R)
+    # print(t)
