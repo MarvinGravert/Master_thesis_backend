@@ -79,6 +79,8 @@ class WorkerClass():
         """
         hom_matrix_controller_2_LH = controller.get_pose_as_hom_matrix()
         waypointmarker = np.array([0, -0.012, 0.173, 1])  # NOTE: adjusted to unity values
+        print(hom_matrix_controller_2_LH)
+        print(self.server_state.LH2Robo.matrix)
         """
         ------------------
         calculate desired transformation
@@ -86,7 +88,7 @@ class WorkerClass():
         """
         LH_2_robot_matrix = self.server_state.LH2Robo.matrix
 
-        return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker)[:3]
+        return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker.reshape((-1, 1)))[:3]
 
     async def workflow_hololens_waypoint(self, hololens_message: List[str],
                                          tracker_state: ServerState) -> np.ndarray:
