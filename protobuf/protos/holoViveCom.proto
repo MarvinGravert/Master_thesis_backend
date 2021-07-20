@@ -1,65 +1,29 @@
 syntax="proto3";
 
-//package unary;
-
-//package unary;
 service Backend{
-    rpc LighthouseReport(stream LighthouseState ) returns (Empty){}//transmit the current State of all connected LH objects
-    rpc ProvideLighthouseState(InformationRequest) returns (stream LighthouseState){} // provide information about the connected lighthosue objects
-    rpc ProvideTrackerState(InformationRequest) returns (stream LighthouseState){} // includes only the pose of both trackers
-    rpc ChangeStatus(Status) returns (Empty){} //change the status which is sent to the hololens (mainly used to control from outside)
-    // Following function are used to manage the calribation information
-    // One RPC to send and one to receive
-    // GetCalibration is used from services on startup to get the calibrationinfo
-    // UpdateCalibration is called when a new calibration becomes available or is set
-    rpc UpdateCalibrationInfo(CalibrationInfo) returns (Empty){} 
-    rpc GetCalibrationInfo(Empty) returns (CalibrationInfo){}
-    // special rpc which will be used to signal that a waypoint via the controller method shall be placed
-    rpc PlaceWayPoint(LighthouseState) returns (Empty){}
+    //transmit the current State of all connected LH objects
+    rpc LighthouseReport(stream LighthouseState ) returns (Empty){}
+    rpc SendCommand(Command) returns (Empty){}  
 }
-message Status{
-    string status=1;
+message Command{
+    string command=1;
 }
 message Empty{}
 
-message InformationRequest{// number of unique information samples
-    int32 numberSamples=1;
-}
-
-/*
-/////////////////////
-    LIGHTHOUSE
-/////////////////////
-*/
 message LighthouseState{
-    Tracker holoTracker=1;
-    Tracker caliTracker=2;
-    HandheldController controller=3;
+    repeated Controller controllerList=1;
+    repeated Tracker trackerList=2;
 }
 
 message Tracker{
-    string ID=1;
-    Quaternion rotation=2;
-    repeated float position=3; // x y z 
+    string name=1;
+    repeated float position=2; // x y z 
+    repeated float rotation=3; // w qx qy qz 
 }
 
-message HandheldController{
-    string ID=1;
-    Quaternion rotation=2;
-    repeated float position=3;
-    map<string,string> button_state=4; //#REVIEW: specifcially add the state? see holorob architecture
-}
-message Quaternion{
-    repeated float quat=1;//w i j k 
-}
-
-
-/*
-/////////////////////
-    Hololens-Vive-Calibration
-/////////////////////
-*/
-message CalibrationInfo{
-    string status=1;
-    repeated float calibrationMatrixRowMajor=2; //4x4 Matrix
+message Controller{
+    string name=1;
+    repeated float position=2; // x y z 
+    repeated float rotation=3; // w qx qy qz
+    map<string,string> button_state=4; 
 }

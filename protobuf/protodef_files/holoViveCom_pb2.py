@@ -19,22 +19,22 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11holoViveCom.proto\"\x18\n\x06Status\x12\x0e\n\x06status\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"+\n\x12InformationRequest\x12\x15\n\rnumberSamples\x18\x01 \x01(\x05\"x\n\x0fLighthouseState\x12\x1d\n\x0bholoTracker\x18\x01 \x01(\x0b\x32\x08.Tracker\x12\x1d\n\x0b\x63\x61liTracker\x18\x02 \x01(\x0b\x32\x08.Tracker\x12\'\n\ncontroller\x18\x03 \x01(\x0b\x32\x13.HandheldController\"F\n\x07Tracker\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\"\xc1\x01\n\x12HandheldController\x12\n\n\x02ID\x18\x01 \x01(\t\x12\x1d\n\x08rotation\x18\x02 \x01(\x0b\x32\x0b.Quaternion\x12\x10\n\x08position\x18\x03 \x03(\x02\x12:\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32$.HandheldController.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\x1a\n\nQuaternion\x12\x0c\n\x04quat\x18\x01 \x03(\x02\"D\n\x0f\x43\x61librationInfo\x12\x0e\n\x06status\x18\x01 \x01(\t\x12!\n\x19\x63\x61librationMatrixRowMajor\x18\x02 \x03(\x02\x32\xf9\x02\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12\x43\n\x16ProvideLighthouseState\x12\x13.InformationRequest\x1a\x10.LighthouseState\"\x00\x30\x01\x12@\n\x13ProvideTrackerState\x12\x13.InformationRequest\x1a\x10.LighthouseState\"\x00\x30\x01\x12!\n\x0c\x43hangeStatus\x12\x07.Status\x1a\x06.Empty\"\x00\x12\x33\n\x15UpdateCalibrationInfo\x12\x10.CalibrationInfo\x1a\x06.Empty\"\x00\x12\x30\n\x12GetCalibrationInfo\x12\x06.Empty\x1a\x10.CalibrationInfo\"\x00\x12+\n\rPlaceWayPoint\x12\x10.LighthouseState\x1a\x06.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x11holoViveCom.proto\"\x1a\n\x07\x43ommand\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"U\n\x0fLighthouseState\x12#\n\x0e\x63ontrollerList\x18\x01 \x03(\x0b\x32\x0b.Controller\x12\x1d\n\x0btrackerList\x18\x02 \x03(\x0b\x32\x08.Tracker\";\n\x07Tracker\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\"\xa6\x01\n\nController\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\x12\x32\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32\x1c.Controller.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32^\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12!\n\x0bSendCommand\x12\x08.Command\x1a\x06.Empty\"\x00\x62\x06proto3'
 )
 
 
 
 
-_STATUS = _descriptor.Descriptor(
-  name='Status',
-  full_name='Status',
+_COMMAND = _descriptor.Descriptor(
+  name='Command',
+  full_name='Command',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='Status.status', index=0,
+      name='command', full_name='Command.command', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -53,7 +53,7 @@ _STATUS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=21,
-  serialized_end=45,
+  serialized_end=47,
 )
 
 
@@ -77,40 +77,8 @@ _EMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=47,
-  serialized_end=54,
-)
-
-
-_INFORMATIONREQUEST = _descriptor.Descriptor(
-  name='InformationRequest',
-  full_name='InformationRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='numberSamples', full_name='InformationRequest.numberSamples', index=0,
-      number=1, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=56,
-  serialized_end=99,
+  serialized_start=49,
+  serialized_end=56,
 )
 
 
@@ -123,23 +91,16 @@ _LIGHTHOUSESTATE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='holoTracker', full_name='LighthouseState.holoTracker', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='controllerList', full_name='LighthouseState.controllerList', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='caliTracker', full_name='LighthouseState.caliTracker', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='controller', full_name='LighthouseState.controller', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='trackerList', full_name='LighthouseState.trackerList', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
@@ -155,8 +116,8 @@ _LIGHTHOUSESTATE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=101,
-  serialized_end=221,
+  serialized_start=58,
+  serialized_end=143,
 )
 
 
@@ -169,21 +130,21 @@ _TRACKER = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ID', full_name='Tracker.ID', index=0,
+      name='name', full_name='Tracker.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotation', full_name='Tracker.rotation', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='position', full_name='Tracker.position', index=1,
+      number=2, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='position', full_name='Tracker.position', index=2,
+      name='rotation', full_name='Tracker.rotation', index=2,
       number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -201,28 +162,28 @@ _TRACKER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=223,
-  serialized_end=293,
+  serialized_start=145,
+  serialized_end=204,
 )
 
 
-_HANDHELDCONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
+_CONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
   name='ButtonStateEntry',
-  full_name='HandheldController.ButtonStateEntry',
+  full_name='Controller.ButtonStateEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='key', full_name='HandheldController.ButtonStateEntry.key', index=0,
+      name='key', full_name='Controller.ButtonStateEntry.key', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='value', full_name='HandheldController.ButtonStateEntry.value', index=1,
+      name='value', full_name='Controller.ButtonStateEntry.value', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -240,41 +201,41 @@ _HANDHELDCONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=439,
-  serialized_end=489,
+  serialized_start=323,
+  serialized_end=373,
 )
 
-_HANDHELDCONTROLLER = _descriptor.Descriptor(
-  name='HandheldController',
-  full_name='HandheldController',
+_CONTROLLER = _descriptor.Descriptor(
+  name='Controller',
+  full_name='Controller',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ID', full_name='HandheldController.ID', index=0,
+      name='name', full_name='Controller.name', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotation', full_name='HandheldController.rotation', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='position', full_name='Controller.position', index=1,
+      number=2, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='position', full_name='HandheldController.position', index=2,
+      name='rotation', full_name='Controller.rotation', index=2,
       number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='button_state', full_name='HandheldController.button_state', index=3,
+      name='button_state', full_name='Controller.button_state', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -283,7 +244,7 @@ _HANDHELDCONTROLLER = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_HANDHELDCONTROLLER_BUTTONSTATEENTRY, ],
+  nested_types=[_CONTROLLER_BUTTONSTATEENTRY, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -292,104 +253,27 @@ _HANDHELDCONTROLLER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=296,
-  serialized_end=489,
+  serialized_start=207,
+  serialized_end=373,
 )
 
-
-_QUATERNION = _descriptor.Descriptor(
-  name='Quaternion',
-  full_name='Quaternion',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='quat', full_name='Quaternion.quat', index=0,
-      number=1, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=491,
-  serialized_end=517,
-)
-
-
-_CALIBRATIONINFO = _descriptor.Descriptor(
-  name='CalibrationInfo',
-  full_name='CalibrationInfo',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='status', full_name='CalibrationInfo.status', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='calibrationMatrixRowMajor', full_name='CalibrationInfo.calibrationMatrixRowMajor', index=1,
-      number=2, type=2, cpp_type=6, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=519,
-  serialized_end=587,
-)
-
-_LIGHTHOUSESTATE.fields_by_name['holoTracker'].message_type = _TRACKER
-_LIGHTHOUSESTATE.fields_by_name['caliTracker'].message_type = _TRACKER
-_LIGHTHOUSESTATE.fields_by_name['controller'].message_type = _HANDHELDCONTROLLER
-_TRACKER.fields_by_name['rotation'].message_type = _QUATERNION
-_HANDHELDCONTROLLER_BUTTONSTATEENTRY.containing_type = _HANDHELDCONTROLLER
-_HANDHELDCONTROLLER.fields_by_name['rotation'].message_type = _QUATERNION
-_HANDHELDCONTROLLER.fields_by_name['button_state'].message_type = _HANDHELDCONTROLLER_BUTTONSTATEENTRY
-DESCRIPTOR.message_types_by_name['Status'] = _STATUS
+_LIGHTHOUSESTATE.fields_by_name['controllerList'].message_type = _CONTROLLER
+_LIGHTHOUSESTATE.fields_by_name['trackerList'].message_type = _TRACKER
+_CONTROLLER_BUTTONSTATEENTRY.containing_type = _CONTROLLER
+_CONTROLLER.fields_by_name['button_state'].message_type = _CONTROLLER_BUTTONSTATEENTRY
+DESCRIPTOR.message_types_by_name['Command'] = _COMMAND
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
-DESCRIPTOR.message_types_by_name['InformationRequest'] = _INFORMATIONREQUEST
 DESCRIPTOR.message_types_by_name['LighthouseState'] = _LIGHTHOUSESTATE
 DESCRIPTOR.message_types_by_name['Tracker'] = _TRACKER
-DESCRIPTOR.message_types_by_name['HandheldController'] = _HANDHELDCONTROLLER
-DESCRIPTOR.message_types_by_name['Quaternion'] = _QUATERNION
-DESCRIPTOR.message_types_by_name['CalibrationInfo'] = _CALIBRATIONINFO
+DESCRIPTOR.message_types_by_name['Controller'] = _CONTROLLER
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Status = _reflection.GeneratedProtocolMessageType('Status', (_message.Message,), {
-  'DESCRIPTOR' : _STATUS,
+Command = _reflection.GeneratedProtocolMessageType('Command', (_message.Message,), {
+  'DESCRIPTOR' : _COMMAND,
   '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:Status)
+  # @@protoc_insertion_point(class_scope:Command)
   })
-_sym_db.RegisterMessage(Status)
+_sym_db.RegisterMessage(Command)
 
 Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
   'DESCRIPTOR' : _EMPTY,
@@ -397,13 +281,6 @@ Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
   # @@protoc_insertion_point(class_scope:Empty)
   })
 _sym_db.RegisterMessage(Empty)
-
-InformationRequest = _reflection.GeneratedProtocolMessageType('InformationRequest', (_message.Message,), {
-  'DESCRIPTOR' : _INFORMATIONREQUEST,
-  '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:InformationRequest)
-  })
-_sym_db.RegisterMessage(InformationRequest)
 
 LighthouseState = _reflection.GeneratedProtocolMessageType('LighthouseState', (_message.Message,), {
   'DESCRIPTOR' : _LIGHTHOUSESTATE,
@@ -419,37 +296,23 @@ Tracker = _reflection.GeneratedProtocolMessageType('Tracker', (_message.Message,
   })
 _sym_db.RegisterMessage(Tracker)
 
-HandheldController = _reflection.GeneratedProtocolMessageType('HandheldController', (_message.Message,), {
+Controller = _reflection.GeneratedProtocolMessageType('Controller', (_message.Message,), {
 
   'ButtonStateEntry' : _reflection.GeneratedProtocolMessageType('ButtonStateEntry', (_message.Message,), {
-    'DESCRIPTOR' : _HANDHELDCONTROLLER_BUTTONSTATEENTRY,
+    'DESCRIPTOR' : _CONTROLLER_BUTTONSTATEENTRY,
     '__module__' : 'holoViveCom_pb2'
-    # @@protoc_insertion_point(class_scope:HandheldController.ButtonStateEntry)
+    # @@protoc_insertion_point(class_scope:Controller.ButtonStateEntry)
     })
   ,
-  'DESCRIPTOR' : _HANDHELDCONTROLLER,
+  'DESCRIPTOR' : _CONTROLLER,
   '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:HandheldController)
+  # @@protoc_insertion_point(class_scope:Controller)
   })
-_sym_db.RegisterMessage(HandheldController)
-_sym_db.RegisterMessage(HandheldController.ButtonStateEntry)
-
-Quaternion = _reflection.GeneratedProtocolMessageType('Quaternion', (_message.Message,), {
-  'DESCRIPTOR' : _QUATERNION,
-  '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:Quaternion)
-  })
-_sym_db.RegisterMessage(Quaternion)
-
-CalibrationInfo = _reflection.GeneratedProtocolMessageType('CalibrationInfo', (_message.Message,), {
-  'DESCRIPTOR' : _CALIBRATIONINFO,
-  '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:CalibrationInfo)
-  })
-_sym_db.RegisterMessage(CalibrationInfo)
+_sym_db.RegisterMessage(Controller)
+_sym_db.RegisterMessage(Controller.ButtonStateEntry)
 
 
-_HANDHELDCONTROLLER_BUTTONSTATEENTRY._options = None
+_CONTROLLER_BUTTONSTATEENTRY._options = None
 
 _BACKEND = _descriptor.ServiceDescriptor(
   name='Backend',
@@ -458,8 +321,8 @@ _BACKEND = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=590,
-  serialized_end=967,
+  serialized_start=375,
+  serialized_end=469,
   methods=[
   _descriptor.MethodDescriptor(
     name='LighthouseReport',
@@ -472,61 +335,11 @@ _BACKEND = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
-    name='ProvideLighthouseState',
-    full_name='Backend.ProvideLighthouseState',
+    name='SendCommand',
+    full_name='Backend.SendCommand',
     index=1,
     containing_service=None,
-    input_type=_INFORMATIONREQUEST,
-    output_type=_LIGHTHOUSESTATE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='ProvideTrackerState',
-    full_name='Backend.ProvideTrackerState',
-    index=2,
-    containing_service=None,
-    input_type=_INFORMATIONREQUEST,
-    output_type=_LIGHTHOUSESTATE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='ChangeStatus',
-    full_name='Backend.ChangeStatus',
-    index=3,
-    containing_service=None,
-    input_type=_STATUS,
-    output_type=_EMPTY,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='UpdateCalibrationInfo',
-    full_name='Backend.UpdateCalibrationInfo',
-    index=4,
-    containing_service=None,
-    input_type=_CALIBRATIONINFO,
-    output_type=_EMPTY,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='GetCalibrationInfo',
-    full_name='Backend.GetCalibrationInfo',
-    index=5,
-    containing_service=None,
-    input_type=_EMPTY,
-    output_type=_CALIBRATIONINFO,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='PlaceWayPoint',
-    full_name='Backend.PlaceWayPoint',
-    index=6,
-    containing_service=None,
-    input_type=_LIGHTHOUSESTATE,
+    input_type=_COMMAND,
     output_type=_EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,

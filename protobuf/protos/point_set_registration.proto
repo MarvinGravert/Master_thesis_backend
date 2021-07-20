@@ -8,9 +8,10 @@ message Input{
     repeated Vector pointSet_2=2;
     Algorithm algorithm=3;
 }
+
 message Output{
     string status=1;
-    repeated float transformationMatrixRowMajor=2;//4x4 homogenous matrix
+    repeated float transformationMatrixRowMajor=2;// 4x4 homogenous matrix
     float reprojectionError=3;
 }
 
@@ -25,13 +26,13 @@ message Algorithm{
         KABSCH=0;
         OPENCV=1;
         UMEYAMA=1;
-        //
     }
     Type type=1;
-    bool optimize=2;//optimize using Levenberg-Marquart y/n
-    RANSACParameters ransac=3;//if set RANSAC is used with parameters
+    bool optimize=2;// optimize using Levenberg-Marquart y/n
+    RANSACParameters ransac=3;// if not set RANSAC is used with standard parameters
 
 }
+
 message RANSACParameters{
     float threshold=1;
     float confidence=2;
