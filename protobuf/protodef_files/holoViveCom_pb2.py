@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11holoViveCom.proto\"\x1a\n\x07\x43ommand\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"T\n\x0eTrackableState\x12#\n\x0e\x63ontrollerList\x18\x01 \x03(\x0b\x32\x0b.Controller\x12\x1d\n\x0btrackerList\x18\x02 \x03(\x0b\x32\x08.Tracker\";\n\x07Tracker\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\"\xa6\x01\n\nController\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\x12\x32\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32\x1c.Controller.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32S\n\x07\x42\x61\x63kend\x12%\n\x06Report\x12\x0f.TrackableState\x1a\x06.Empty\"\x00(\x01\x12!\n\x0bSendCommand\x12\x08.Command\x1a\x06.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x11holoViveCom.proto\"\x1a\n\x07\x43ommand\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"T\n\x0eTrackableState\x12#\n\x0e\x63ontrollerList\x18\x01 \x03(\x0b\x32\x0b.Controller\x12\x1d\n\x0btrackerList\x18\x02 \x03(\x0b\x32\x08.Tracker\";\n\x07Tracker\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\"\xa5\x01\n\nController\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\x12\x31\n\x0b\x62uttonState\x18\x04 \x03(\x0b\x32\x1c.Controller.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32S\n\x07\x42\x61\x63kend\x12%\n\x06Report\x12\x0f.TrackableState\x1a\x06.Empty\"\x00(\x01\x12!\n\x0bSendCommand\x12\x08.Command\x1a\x06.Empty\"\x00\x62\x06proto3'
 )
 
 
@@ -201,8 +201,8 @@ _CONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=322,
-  serialized_end=372,
+  serialized_start=321,
+  serialized_end=371,
 )
 
 _CONTROLLER = _descriptor.Descriptor(
@@ -235,7 +235,7 @@ _CONTROLLER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='button_state', full_name='Controller.button_state', index=3,
+      name='buttonState', full_name='Controller.buttonState', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -254,13 +254,13 @@ _CONTROLLER = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=206,
-  serialized_end=372,
+  serialized_end=371,
 )
 
 _TRACKABLESTATE.fields_by_name['controllerList'].message_type = _CONTROLLER
 _TRACKABLESTATE.fields_by_name['trackerList'].message_type = _TRACKER
 _CONTROLLER_BUTTONSTATEENTRY.containing_type = _CONTROLLER
-_CONTROLLER.fields_by_name['button_state'].message_type = _CONTROLLER_BUTTONSTATEENTRY
+_CONTROLLER.fields_by_name['buttonState'].message_type = _CONTROLLER_BUTTONSTATEENTRY
 DESCRIPTOR.message_types_by_name['Command'] = _COMMAND
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 DESCRIPTOR.message_types_by_name['TrackableState'] = _TRACKABLESTATE
@@ -321,8 +321,8 @@ _BACKEND = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=374,
-  serialized_end=457,
+  serialized_start=373,
+  serialized_end=456,
   methods=[
   _descriptor.MethodDescriptor(
     name='Report',

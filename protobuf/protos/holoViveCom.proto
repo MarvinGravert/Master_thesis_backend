@@ -25,5 +25,5 @@ message Controller{
     string name=1;
     repeated float position=2; // x y z 
     repeated float rotation=3; // qx qy qz w
-    map<string,string> button_state=4; 
+    map<string,string> buttonState=4; 
 }
