@@ -19,7 +19,7 @@ from api.general_types import (
 )
 
 
-class ViveCommunicator(holoViveCom_pb2_grpc.BackendServicer):
+class TrackingCommunicator(holoViveCom_pb2_grpc.BackendServicer):
 
     def __init__(self, IP: str, port: int, server_state: ServerState) -> None:
         super().__init__()
