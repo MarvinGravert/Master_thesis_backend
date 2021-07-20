@@ -9,14 +9,14 @@ import grpc.experimental.aio
 import holoViveCom_pb2
 import holoViveCom_pb2_grpc
 
-from api.general_types import ServerState
+from backend_api.grpc_objects import (
+    Controller, Trackable, TrackableFactory, Tracker, Command
+)
 from config.const import (
     WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
 )
 
-from api.general_types import (
-    Controller, Trackable, TrackableFactory, Tracker, ServerState, Command
-)
+from api.general_types import ServerState
 
 
 class TrackingCommunicator(holoViveCom_pb2_grpc.BackendServicer):

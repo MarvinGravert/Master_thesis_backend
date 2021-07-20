@@ -4,12 +4,15 @@ from asyncio.streams import StreamReader, StreamWriter
 
 from typing import List, Dict
 
+from backend_api.grpc_objects import (
+    Controller, Trackable, TrackableFactory, Tracker, Command
+)
 
 from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from api.general_types import ServerState, MessageObject, Tracker, Controller
+from api.general_types import ServerState
 
 
 class TcpIPServer():
@@ -55,9 +58,9 @@ class TcpIPServer():
         having to loop twice 1. from mgs_dict and then from list=> bad scaling
         Returns:
             bytes: data in bytes
-       """
-
-        command: str = self.server_state.message_obj_dict["command"]
+        """
+        logger.debug(self.server_state.message_obj_dict)
+        command: str = self.server_state.message_obj_dict.get("command", Command(command=""))
         tracker_list: List[Tracker] = []
         controller_list: List[Controller] = []
         for ele in self.server_state.message_obj_dict.values():
@@ -65,12 +68,12 @@ class TcpIPServer():
                 tracker_list.append(ele)
             if isinstance(ele, Controller):
                 controller_list.append(ele)
-        state = "|".join([tracker.as_string for tracker in tracker_list])
-        state = state[-1]+"$"
-        state += "|".join([controller.as_string for controller in controller_list])
-        state = state[-1]+"$"
-        state += command
-        message = bytes(command+"\n", "utf-8")
+        state = "|".join([tracker.as_string() for tracker in tracker_list])
+        state += "$"
+        state += "|".join([controller.as_string() for controller in controller_list])
+        state += "$"
+        state += command.command
+        message = bytes(state+"\n", "utf-8")
 
         data_to_send = struct.pack(f"{len(message)}s", message)
         return data_to_send
