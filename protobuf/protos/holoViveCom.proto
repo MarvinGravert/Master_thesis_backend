@@ -18,12 +18,12 @@ message LighthouseState{
 message Tracker{
     string name=1;
     repeated float position=2; // x y z 
-    repeated float rotation=3; // w qx qy qz 
+    repeated float rotation=3; // qx qy qz w
 }
 
 message Controller{
     string name=1;
     repeated float position=2; // x y z 
-    repeated float rotation=3; // w qx qy qz
+    repeated float rotation=3; // qx qy qz w
     map<string,string> button_state=4; 
 }
