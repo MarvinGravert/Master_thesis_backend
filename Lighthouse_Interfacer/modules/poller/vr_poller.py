@@ -13,7 +13,9 @@ from openvr.error_code import InitError_Init_PathRegistryNotFound, InitError_Ini
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from backend_api.vr_objects import VRObject, ViveController, ViveTracker
+from backend_api.grpc_objects import (
+    Tracker, Controller
+)
 
 from utils.triad_openvr import triad_openvr  # file from triad Repo
 from modules.poller.base_poller import BasePoller
@@ -39,12 +41,13 @@ class VRPoller(BasePoller):
             logger.error("No HMD Found. Forgot to set null driver probably")
             raise OpenVRConnectionError
 
-    def poll(self) -> Dict[str, Any]:
+    def poll(self) -> Tuple[List[Tracker], List[Controller]]:
         """ Poll the Lighthouse for each object
         if its found add its data to a dictionnary which is passed back
         """
         # TODO: Figure out how to find ID
-        state_dict = dict()
+        tracker_list = list()
+        controller_list = list()
         logger.debug("Polling")
         """
         ----------
@@ -63,10 +66,13 @@ class VRPoller(BasePoller):
             # turn all button states into string
             button_state = {key: str(value) for key, value in button_state.items()}
 
-            state_dict["controller"] = ViveController(
-                rotation=[w, i, j, k],
-                position=[x, y, z],
-                button_state=button_state).get_as_grpc_object()
+            controller_list.append(
+                Controller(
+                    name="mainController",
+                    rotation=[i, j, k, w],
+                    position=[x, y, z],
+                    button_state=button_state)
+            )
         except (TypeError, ZeroDivisionError) as e:
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -84,9 +90,10 @@ class VRPoller(BasePoller):
         try:
             # get the position and rotation
             [x, y, z, w, i, j, k] = self.v.devices["holo_tracker"].get_pose_quaternion()
-            state_dict["holo_tracker"] = ViveTracker(
-                rotation=[w, i, j, k],
-                poosition=[x, y, z],).get_as_grpc_object()
+            tracker_list.append(Tracker(
+                name="holoTracker",
+                rotation=[i, j, k, w],
+                poosition=[x, y, z],))
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -102,9 +109,10 @@ class VRPoller(BasePoller):
         try:
             # get the position and rotation
             [x, y, z, w, i, j, k] = self.v.devices["calibration_tracker"].get_pose_quaternion()
-            state_dict["calibration_tracker"] = ViveTracker(
-                rotation=[w, i, j, k],
-                position=[x, y, z],).get_as_grpc_object()
+            tracker_list.append(Tracker(
+                name="calibrationTracker",
+                rotation=[i, j, k, w],
+                position=[x, y, z],))
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -112,7 +120,7 @@ class VRPoller(BasePoller):
             pass
         except KeyError as e:
             logger.warning(f"CalibrationTracker wasnt found: {e}")
-        return state_dict
+        return tracker_list, controller_list
 
     def inject_calibration(self, data: List[float]) -> List[float]:
         # return data
