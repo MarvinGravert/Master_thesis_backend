@@ -1,7 +1,7 @@
-from typing import List
+from typing import List, Tuple
 from abc import ABC, abstractmethod
 
-from backend_api.vr_objects import VRObject
+from backend_api.grpc_objects import Tracker, Controller
 
 
 class BasePoller(ABC):
@@ -11,5 +11,5 @@ class BasePoller(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def poll(self) -> List[VRObject]:
+    def poll(self) -> Tuple[List[Tracker], List[Controller]]:
         raise NotImplementedError
