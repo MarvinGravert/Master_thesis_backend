@@ -12,9 +12,9 @@ from modules.vive_communication.vive_communicator import ViveCommunicator
 
 
 async def main():
-    vr_state = ServerState()  # keep track of server state across the two interfaces
-    tcp_server = TcpIPServer(IP=TCP_HOST, port=TCP_PORT, vr_state=vr_state)
-    grpc_server = ViveCommunicator(IP=GRPC_HOST, port=GRPC_PORT, vr_state=vr_state)
+    server_state = ServerState()  # keep track of server state across the two interfaces
+    tcp_server = TcpIPServer(IP=TCP_HOST, port=TCP_PORT, server_state=server_state)
+    grpc_server = ViveCommunicator(IP=GRPC_HOST, port=GRPC_PORT, server_state=server_state)
     await asyncio.gather(grpc_server.start(), tcp_server.start())
 
 if __name__ == "__main__":

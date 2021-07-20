@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 import asyncio
 
@@ -5,96 +7,142 @@ from loguru import logger
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 
-from holoViveCom_pb2 import (
-    HandheldController, Tracker, CalibrationInfo
-)
-from backend_api.general import Calibration
+import holoViveCom_pb2
 
-from backend_api.vr_objects import (
-    ViveController, ViveTracker
-)
+
+class MessageObject(ABC):
+    @abstractmethod
+    def as_grpc(self):
+        pass
+
+    @abstractmethod
+    def as_string(self):
+        pass
+
+
+@dataclass
+class Command(MessageObject):
+    command: str
+
+    def as_grpc(self) -> holoViveCom_pb2.Command:
+        return holoViveCom_pb2.Command(command=self.command)
+
+    def as_string(self):
+        return self.command
+
+
+@dataclass
+class Trackable(MessageObject):
+    name: str
+    position: List[float]
+    rotation: List[float]
+
+    def as_grpc(self):
+        pass
+
+    def as_string(self):
+        pass
+
+
+@dataclass
+class Tracker(Trackable):
+    def as_grpc(self) -> holoViveCom_pb2.Tracker:
+        return holoViveCom_pb2.Tracker(
+            name=self.name,
+            position=self.position,
+            rotation=self.rotation
+        )
+
+    def as_string(self) -> holoViveCom_pb2.Controller:
+        # name:x,y,z:qx,qy,qz,w
+        s = self.name
+        s += ":"+",".join([str(i) for i in self.position])
+        s += ":"+",".join([str(i) for i in self.rotation])
+        return s
+
+
+@dataclass
+class Controller(Trackable):
+    button_state: Dict[str, str]
+
+    def __post_init__(self):
+        # TODO: schedule to remove this and move into lighthouse interface or hololens
+        if float(self.button_state['trigger']) < 0.5:
+            self.button_state['trigger'] = "False"
+        else:
+            self.button_state['trigger'] = "True"
+
+    def as_grpc(self) -> holoViveCom_pb2.Controller:
+        return holoViveCom_pb2.Controller(
+            name=self.name,
+            position=self.position,
+            rotation=self.rotation
+        )
+
+    def as_string(self) -> str:
+        # name:x,y,z:qx,qy,qz,w:trackpad_x,trackpad_y,trackpad_pressed,trigger,menu_button,grip_button
+        s = self.name
+        s += ":"+",".join([str(i) for i in self.position])
+        s += ":"+",".join([str(i) for i in self.rotation])
+        button_order = ["trackpad_x", "trackpad_y", "trackpad_pressed",
+                        "trigger", "menu_button", "grip_button"]
+        button_str = ""
+        for button_name in button_order:
+            button_str += self.button_state[button_name]+","
+        # delete last ","
+        button_str = button_str[:-1]
+        return s+":"+button_str
+
+
+class TrackableFactory():
+
+    def generateTrackables(self, grpc_message) -> List[Trackable]:
+        trackables = []
+        for obj in grpc_message.controllerList:
+            trackables.append(Tracker(
+                name=obj.name,
+                position=obj.position,
+                rotation=obj.rotation,
+            ))
+        for obj in grpc_message.trackerList:
+            trackables.append(Controller(
+                name=obj.name,
+                position=obj.position,
+                rotation=obj.rotation,
+                button_state=obj.button_state
+            ))
+        return trackables
 
 
 class ServerState():
     """object who keeps track of the system state
-    this includes:
-    - Both trackers (holo and calibration)
-    - controller (pose +button)
-    - status (mainly used for debugging)
-    - Calibration
-
-    it provides the following functionalites:
-
+     contains and manages current message objects
     """
 
     def __init__(self):
-        self.init_vr_objects()
-        self.calibration = Calibration()
-        self._status: str = "no_status"
         self.new_full_state_subscriber: Dict[str, asyncio.Event] = dict()
         self.new_tracker_state_subscriber: Dict[str, asyncio.Event] = dict()
+        self.message_obj_dict: Dict[str:MessageObject] = {}
+        self.startup_routine()
 
-    @ property
-    def holo_tracker(self) -> ViveTracker:
-        return self._holo_tracker
-
-    @ holo_tracker.setter
-    def holo_tracker(self, new_tracker: ViveTracker):
-        self._holo_tracker = new_tracker
-
-    @ property
-    def calibration_tracker(self) -> ViveTracker:
-        return self._calibration_tracker
-
-    @ calibration_tracker.setter
-    def calibration_tracker(self, new_tracker: ViveTracker):
-        self._calibration_tracker = new_tracker
-
-    @ property
-    def controller(self) -> ViveController:
-        return self._controller
-
-    @property
-    def status(self) -> str:
-        return self._status
-
-    @status.setter
-    def status(self, new_status: str) -> None:
-        self._status = new_status
-
-    @ controller.setter
-    def controller(self, new_controller: ViveController):
-        self._controller = new_controller
-
-    def update_holo_tracker(self, new_state: Tracker) -> None:
-        logger.debug("Updating HoloTracker")
-        self._holo_tracker.update_state(new_state)
-
-    def update_calibration_tracker(self, new_state: Tracker) -> None:
-        logger.debug("Updating CaliTracker")
-        self._calibration_tracker.update_state(new_state)
-
-    def update_controller(self, new_state: HandheldController) -> None:
-        logger.debug("Updating Controller")
-        self._controller.update_state(new_state)
-
-    def init_vr_objects(self):
-        logger.debug("Initing vr objects")
-        zero_position = [0, 0, 0]
-        zero_rotation = [1, 0, 0, 0]
-        zero_button_state = {
-            "trackpad_x": "0.0",
-            "trackpad_y": "0.0",
-            "trackpad_pressed": "False",
-            "trigger": "False",
-            "menu_button": "False",
-            "grip_button": "False"
-        }
-        self._holo_tracker = ViveTracker(rotation=zero_rotation,
-                                         position=zero_position)
-
-        self._calibration_tracker = ViveTracker(rotation=zero_rotation,
-                                                position=zero_position)
-        self._controller = ViveController(rotation=zero_rotation,
-                                          position=zero_position,
-                                          button_state=zero_button_state)
+    def startup_routine(self):
+        """add calibrationTracker, mainController and holoTracker as zerod trackables
+        to facilitate functionality 
+        """
+        self.message_obj_dict["calibrationTracker"] = Tracker(name="CalibrationTracker",
+                                                              position=[0, 0, 0],
+                                                              rotation=[0, 0, 0, 1])
+        self.message_obj_dict["holoTracker"] = Tracker(name="CalibrationTracker",
+                                                       position=[0, 0, 0],
+                                                       rotation=[0, 0, 0, 1])
+        self.message_obj_dict["mainController"] = Controller(name="CalibrationTracker",
+                                                             position=[0, 0, 0],
+                                                             rotation=[0, 0, 0, 1],
+                                                             zero_button_state={
+                                                                 "trackpad_x": "0.0",
+                                                                 "trackpad_y": "0.0",
+                                                                 "trackpad_pressed": "False",
+                                                                 "trigger": "0",
+                                                                 "menu_button": "False",
+                                                                 "grip_button": "False"
+                                                             })
