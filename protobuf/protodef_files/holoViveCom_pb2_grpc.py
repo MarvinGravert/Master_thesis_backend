@@ -14,9 +14,9 @@ class BackendStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.LighthouseReport = channel.stream_unary(
-                '/Backend/LighthouseReport',
-                request_serializer=holoViveCom__pb2.LighthouseState.SerializeToString,
+        self.Report = channel.stream_unary(
+                '/Backend/Report',
+                request_serializer=holoViveCom__pb2.TrackableState.SerializeToString,
                 response_deserializer=holoViveCom__pb2.Empty.FromString,
                 )
         self.SendCommand = channel.unary_unary(
@@ -29,8 +29,8 @@ class BackendStub(object):
 class BackendServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def LighthouseReport(self, request_iterator, context):
-        """transmit the current State of all connected LH objects
+    def Report(self, request_iterator, context):
+        """transmit the current State of all connected trackable objects
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -45,9 +45,9 @@ class BackendServicer(object):
 
 def add_BackendServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'LighthouseReport': grpc.stream_unary_rpc_method_handler(
-                    servicer.LighthouseReport,
-                    request_deserializer=holoViveCom__pb2.LighthouseState.FromString,
+            'Report': grpc.stream_unary_rpc_method_handler(
+                    servicer.Report,
+                    request_deserializer=holoViveCom__pb2.TrackableState.FromString,
                     response_serializer=holoViveCom__pb2.Empty.SerializeToString,
             ),
             'SendCommand': grpc.unary_unary_rpc_method_handler(
@@ -66,7 +66,7 @@ class Backend(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def LighthouseReport(request_iterator,
+    def Report(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -76,8 +76,8 @@ class Backend(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/Backend/LighthouseReport',
-            holoViveCom__pb2.LighthouseState.SerializeToString,
+        return grpc.experimental.stream_unary(request_iterator, target, '/Backend/Report',
+            holoViveCom__pb2.TrackableState.SerializeToString,
             holoViveCom__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

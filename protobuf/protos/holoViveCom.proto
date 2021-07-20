@@ -1,8 +1,8 @@
 syntax="proto3";
 
 service Backend{
-    //transmit the current State of all connected LH objects
-    rpc LighthouseReport(stream LighthouseState ) returns (Empty){}
+    //transmit the current State of all connected trackable objects
+    rpc Report(stream TrackableState ) returns (Empty){}
     rpc SendCommand(Command) returns (Empty){}  
 }
 message Command{
@@ -10,7 +10,7 @@ message Command{
 }
 message Empty{}
 
-message LighthouseState{
+message TrackableState{
     repeated Controller controllerList=1;
     repeated Tracker trackerList=2;
 }

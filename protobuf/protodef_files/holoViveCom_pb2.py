@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11holoViveCom.proto\"\x1a\n\x07\x43ommand\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"U\n\x0fLighthouseState\x12#\n\x0e\x63ontrollerList\x18\x01 \x03(\x0b\x32\x0b.Controller\x12\x1d\n\x0btrackerList\x18\x02 \x03(\x0b\x32\x08.Tracker\";\n\x07Tracker\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\"\xa6\x01\n\nController\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\x12\x32\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32\x1c.Controller.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32^\n\x07\x42\x61\x63kend\x12\x30\n\x10LighthouseReport\x12\x10.LighthouseState\x1a\x06.Empty\"\x00(\x01\x12!\n\x0bSendCommand\x12\x08.Command\x1a\x06.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x11holoViveCom.proto\"\x1a\n\x07\x43ommand\x12\x0f\n\x07\x63ommand\x18\x01 \x01(\t\"\x07\n\x05\x45mpty\"T\n\x0eTrackableState\x12#\n\x0e\x63ontrollerList\x18\x01 \x03(\x0b\x32\x0b.Controller\x12\x1d\n\x0btrackerList\x18\x02 \x03(\x0b\x32\x08.Tracker\";\n\x07Tracker\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\"\xa6\x01\n\nController\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08position\x18\x02 \x03(\x02\x12\x10\n\x08rotation\x18\x03 \x03(\x02\x12\x32\n\x0c\x62utton_state\x18\x04 \x03(\x0b\x32\x1c.Controller.ButtonStateEntry\x1a\x32\n\x10\x42uttonStateEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x32S\n\x07\x42\x61\x63kend\x12%\n\x06Report\x12\x0f.TrackableState\x1a\x06.Empty\"\x00(\x01\x12!\n\x0bSendCommand\x12\x08.Command\x1a\x06.Empty\"\x00\x62\x06proto3'
 )
 
 
@@ -82,23 +82,23 @@ _EMPTY = _descriptor.Descriptor(
 )
 
 
-_LIGHTHOUSESTATE = _descriptor.Descriptor(
-  name='LighthouseState',
-  full_name='LighthouseState',
+_TRACKABLESTATE = _descriptor.Descriptor(
+  name='TrackableState',
+  full_name='TrackableState',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='controllerList', full_name='LighthouseState.controllerList', index=0,
+      name='controllerList', full_name='TrackableState.controllerList', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='trackerList', full_name='LighthouseState.trackerList', index=1,
+      name='trackerList', full_name='TrackableState.trackerList', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -117,7 +117,7 @@ _LIGHTHOUSESTATE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=58,
-  serialized_end=143,
+  serialized_end=142,
 )
 
 
@@ -162,8 +162,8 @@ _TRACKER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=145,
-  serialized_end=204,
+  serialized_start=144,
+  serialized_end=203,
 )
 
 
@@ -201,8 +201,8 @@ _CONTROLLER_BUTTONSTATEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=323,
-  serialized_end=373,
+  serialized_start=322,
+  serialized_end=372,
 )
 
 _CONTROLLER = _descriptor.Descriptor(
@@ -253,17 +253,17 @@ _CONTROLLER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=207,
-  serialized_end=373,
+  serialized_start=206,
+  serialized_end=372,
 )
 
-_LIGHTHOUSESTATE.fields_by_name['controllerList'].message_type = _CONTROLLER
-_LIGHTHOUSESTATE.fields_by_name['trackerList'].message_type = _TRACKER
+_TRACKABLESTATE.fields_by_name['controllerList'].message_type = _CONTROLLER
+_TRACKABLESTATE.fields_by_name['trackerList'].message_type = _TRACKER
 _CONTROLLER_BUTTONSTATEENTRY.containing_type = _CONTROLLER
 _CONTROLLER.fields_by_name['button_state'].message_type = _CONTROLLER_BUTTONSTATEENTRY
 DESCRIPTOR.message_types_by_name['Command'] = _COMMAND
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
-DESCRIPTOR.message_types_by_name['LighthouseState'] = _LIGHTHOUSESTATE
+DESCRIPTOR.message_types_by_name['TrackableState'] = _TRACKABLESTATE
 DESCRIPTOR.message_types_by_name['Tracker'] = _TRACKER
 DESCRIPTOR.message_types_by_name['Controller'] = _CONTROLLER
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -282,12 +282,12 @@ Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
   })
 _sym_db.RegisterMessage(Empty)
 
-LighthouseState = _reflection.GeneratedProtocolMessageType('LighthouseState', (_message.Message,), {
-  'DESCRIPTOR' : _LIGHTHOUSESTATE,
+TrackableState = _reflection.GeneratedProtocolMessageType('TrackableState', (_message.Message,), {
+  'DESCRIPTOR' : _TRACKABLESTATE,
   '__module__' : 'holoViveCom_pb2'
-  # @@protoc_insertion_point(class_scope:LighthouseState)
+  # @@protoc_insertion_point(class_scope:TrackableState)
   })
-_sym_db.RegisterMessage(LighthouseState)
+_sym_db.RegisterMessage(TrackableState)
 
 Tracker = _reflection.GeneratedProtocolMessageType('Tracker', (_message.Message,), {
   'DESCRIPTOR' : _TRACKER,
@@ -321,15 +321,15 @@ _BACKEND = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=375,
-  serialized_end=469,
+  serialized_start=374,
+  serialized_end=457,
   methods=[
   _descriptor.MethodDescriptor(
-    name='LighthouseReport',
-    full_name='Backend.LighthouseReport',
+    name='Report',
+    full_name='Backend.Report',
     index=0,
     containing_service=None,
-    input_type=_LIGHTHOUSESTATE,
+    input_type=_TRACKABLESTATE,
     output_type=_EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
