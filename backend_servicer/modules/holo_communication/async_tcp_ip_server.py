@@ -1,21 +1,22 @@
 import asyncio
 import struct
 from asyncio.streams import StreamReader, StreamWriter
-from typing import List
-from holoViveCom_pb2 import Quaternion
+
+from typing import List, Dict
+
 
 from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
-from api.general_types import ServerState
+from api.general_types import ServerState, MessageObject, Tracker, Controller
 
 
 class TcpIPServer():
-    def __init__(self, IP: str, port: int, vr_state: ServerState):
+    def __init__(self, IP: str, port: int, server_state: ServerState):
         self.IP = IP
         self.port = port
-        self.vr_state = vr_state
+        self.server_state = server_state
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")
@@ -48,69 +49,28 @@ class TcpIPServer():
 
     def _get_data_to_send(self) -> bytes:
         """builds the reponse which is to be sent the hololens
-        There are two cases:
-        1. No calibration: Simply sent the data from the lighthouse directly
-        2. Calibration set: Calculate the controller position in hololens world using this
+        Format: tracker1|...|trackerN$controller1|...|controllerN$command\n
 
-        in both cases the systemStatus is also attached
-
+        TODO: function is suboptimal =>optimize later
+        having to loop twice 1. from mgs_dict and then from list=> bad scaling
         Returns:
             bytes: data in bytes
-        """
-        if False:  # self.vr_state.calibration.calibration_received():#TODO: integrate calibration
-            controller_pose: List[np.ndarray] = self._calculate_post_calibration_controller_pose()
-            controller_button_state: str = self.vr_state.controller.get_button_state_as_string()
-            controller_state: str = self._turn_pose_into_string(pose=controller_pose) +\
-                ":"+controller_button_state
-        else:
-            controller_state: str = self.vr_state.controller.get_state_as_string()
+       """
 
-        status: str = self.vr_state.status
-        message = bytes(controller_state+":"+status+"\n", "utf-8")
+        command: str = self.server_state.message_obj_dict["command"]
+        tracker_list: List[Tracker] = []
+        controller_list: List[Controller] = []
+        for ele in self.server_state.message_obj_dict.values():
+            if isinstance(ele, Tracker):
+                tracker_list.append(ele)
+            if isinstance(ele, Controller):
+                controller_list.append(ele)
+        state = "|".join([tracker.as_string for tracker in tracker_list])
+        state = state[-1]+"$"
+        state += "|".join([controller.as_string for controller in controller_list])
+        state = state[-1]+"$"
+        state += command
+        message = bytes(command+"\n", "utf-8")
+
         data_to_send = struct.pack(f"{len(message)}s", message)
         return data_to_send
-
-    def _calculate_post_calibration_controller_pose(self) -> List[np.ndarray]:
-        """calculate the controller position using the calibration wihch has been set
-
-        For this we need to do several matrix multiplications:
-        the transformation traversal is as follows:
-        controller->inverse(holoTracker)->inverse(Calibration)
-
-        Controller->Lh->HoloTracker->hololens (essentially stating the KOS we go across)
-
-        NOTE: for debugging purposes the inverse will be calculated everytime
-        this will be removed in the final version (probably)#TODO:
-
-        Returns:
-            List[np.ndarray]: [position,rotation]
-        """
-        controller_hom_matrix = self.vr_state.controller.get_pose_as_hom_matrix()
-        holo_tracker_hom_matrix = self.vr_state.holo_tracker.get_pose_as_hom_matrix()
-        holo_to_tracker_calibration_hom_matrix = self.vr_state.calibration.calibration_matrix
-
-        controller_to_hololens = np.linalg.inv(holo_to_tracker_calibration_hom_matrix)\
-            @ np.linalg.inv(holo_tracker_hom_matrix) @ controller_hom_matrix
-
-        # seperate out the position and rotation (as quaternion)
-
-        rot_matrix = controller_to_hololens[:3, :3]
-        quaternion_rot = R.from_matrix(rot_matrix).as_quat()
-        # vive normally transmits scalar first hence we need to adjust
-        i, j, k, w = quaternion_rot
-        position = controller_to_hololens[:3, 3]
-        return [position, np.array([w, i, j, k])]
-
-    def _turn_pose_into_string(self, pose: List[np.ndarray]) -> str:
-        """turn the received pose into a string
-        format: x,y,z:w,i,j,k 
-
-        Args:
-            pose (List[float]): [position,rotation as quaternion]
-
-        Returns:
-            str: [description]
-        """
-        s = ",".join([str(i) for i in pose[0]])+":"
-        s += ",".join([str(i) for i in pose[1]])
-        return s
