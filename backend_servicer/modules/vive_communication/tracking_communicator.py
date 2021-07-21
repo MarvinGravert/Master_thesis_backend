@@ -69,5 +69,5 @@ class TrackingCommunicator(holoViveCom_pb2_grpc.BackendServicer):
         """
         logger.info(f"Received a connection from {context.peer()}")
         self.server_state.message_obj_dict["command"] = Command(command=request.command)
-        logger.info(f"New Command has been issued: {self.server_state.status}")
+        logger.info(f"New Command has been issued: {request.command}")
         return holoViveCom_pb2.Empty()
