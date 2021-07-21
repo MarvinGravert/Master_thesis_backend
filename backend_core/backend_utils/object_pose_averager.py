@@ -4,12 +4,11 @@ from typing import List, Union
 
 import numpy as np
 
-from backend_api.vr_objects import VRObject, ViveController, ViveTracker
 from backend_utils.averageQuaternion import averageQuaternions
 
 
-def average_vr_pose(list_vr_object: List[Union[VRObject, ViveTracker, ViveController]]
-                    ) -> Union[VRObject, ViveTracker, ViveController]:
+def average_vr_pose(list_vr_object
+                    ):
     """loop over all the vr objects and average their pose
     for position simply mean averaging is used
     for rotation an acurate but computationally expensive alg is used to get a accurate solution

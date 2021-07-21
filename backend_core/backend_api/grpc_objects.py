@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 import holoViveCom_pb2
+from backend_utils.linear_algebra_helper import transform_to_homogenous_matrix
 
 
 class MessageObject(ABC):
@@ -27,16 +28,36 @@ class Command(MessageObject):
 
 
 @dataclass
-class Trackable(MessageObject):
-    name: str
+class Pose(MessageObject):
     position: List[float]
-    rotation: List[float]
+    rotation: List[float]  # qx,qy,qz,w
 
     def as_grpc(self):
         pass
 
     def as_string(self):
-        pass
+        s = ""
+        s += ",".join([str(i) for i in self.position])
+        s += ":"+",".join([str(i) for i in self.rotation])
+        return s
+
+    def change_handedness(self):
+        # mirror about z axis
+        x, y, z = self.position
+        qx, qy, qz, w = self.rotation
+        self.position = [x, y, -z]
+        self.rotation = [qx, qy, -qz, -w]
+
+    def as_homogenous_matrix(self):
+        return transform_to_homogenous_matrix(
+            position=self.position,
+            quaternion=self.rotation,
+        )
+
+
+@dataclass
+class Trackable(Pose):
+    name: str
 
 
 @dataclass
