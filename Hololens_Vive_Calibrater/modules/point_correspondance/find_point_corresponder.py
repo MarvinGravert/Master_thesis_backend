@@ -143,6 +143,26 @@ def _get_active_calibration_object() -> Union[FirstCalibrationObject]:
     return lookup_table[CALIBRATION_OBJECT]
 
 
+def get_points_tracker_kos(hom_matrix: np.ndarray) -> List[np.ndarray]:
+    calib_obj = FirstCalibrationObject()
+    points = calib_obj.get_points_vive_ref()
+    points_in_lh = list()
+    for p in points:
+        p_aug = np.append(p, [1])
+        points_in_lh.append(hom_matrix@p_aug)
+    return points_in_lh
+
+
+def get_points_unity_kos(hom_matrix: np.ndarray) -> List[np.ndarray]:
+    calib_obj = FirstCalibrationObject()
+    points = calib_obj.get_points_unity_ref()
+    points_in_unity = list()
+    for p in points:
+        p_aug = np.append(p, [1])
+        points_in_unity.append(hom_matrix@p_aug)
+    return points_in_unity
+
+
 def get_points_real_object(vive_trans: List[float], vive_rot: List[float]) -> np.ndarray:
     # triad sends the position as w i j k (scalar first)
     # rotation wants it scalar last

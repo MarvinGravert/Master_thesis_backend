@@ -1,10 +1,13 @@
 import asyncio
 import struct
 from asyncio.streams import StreamReader, StreamWriter
+from backend_api.grpc_objects import Pose
 
 from loguru import logger
 
 import numpy as np
+
+from config.api import Task
 
 
 class TcpIPServer():
@@ -12,7 +15,6 @@ class TcpIPServer():
         self.IP = IP
         self.port = port
         self.queue = queue
-    # TODO: Handle the case when message cuts of at e -nd or en-d
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")
@@ -29,14 +31,13 @@ class TcpIPServer():
 
     async def communicate_hololens(self, reader: StreamReader, writer: StreamWriter):
         # wait for the hololens to connect and accept its data
-
-        # some debugging information
         addr = writer.get_extra_info('peername')
         logger.info(f"Received connection from {addr}")
         # now just read the data into a data container and cancel the connection
-        # upon the reception of "end"
+        # upon the reception of X
         message_container = list()
-        end_connection=False
+
+        end_connection = False
         try:
             while True:
                 data = await reader.read(100)
@@ -45,16 +46,20 @@ class TcpIPServer():
                 logger.debug(f"data length: {len(message)}")
                 message_container.append(message)
                 if "X" in message:  # using some message to signal the end of data transmission
-                    await self.queue.put(message_container)
-                    message_container = []  # clear the container
+                    task = Task(message=message_container, callback_event=asyncio.Event())
+                    await self.queue.put(task)
                     logger.debug(f"Put message into queue: {message_container}")
-                    end_connection=True
-                # return message is  irrelevant hence random string
-                data = b"s"  # REVIEW: remove the writer
-                writer.write(data)
-                await writer.drain()
-                if end_connection:
-                    break
+                    message_container = []  # clear the container
+                    await task.callback_event.wait()
+                    data = self._get_data_to_send(task.transformation)
+                    writer.write(data)
+                    await writer.drain()
+                    # break
                 # we will exit this when the outside connection breaks
         except ConnectionResetError:
             logger.warning(f"Remote connection {addr} was lost")
+
+    def _get_data_to_send(self, pose: Pose):
+        message = bytes(pose.as_string()+"\n", "utf-8")
+        data_to_send = struct.pack(f"{len(message)}s", message)
+        return data_to_send

@@ -15,8 +15,6 @@ from typing import List
 
 import numpy as np
 
-from backend_api.vr_objects import ViveTracker
-
 
 class DataLogger():
     def __init__(self):
@@ -36,8 +34,8 @@ class DataLogger():
         self.hololens_message: List[str] = None
         self.calibration_position: List[float] = None  # list[float]
         self.calibration_rotation: List[float] = None  # i j k w
-        self.holo_tracker: ViveTracker = None  # VRTracker
-        self.calibration_tracker: ViveTracker = None
+        # self.holo_tracker: ViveTracker = None  # VRTracker
+        # self.calibration_tracker: ViveTracker = None
         self.hom_LH_to_virtual: np.ndarray = None
         self.hom_tracker_to_virtual: np.ndarray = None
         self.reprojection_error: float = None
