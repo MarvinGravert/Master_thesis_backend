@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 import asyncio
 
 from backend_api.grpc_objects import (
-    MessageObject, Controller, Tracker
+    MessageObject, Controller, Tracker, Command
 )
 
 from loguru import logger
@@ -43,3 +43,4 @@ class ServerState():
                                                                  "menu_button": "False",
                                                                  "grip_button": "False"
                                                              })
+        self.message_obj_dict["command"] = Command(command="")

@@ -1,9 +1,5 @@
 from typing import Dict, List
 
-from holoViveCom_pb2 import (
-    Tracker, HandheldController, Quaternion
-)
-
 
 class OpenVRConnectionError (Exception):
     # thrown if error while trying to connect and access openvr

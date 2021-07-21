@@ -60,7 +60,9 @@ class TcpIPServer():
             bytes: data in bytes
         """
         logger.debug(self.server_state.message_obj_dict)
-        command: str = self.server_state.message_obj_dict.get("command", Command(command=""))
+        # get command and delete it afterwards
+        command: str = self.server_state.message_obj_dict["command"]
+        self.server_state.message_obj_dict["command"] = Command(command="")
         tracker_list: List[Tracker] = []
         controller_list: List[Controller] = []
         for ele in self.server_state.message_obj_dict.values():
