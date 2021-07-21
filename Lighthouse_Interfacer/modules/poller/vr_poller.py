@@ -63,6 +63,11 @@ class VRPoller(BasePoller):
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
             button_state = self.v.devices["handheld"].get_controller_inputs()
+            # turn trigger floating point value to boolean
+            if button_state["trigger"] < 0.5:
+                button_state["trigger"] = False
+            else:
+                button_state["trigger"] = True
             # turn all button states into string
             button_state = {key: str(value) for key, value in button_state.items()}
 
