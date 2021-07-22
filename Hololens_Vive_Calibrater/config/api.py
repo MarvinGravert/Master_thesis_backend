@@ -27,28 +27,5 @@ class CalibrationObject(Enum):
     PROTOTYPEV2 = "secondprototype"
 
 
-class VRState():
-    def __init__(self):
-        self._holo_tracker = None
-        self._calibration_tracker = None
-        self.calibration = Calibration()
-
-    # @ property
-    # def holo_tracker(self) -> ViveTracker:
-    #     return self._holo_tracker
-
-    # @ holo_tracker.setter
-    # def holo_tracker(self, new_tracker: ViveTracker):
-    #     self._holo_tracker = new_tracker
-
-    # @ property
-    # def calibration_tracker(self) -> ViveTracker:
-    #     return self._calibration_tracker
-
-    # @ calibration_tracker.setter
-    # def calibration_tracker(self, new_tracker: ViveTracker):
-    #     self._calibration_tracker = new_tracker
-
-
 class IncorrectMessageFormat(Exception):
     pass

@@ -109,7 +109,7 @@ async def worker(queue: asyncio.Queue):
         """
         hom_matrix_LH_to_virtual[2, :] = -hom_matrix_LH_to_virtual[2, :]
         hom_matrix_LH_to_virtual[:, 2] = -hom_matrix_LH_to_virtual[:, 2]
-        logger.debug(hom_matrix_LH_to_virtual)
+        logger.debug(f"Left handed matrix:\n {hom_matrix_LH_to_virtual}")
         # """
         # ------------------
         # Log data

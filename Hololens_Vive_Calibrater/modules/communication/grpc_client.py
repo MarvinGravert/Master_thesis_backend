@@ -14,13 +14,8 @@ import numpy as np
 from point_set_registration_pb2 import Input, Vector, RANSACParameters, Algorithm, Output
 import holoViveCom_pb2_grpc
 import point_set_registration_pb2_grpc
-# from backend_api.vr_objects import (
-#     ViveTracker, ViveController
-# )
-from backend_utils.object_pose_averager import average_vr_pose
 
-from config.const import NUM_LIGHTHOUSE_SAMPLES
-from config.api import VRState
+from backend_utils.object_pose_averager import average_vr_pose
 
 
 class GRPCCommunicator():
