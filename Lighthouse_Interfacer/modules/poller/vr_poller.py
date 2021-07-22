@@ -57,12 +57,12 @@ class VRPoller(BasePoller):
         try:
             # get the position and rotation
 
-            [x, y, z, w, i, j, k] = self.v.devices["handheld"].get_pose_quaternion()
+            [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
             [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
-            button_state = self.v.devices["handheld"].get_controller_inputs()
+            button_state = self.v.devices["controller_1"].get_controller_inputs()
             # turn trigger floating point value to boolean
             if button_state["trigger"] < 0.5:
                 button_state["trigger"] = False
@@ -131,20 +131,7 @@ class VRPoller(BasePoller):
         # return data
 
         [x, y, z, w, i, j, k] = data
-        # wor = w
-        # ior = i
-        # jor = j
-        # kor = k
-        # R = np.array([
-        #     [-1, 9.979074001312255859e-01, -6.458293646574020386e-02],
-        #     [9.871731996536254883e-01, 1, 5.138471350073814392e-02],
-        #     [2.500897049903869629e-01, 3.596465336158871651e-03, -1]
-        # ])
 
-        # x, y, z = R@np.array([x, y, z])+[5.620775818824768066e-01,
-        #                                  2.334415316581726074e-01, -2.949469089508056641e+00]
-
-        # return [x-1.2, y, -z-0.33, w, i, -j, -k]
         """
         ----------
         Build homogenous matrix Controller->LH
@@ -160,17 +147,17 @@ class VRPoller(BasePoller):
         ----------
         """
         s = """
-        4.995881915092468262e-01 -3.909247927367687225e-03 8.662542104721069336e-01 6.140581965446472168e-01
-        8.662549257278442383e-01 6.575234234333038330e-03 -4.995589554309844971e-01 -1.447103857994079590e+00
-        -3.742924425750970840e-03 9.999707341194152832e-01 6.671314593404531479e-03 2.097773104906082153e-01
+        -0.93062091 0.01117249 -0.36581409 -0.09457384
+        0.02566368 0.99906564 -0.03477476 -0.03686593
+        0.36508375 -0.04175026  -0.93003803 -1.75322807
         0.000000000000000000e+00 0.000000000000000000e+00 0.000000000000000000e+00 1.000000000000000000e+00
         """
         hom_LH_2_virtual_center = np.fromstring(s, dtype=float, sep=" ")
         hom_LH_2_virtual_center = hom_LH_2_virtual_center.reshape((4, 4))
         test_matrix = np.array([
-            [1, 0, 0, 0],
-            [0, 0, -1, 0],
+            [-1, 0, 0, 0],
             [0, 1, 0, 0],
+            [0, 0, -1, 0],
             [0, 0, 0, 1]
         ])
         test_matrix2 = np.array([
@@ -196,12 +183,21 @@ class VRPoller(BasePoller):
         Applying the transformation and extracting the rotation and transformation
         ----------
         """
-        hom_controller_2_virtual_center = hom_LH_2_virtual_center@test_matrix4@hom_controller_2_LH@test_matrix3@test_matrix  # @test_matrix2
+        # hom_controller_2_LH[0, :] = -hom_controller_2_LH[0, :]
+        # hom_controller_2_LH[:, 0] = -hom_controller_2_LH[:, 0]
+        # @test_matrix3@test_matrix  # @test_matrix2
+        hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH  @ test_matrix
         # hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
+        logger.warning(f"no changes:\n {hom_controller_2_virtual_center}")
 
-        # hom_controller_2_virtual_center[2,:]=-hom_controller_2_virtual_center[2,:]
-        # hom_controller_2_virtual_center[:,2]=-hom_controller_2_virtual_center[:,2]
-
+        hom_controller_2_virtual_center[2, :] = -hom_controller_2_virtual_center[2, :]
+        hom_controller_2_virtual_center[:, 2] = -hom_controller_2_virtual_center[:, 2]
+        logger.warning(f"z changed:\n {hom_controller_2_virtual_center}")
+        # hom_controller_2_virtual_center[0, :] = -hom_controller_2_virtual_center[0, :]
+        # hom_controller_2_virtual_center[:, 0] = -hom_controller_2_virtual_center[:, 0]
+        # logger.warning(f"x changed: \n {hom_controller_2_virtual_center}")
+        # hom_controller_2_virtual_center[0, :] = -hom_controller_2_virtual_center[0, :]
+        # hom_controller_2_virtual_center[:, 0] = -hom_controller_2_virtual_center[:, 0]
         ###################################################
         target_rot = hom_controller_2_virtual_center[: 3, : 3]
         target_pos = hom_controller_2_virtual_center[: 3, 3]
@@ -218,5 +214,6 @@ class VRPoller(BasePoller):
         ----------
         """
 
-        return [x-3.2, z, y+1.3+0.22, w, -i, -k, -j]
-        # return [x, y, z, w, i, j, k]
+        # return [x-3.2, z, y+1.3+0.22, w, -i, -k, -j]
+        # return x, y, -z, w, -i, -j, k
+        return [x, y, z, w, i, j, k]
