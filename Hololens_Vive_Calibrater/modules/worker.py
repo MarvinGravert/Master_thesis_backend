@@ -17,8 +17,7 @@ from backend_utils.information_processor import InformationProcessor
 from backend_api.grpc_objects import Pose
 
 from config.const import (
-    POINT_REGISTER_HOST, POINT_REGISTER_PORT, BACKEND_HOST, BACKEND_PORT,
-    WAYPOINT_MANAGER_HOST, WAYPOINT_MANAGER_PORT
+    POINT_REGISTER_HOST, POINT_REGISTER_PORT,
 )
 from modules.communication.grpc_client import PointRegisterCommunicator
 from modules.point_correspondance.find_point_corresponder import get_points_tracker_kos, get_points_unity_kos
