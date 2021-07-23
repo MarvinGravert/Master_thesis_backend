@@ -110,40 +110,31 @@ async def worker(queue: asyncio.Queue):
         hom_matrix_LH_to_virtual[2, :] = -hom_matrix_LH_to_virtual[2, :]
         hom_matrix_LH_to_virtual[:, 2] = -hom_matrix_LH_to_virtual[:, 2]
         logger.debug(f"Left handed matrix:\n {hom_matrix_LH_to_virtual}")
-        # """
-        # ------------------
-        # Log data
-        # ------------------
-        # """
-        # datalog.hololens_message = hololens_message
-        # datalog.calibration_position = hologram_position
-        # datalog.calibration_rotation = hologram_rotation
-        # datalog.calibration_tracker = ViveTracker(
-        #     rotation=tracker_state.calibration_tracker.rotation,
-        #     position=tracker_state.calibration_tracker.position)
-        # datalog.holo_tracker = ViveTracker(
-        #     rotation=tracker_state.holo_tracker.rotation,
-        #     position=tracker_state.holo_tracker.position)
-        # datalog.reprojection_error = reprojection_error
-        # datalog.real_points = real_cali_points
-        # datalog.virtual_points = virtual_cali_points
-        # datalog.calibration_object = str(CALIBRATION_OBJECT)
-        # """
-        # ------------------
-        # Save the log containing the calibration to file
-        # ------------------
-        # """
-        # logger.debug("Starting writing data log to file")
-        # try:
-        #     datalog.write_to_file()
-        # except Exception as e:
-        #     import traceback
-        #     logger.error(e)
-        #     logger.error(traceback.format_exc())
-        # finally:
-        #     # TODO: Save the config into a persistent memory
-        #     queue.task_done()
-        #     logger.info("Task done")
+        """
+        ------------------
+        Log data
+        ------------------
+        """
+        datalog.virtual_points = point_hololens_matrix
+        datalog.real_points = point_tracker_matrix
+        datalog.hom_matrix_tracker2holo = hom_matrix_LH_to_virtual
+        """
+        ------------------
+        Save the log containing the calibration to file
+        ------------------
+        """
+        logger.debug("Starting writing data log to file")
+        try:
+            datalog.write_to_file()
+        except Exception as e:
+            import traceback
+            logger.error(e)
+            logger.error(traceback.format_exc())
+        """
+        ------------------
+        Finish and set information back to hololens
+        ------------------
+        """
         task.callback_event.set()
         pos, quat = extract_position_and_quaternion_from_homogeneous_matrix(
             homogenous_matrix=hom_matrix_LH_to_virtual
