@@ -107,9 +107,9 @@ async def worker(queue: asyncio.Queue):
         1. negate third row and third column=>(3,3) remains same
         2. turn to quaternion
         """
-        hom_matrix_LH_to_virtual[2, :] = -hom_matrix_LH_to_virtual[2, :]
-        hom_matrix_LH_to_virtual[:, 2] = -hom_matrix_LH_to_virtual[:, 2]
-        logger.debug(f"Left handed matrix:\n {hom_matrix_LH_to_virtual}")
+        # hom_matrix_LH_to_virtual[2, :] = -hom_matrix_LH_to_virtual[2, :]
+        # hom_matrix_LH_to_virtual[:, 2] = -hom_matrix_LH_to_virtual[:, 2]
+        # logger.debug(f"Left handed matrix:\n {hom_matrix_LH_to_virtual}")
         """
         ------------------
         Log data

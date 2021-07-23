@@ -58,7 +58,7 @@ class VRPoller(BasePoller):
             # get the position and rotation
 
             [x, y, z, w, i, j, k] = self.v.devices["controller_1"].get_pose_quaternion()
-            [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
+            # [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
             # Now get the button states. An Example printed below
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
@@ -147,9 +147,9 @@ class VRPoller(BasePoller):
         ----------
         """
         s = """
-        -0.93062091 0.01117249 -0.36581409 -0.09457384
-        0.02566368 0.99906564 -0.03477476 -0.03686593
-        0.36508375 -0.04175026  -0.93003803 -1.75322807
+        -0.89245719 -0.00868954 0.4510484 1.3099407
+        -0.02266234 0.9994157 -0.0255864 -0.16905557
+        -0.45056251 -0.03305658   -0.89213264 -1.11754632
         0.000000000000000000e+00 0.000000000000000000e+00 0.000000000000000000e+00 1.000000000000000000e+00
         """
         hom_LH_2_virtual_center = np.fromstring(s, dtype=float, sep=" ")
@@ -186,13 +186,14 @@ class VRPoller(BasePoller):
         # hom_controller_2_LH[0, :] = -hom_controller_2_LH[0, :]
         # hom_controller_2_LH[:, 0] = -hom_controller_2_LH[:, 0]
         # @test_matrix3@test_matrix  # @test_matrix2
-        hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH  @ test_matrix
-        # hom_controller_2_virtual_center = test_matrix@hom_controller_2_LH
+        # hom_controller_2_virtual_center = hom_LH_2_virtual_center@hom_controller_2_LH  @ test_matrix
+        hom_controller_2_virtual_center = hom_controller_2_LH @ test_matrix
         logger.warning(f"no changes:\n {hom_controller_2_virtual_center}")
 
+        # this is applied in holoCalibrator
         hom_controller_2_virtual_center[2, :] = -hom_controller_2_virtual_center[2, :]
         hom_controller_2_virtual_center[:, 2] = -hom_controller_2_virtual_center[:, 2]
-        logger.warning(f"z changed:\n {hom_controller_2_virtual_center}")
+        # logger.warning(f"z changed:\n {hom_controller_2_virtual_center}")
         # hom_controller_2_virtual_center[0, :] = -hom_controller_2_virtual_center[0, :]
         # hom_controller_2_virtual_center[:, 0] = -hom_controller_2_virtual_center[:, 0]
         # logger.warning(f"x changed: \n {hom_controller_2_virtual_center}")
