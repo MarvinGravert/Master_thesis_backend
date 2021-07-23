@@ -13,6 +13,7 @@ from loguru import logger
 # from backend_api.vr_objects import ViveTracker
 from backend_api.exceptions import IncorrectMessageFormat
 from backend_utils.averageQuaternion import averageQuaternions
+from backend_utils.linear_algebra_helper import extract_position_and_quaternion_from_homogeneous_matrix
 from backend_utils.information_processor import InformationProcessor
 from backend_api.grpc_objects import Pose
 
@@ -144,6 +145,9 @@ async def worker(queue: asyncio.Queue):
         #     queue.task_done()
         #     logger.info("Task done")
         task.callback_event.set()
-        task.transformation = Pose(position=[0, 0, 0], rotation=[0, 0, 0, 1])
+        pos, quat = extract_position_and_quaternion_from_homogeneous_matrix(
+            homogenous_matrix=hom_matrix_LH_to_virtual
+        )
+        task.transformation = Pose(position=pos.tolist(), rotation=quat.tolist())
         queue.task_done()
         logger.info("Task done")
