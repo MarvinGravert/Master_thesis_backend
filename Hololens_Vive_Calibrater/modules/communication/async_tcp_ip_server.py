@@ -36,7 +36,6 @@ class TcpIPServer():
         # now just read the data into a data container and cancel the connection
         # upon the reception of X
         message_container = list()
-
         end_connection = False
         try:
             while True:
@@ -44,6 +43,8 @@ class TcpIPServer():
                 message = data.decode()
                 logger.debug(f"received: {message}")
                 logger.debug(f"data length: {len(message)}")
+                if len(message) == 0:  # empty message get read in if the hololens disconnects
+                    break
                 message_container.append(message)
                 if "X" in message:  # using some message to signal the end of data transmission
                     task = Task(message=message_container, callback_event=asyncio.Event())
