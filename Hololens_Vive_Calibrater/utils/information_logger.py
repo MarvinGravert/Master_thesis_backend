@@ -26,7 +26,7 @@ class DataLogger:
         """
         self.registration_dir = Path(".", "registration_data")
         self.folder_path = self.registration_dir.joinpath(
-            datetime.datetime.now().strftime("%Y%m%d%H%M%S")+".txt")
+            datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
         self.virtual_regis_points_file_path = self.folder_path.joinpath("virtual_points.txt")
         self.real_regis_points_file_path = self.folder_path.joinpath("real_points.txt")
         self.regis_matrix_file_path = self.folder_path.joinpath("registration_matrix.txt")
@@ -35,6 +35,7 @@ class DataLogger:
         self.virtual_points: np.ndarray = None
         self.real_points: np.ndarray = None
         self.hom_matrix_tracker2holo: np.ndarray = None  # right handed!
+        self.reprojection_error = None
 
     def write_to_file(self):
         """writes the logged information to file. Hereby, the path may be created
@@ -43,6 +44,7 @@ class DataLogger:
         with self.regis_matrix_file_path.open(mode="w") as file:
             file.write("Matrix Tracker->HoloWorld RIGHTHANDED!!\n")
             np.savetxt(file, self.hom_matrix_tracker2holo)
+            file.write(f"Reprojection error: {self.reprojection_error}")
 
         with self.virtual_regis_points_file_path.open(mode="w") as file:
             file.write("Points collected in virtual world\n")

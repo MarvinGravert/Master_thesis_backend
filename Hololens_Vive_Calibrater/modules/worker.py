@@ -118,6 +118,7 @@ async def worker(queue: asyncio.Queue):
         datalog.virtual_points = point_hololens_matrix
         datalog.real_points = point_tracker_matrix
         datalog.hom_matrix_tracker2holo = hom_matrix_LH_to_virtual
+        datalog.reprojection_error = reprojection_error
         """
         ------------------
         Save the log containing the calibration to file
