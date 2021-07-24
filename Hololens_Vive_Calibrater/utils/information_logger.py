@@ -16,7 +16,44 @@ from typing import List
 import numpy as np
 
 
-class DataLogger():
+class DataLogger:
+    def __init__(self):
+        """
+            ------------------
+            General setup
+            File path and data objects
+            ------------------
+        """
+        self.registration_dir = Path(".", "registration_data")
+        self.folder_path = self.registration_dir.joinpath(
+            datetime.datetime.now().strftime("%Y%m%d%H%M%S")+".txt")
+        self.virtual_regis_points_file_path = self.folder_path.joinpath("virtual_points.txt")
+        self.real_regis_points_file_path = self.folder_path.joinpath("real_points.txt")
+        self.regis_matrix_file_path = self.folder_path.joinpath("registration_matrix.txt")
+
+        # objects to hold data
+        self.virtual_points: np.ndarray = None
+        self.real_points: np.ndarray = None
+        self.hom_matrix_tracker2holo: np.ndarray = None  # right handed!
+
+    def write_to_file(self):
+        """writes the logged information to file. Hereby, the path may be created
+        """
+        self.folder_path.mkdir(parents=True, exist_ok=True)
+        with self.regis_matrix_file_path.open(mode="w") as file:
+            file.write("Matrix Tracker->HoloWorld RIGHTHANDED!!\n")
+            np.savetxt(file, self.hom_matrix_tracker2holo)
+
+        with self.virtual_regis_points_file_path.open(mode="w") as file:
+            file.write("Points collected in virtual world\n")
+            np.savetxt(file, self.virtual_points)
+
+        with self.real_regis_points_file_path.open(mode="w") as file:
+            file.write("Points collected in real world\n")
+            np.savetxt(file, self.real_points)
+
+
+class OldDataLogger():
     def __init__(self):
         """
             ------------------
