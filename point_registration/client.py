@@ -50,7 +50,7 @@ def run(point_set_1: np.ndarray,
     """
     with grpc.insecure_channel(f"{POINT_REGISTERING_HOST}:{POINT_REGISTERING_PORT}") as channel:
         stub = point_set_registration_pb2_grpc.PointSetRegisteringStub(channel)
-        logger.info(f"Connecting to {POINT_REGISTERING_HOST}:{POINT_REGISTERING_PORT}")
+        logger.debug(f"Connecting to {POINT_REGISTERING_HOST}:{POINT_REGISTERING_PORT}")
 
         point_set_1 = [Vector(entries=x) for x in point_set_1]
         point_set_2 = [Vector(entries=x) for x in point_set_2]
@@ -61,7 +61,7 @@ def run(point_set_1: np.ndarray,
         )
         logger.debug(f"Starting request with: {algorithm=}")
         response = stub.registerPointSet(obj_to_send)
-    logger.info("Received response, closing RPC")
+    logger.debug("Received response, closing RPC")
     logger.debug(f"{response=}")
 
     hom_matrix = np.reshape(response.transformationMatrixRowMajor, (4, 4))
@@ -99,7 +99,7 @@ def run_with_config(point_set_1: np.ndarray,
         Tuple[np.ndarray,np.ndarray]: R, t
     """
     # just build the configuration from the dict and then use the run function
-    logger.info("Starting the building the config from the dictionary")
+    logger.debug("Starting the building the config from the dictionary")
     logger.debug(f"{algorithm_config=}")
     optimize: bool = algorithm_config.get("optimize", False)
     ransac_parameters: List[float, float] = algorithm_config.get("ransac", None)
