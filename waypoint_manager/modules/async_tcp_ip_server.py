@@ -4,8 +4,9 @@ import struct
 from asyncio.streams import StreamReader, StreamWriter
 
 from loguru import logger
-
 import numpy as np
+
+from config.api import Task
 
 
 class TcpIPServer():
@@ -13,7 +14,6 @@ class TcpIPServer():
         self.IP = IP
         self.port = port
         self.queue = queue
-    # TODO: Handle the case when message cuts of at e -nd or en-d
 
     async def start(self):
         logger.info(f"Async TCP/IP Server is starting on {self.IP}:{self.port}")
@@ -30,14 +30,11 @@ class TcpIPServer():
 
     async def communicate_hololens(self, reader: StreamReader, writer: StreamWriter):
         # wait for the hololens to connect and accept its data
-
-        # some debugging information
         addr = writer.get_extra_info('peername')
         logger.info(f"Received connection from {addr}")
         # now just read the data into a data container and cancel the connection
-        # upon the reception of "end"
+        # upon the reception of X
         message_container = list()
-        end_connection = False  # end connection as the hololens will not maintain a connection and soley send one request
         try:
             while True:
                 data = await reader.read(100)
@@ -49,13 +46,8 @@ class TcpIPServer():
                     await self.queue.put(message_container)
                     message_container = []  # clear the container
                     logger.debug(f"Put message into queue: {message_container}")
-                    end_connection = True
-                # return message is  irrelevant hence random string
-                data = b"s"  # REVIEW: remove the writer
-                writer.write(data)
-                await writer.drain()
-                if end_connection:
                     break
+
                 # we will exit this when the outside connection breaks
         except ConnectionResetError:
             logger.warning(f"Remote connection {addr} was lost")

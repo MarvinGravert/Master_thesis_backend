@@ -13,7 +13,6 @@ from scipy.spatial.transform import Rotation as R
 
 
 from backend_utils.information_processor import InformationProcessor
-from backend_api.vr_objects import VRObject
 
 from config.const import (
     BACKEND_HOST, BACKEND_PORT
