@@ -14,6 +14,8 @@ from more_itertools import grouper
 from backend_api.exceptions import IncorrectMessageFormat
 from backend_utils.averageQuaternion import averageQuaternions
 
+from backend_api.general import Waypoint, InterpolationType
+
 
 class InformationProcessor():
 
@@ -58,6 +60,44 @@ class InformationProcessor():
             virtual_pose_list.append(Pose(position=position, rotation=rotation))
 
         return trackable_pose_list, virtual_pose_list
+
+    async def process_path_information(self, message_container: str) -> List[Waypoint]:
+        """process the path Informatoin from hololens into into a robot path
+             structered as such:
+             position:orientation|interpolationtype$position.....
+             position=x,y,z
+             orientation=i,j,k,w
+             interpolationtype=> Linear or PTP potentially added more in future
+        Args:
+            message (str): list of all the data transmitted to us
+        """
+        self.message_received = message_container
+        # if there are, join the individual list entries
+        message = "".join(message_container)
+        # the last element should be "X" thus consider only until that
+        message = message.split("X")[0]
+        # there is no need to error handling before the next operations
+        # because the received job has to be a string that contains "X"
+        # otherwise the tcp ip client wouldnt have put it into the queue
+        # hence the above operation can not fail
+        logger.debug(f"the message after formatting and transforming: {message}")
+        # split the message into indivudal waypoints
+        waypoints_as_string = message.split("$")
+
+        path_point_list: List[Waypoint] = list()
+        for waypoint in waypoints_as_string:
+            # split into interpolation and pose
+            pose, interpolation = waypoint.split("|")
+            position, rotation = await self._process_individual_information(pose)
+
+            inter_type = InterpolationType(interpolation)
+            path_point_list.append(Waypoint(
+                position=np.array(position),
+                rotation=np.array(rotation),
+                type=inter_type
+            ))
+
+        return path_point_list
 
     async def _process_individual_information(self, message: str) -> Tuple[List[float], List[float]]:
         """this method takes a string (potentially representing a transformation and attempts

@@ -6,8 +6,6 @@ from asyncio.streams import StreamReader, StreamWriter
 from loguru import logger
 import numpy as np
 
-from config.api import Task
-
 
 class TcpIPServer():
     def __init__(self, IP: str, port: int, queue: asyncio.Queue):
@@ -46,7 +44,6 @@ class TcpIPServer():
                     await self.queue.put(message_container)
                     message_container = []  # clear the container
                     logger.debug(f"Put message into queue: {message_container}")
-                    break
 
                 # we will exit this when the outside connection breaks
         except ConnectionResetError:

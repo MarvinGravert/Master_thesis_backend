@@ -6,6 +6,7 @@ it does so utliizing asnyc whereever necessary
 """
 import asyncio
 from typing import List, Union
+from backend_api.general import Waypoint
 
 import numpy as np
 from loguru import logger
@@ -14,11 +15,8 @@ from scipy.spatial.transform import Rotation as R
 
 from backend_utils.information_processor import InformationProcessor
 
-from config.const import (
-    BACKEND_HOST, BACKEND_PORT
-)
-from modules.grpc_client import BackendCommunicator
-from config.api_types import IncorrectMessageFormat, ServerState
+from config.api_types import ServerState
+from backend_api.exceptions import IncorrectMessageFormat
 
 
 class WorkerClass():
@@ -29,109 +27,42 @@ class WorkerClass():
         # Start server
         logger.info("Worker has started")
         self.server_state = server_state
-        backend_client = BackendCommunicator(server_address=BACKEND_HOST, server_port=BACKEND_PORT)
         """
         ------------------
         Start the services
         ------------------
         """
         while True:
-            task: Union[VRObject, List[str]] = await queue.get()
-            logger.info("New job has arrived. Start processing")
+            hololens_message: List[str] = await queue.get()
+            logger.info("New path has arrived. Start processing")
             # first we can get the data from the trackers
-            tracker_state = await backend_client.get_tracker_pose()
-            logger.debug("received information from trackers, now process information")
             """
                 ------------------
-                Check which workflow to use.
-                Either treat task as a hololens waypoint or a waypoint set directly via controller
+               PATH processing
                 ------------------
             """
             try:
-                if isinstance(task, list):
-                    logger.debug("waypoint is from hololens=>starting hololens workflow")
-                    waypoint = await self.workflow_hololens_waypoint(hololens_message=task,
-                                                                     tracker_state=tracker_state)
-                elif isinstance(task, VRObject):
-                    logger.debug(
-                        "waypoint is directly set via the controller->Starting the controller workflow")
-                    waypoint = await self.workflow_controller_waypoint(controller=task)
-                else:
-                    logger.error("waypoint didnt fit any workflow")
-                    queue.task_done()
-                    continue
+
+                # Path
+                path: List[Waypoint] = await self.information_processor.process_path_information(hololens_message)
+
             except IncorrectMessageFormat:
                 logger.error("Message has the incorrect format. Dicarding job")
                 queue.task_done()
                 continue
+            for waypoint in path:
+                waypoint.apply_offset(np.array([0, 0, 0.19]))  # offset in m!
+            logger.info(f"The path is:\n {path}")
 
-            logger.info(f"The waypoint is:\n {waypoint}")
+            """
+            ------------------
+            Transform all waypoints into robot workspace
+            ------------------
+            The received waypoints are the ones taken in the vive lighthouse 
+            and not transformed thus no correction for lefthanded or righthanded has to be applied 
+            """
 
-    async def workflow_controller_waypoint(self,
-                                           controller: VRObject,
-                                           ) -> np.ndarray:
-        logger.debug("start controller waypoint workflow")
-        """
-        ------------------
-        get vr object homogenous matrix
-        ------------------
-        """
-        hom_matrix_controller_2_LH = controller.get_pose_as_hom_matrix()
-        waypointmarker = np.array([0, -0.012, 0.173, 1])  # NOTE: adjusted to unity values
-        print(hom_matrix_controller_2_LH)
-        print(self.server_state.LH2Robo.matrix)
-        """
-        ------------------
-        calculate desired transformation
-        ------------------
-        """
-        LH_2_robot_matrix = self.server_state.LH2Robo.matrix
-
-        return (LH_2_robot_matrix@hom_matrix_controller_2_LH@waypointmarker.reshape((-1, 1)))[:3]
-
-    async def workflow_hololens_waypoint(self, hololens_message: List[str],
-                                         tracker_state: ServerState) -> np.ndarray:
-        logger.debug("start hololens workflow")
-        hologram_position, hologram_rotation = await self.information_processor.process_hololens_data(hololens_message)
-
-        """
-        ------------------
-        get tracker transformation
-        ------------------
-        """
-        holo_tracker_hom_matrix = tracker_state.holo_tracker.get_pose_as_hom_matrix()
-        """
-        ------------------
-        calculate desired transformation
-        ------------------
-        """
-        hom_hologram_2_virtual_center = self._transform_unity_quat_into_hom(
-            unity_position=hologram_position,
-            unity_quaternion=hologram_rotation)
-        LH_2_robot_matrix = self.server_state.LH2Robo.matrix
-        LH_2_virtual_center = self.server_state.LH2Virtual.matrix
-        # TODO: include the tracker instead of the direct transform
-        hologram_2_robo = LH_2_robot_matrix@np.linalg.inv(
-            LH_2_virtual_center)@hom_hologram_2_virtual_center
-        return hologram_2_robo
-
-    def _transform_unity_quat_into_hom(
-            self,
-            unity_position: List[float],
-            unity_quaternion: List[float]) -> np.ndarray:
-        """turns the left handed KOS pose (postion+quaternion) into a right handed
-        homogenous matrix
-
-        Args:
-            unity_position (List[float]): x y z in unity KOS (aka lefthanded)
-            unity_quaternion (List[float]): i j k w in unity KOS (aka lefthanded)
-
-        Returns:
-            np.ndarray: 4x4 righthanded hom matrix
-        """
-        x, y, z = unity_position
-        i, j, k, w = unity_quaternion
-        rotation_matrix = R.from_quat([-i, -k, -j, w]).as_matrix()
-        position_vector = np.array([x, z, y])
-        hom_matrix = np.hstack((rotation_matrix, position_vector.reshape((-1, 1))))
-        return np.vstack((hom_matrix, [0, 0, 0, 1]))
+            hom_matrix = self.server_state.hom_matrix_LH_Robo
+            for waypoint in path:
+                point_in_robo = hom_matrix@np.append(waypoint.position, 1)
+                logger.info(f"{waypoint.type}: {point_in_robo[:3]}")

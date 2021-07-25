@@ -1,17 +1,11 @@
 from typing import Any, Dict, List
 import asyncio
+from enum import Enum
+from dataclasses import dataclass, fields
 
 from loguru import logger
 from scipy.spatial.transform import Rotation as R
 import numpy as np
-
-# from holoViveCom_pb2 import (
-#     HandheldController, Tracker, CalibrationInfo
-# )
-
-# from backend_api.vr_objects import (
-#     ViveController, ViveTracker
-# )
 
 
 class Calibration():
@@ -38,23 +32,24 @@ class Calibration():
     def matrix(self) -> np.ndarray:
         return self._matrix
 
-    # def set_calibration_via_grpc_object(self, calibration_info: CalibrationInfo) -> None:
-    #     """setting the calibration matrix when handed via gprc_object
 
-    #     the object is a flattend 4x4 matrix
+class InterpolationType(Enum):
+    Linear = "Linear"
+    PTP = "PTP"
 
-    #     Args:
-    #         calibration_info (CalibrationInfo): [description]
-    #     """
-    #     flattend_matrix: List[float] = calibration_info.calibrationMatrixRowMajor
-    #     self._matrix = np.array(flattend_matrix).reshape([4, 4])
-    #     logger.debug(f"New calibration has been set to: \n {self._matrix}")
 
-    # def get_calibration_as_grpc_object(self) -> CalibrationInfo:
-    #     """returns the calibration matrix as a calibrationInfo gRPC object
-    #     the matrix is simply flattend
+@dataclass
+class Waypoint():
+    position: np.ndarray
+    rotation: np.ndarray
+    type: InterpolationType
 
-    #     Returns:
-    #         CalibrationInfo: grpc object has definedin proto
-    #     """
-    #     return CalibrationInfo(calibrationMatrixRowMajor=self._matrix.flatten())
+    def apply_offset(self, offset: np.ndarray):
+        # the location of the waypoint is in gernal not at the origin of the controller kos
+        # thus it the point of reference has to be moved in its local kos
+        # the rotation is unaffected
+        # offset shuold be the vector from controller origin to waypoint reference position
+        r = R.from_quat(self.rotation)
+        # t=R@offset+t
+        # Need to transform the local point into lighthouse-kos and then add to already existing position
+        self.position = self.position+r.as_matrix()@offset
