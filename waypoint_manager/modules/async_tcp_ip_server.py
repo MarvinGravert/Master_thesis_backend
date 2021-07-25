@@ -39,6 +39,8 @@ class TcpIPServer():
                 message = data.decode()
                 logger.debug(f"received: {message}")
                 logger.debug(f"data length: {len(message)}")
+                if len(message)==0:
+                    break
                 message_container.append(message)
                 if "X" in message:  # using some message to signal the end of data transmission
                     await self.queue.put(message_container)
