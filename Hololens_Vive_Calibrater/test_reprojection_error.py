@@ -25,9 +25,10 @@ from os import path
 from pathlib import Path
 
 import numpy as np
+from backend_utils.linear_algebra_helper import calc_reprojection_error, single_reprojection_error, reprojection_error_axis_depending
 
 
-def load_points_from_file(path_to_file: Path):
+def load_points_from_file(path_to_file: Path) -> np.ndarray:
     return np.loadtxt(path_to_file.open(mode="r"), skiprows=1)
 
 
@@ -47,8 +48,9 @@ registration_matrix = registration_matrix.reshape((4, 4))
 Load points to check matrix against
 """
 folder_name = "20210724022235"  # enter folder data
-folder_path = Path("./registration_data", folder_name)
 
+
+folder_path = Path("./registration_data", folder_name)
 real_points_path = folder_path.joinpath("real_points.txt")
 virtual_points_path = folder_path.joinpath("virtual_points.txt")
 
@@ -60,25 +62,8 @@ Calculate the reprojection error
 Matrix is from real->virtual
 """
 
-
-def calc_reprojection_error(point_set1: np.ndarray,
-                            point_set2: np.ndarray,
-                            hom_matrix: np.ndarray
-                            ):
-    """root mean squared distance between expected point and transformed point
-    diff=>square=>sum=>average=>root
-    """
-    # point sets are nx4=>already augmented
-    num_points = point_set1.shape[0]
-    sum = 0
-    for test_point, expected_point in zip(point_set1, point_set2):
-        transformed_point = hom_matrix@test_point
-        error = np.linalg.norm(expected_point-transformed_point.flatten())
-        sum += error
-    sum = sum/num_points
-    return np.sqrt(sum)
-
-
 # ROOOT OR DEVIATION AS REPROJECTION ERROR if root then add it in point registerin1!!
-t = calc_reprojection_error(real_points, virtual_points, registration_matrix)
+t, x, s = calc_reprojection_error(real_points, virtual_points, registration_matrix)
 print(t)
+print(x)
+print(s)
