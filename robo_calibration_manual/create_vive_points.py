@@ -67,7 +67,10 @@ if __name__ == "__main__":
 
     # v = triad_openvr()
     # v.print_discovered_objects()
+    # run script with date/num correct=>
+    date: str = "20210408"
+    exp_num: int = 1
 
-    file_dir = "./vive_calibration_data/20210408_CalibrationSet_1"  # CCR 05
+    file_dir = f"./vive_calibration_data/{date}_CalibrationSet_{exp_num}"  # CCR 05
     file_name = file_dir+"/"+get_new_filename(file_dir)
     take_measurements(filename=file_name)
