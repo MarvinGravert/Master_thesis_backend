@@ -76,6 +76,24 @@ def get_vive_data(date, experiment):
     return get_calibration_points(data)
 
 
+def calc_reprojection_error(point_set1: np.ndarray,
+                            point_set2: np.ndarray,
+                            hom_matrix: np.ndarray
+                            ):
+    """root mean squared distance between expected point and transformed point
+    diff=>square=>sum=>average=>root
+    """
+    # point sets are nx4=>already augmented
+    num_points = point_set1.shape[0]
+    sum = 0
+    for test_point, expected_point in zip(point_set1, point_set2):
+        transformed_point = hom_matrix@test_point
+        error = np.linalg.norm(expected_point-transformed_point.flatten())
+        sum += error
+    sum = sum/num_points
+    return np.sqrt(sum)
+
+
 if __name__ == "__main__":
     from read_file import get_robot_data
     logger.info("Running client directly")
