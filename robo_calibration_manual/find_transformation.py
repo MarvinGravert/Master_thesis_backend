@@ -100,7 +100,7 @@ if __name__ == "__main__":
     experiment = "1"
     date = "20210408"
     algo = Algorithm(
-        type=Algorithm.Type.OPENCV,
+        type=Algorithm.Type.ARUN,
         optimize=False,
         ransac=RANSACParameters(threshold=1, confidence=0.95)
     )
