@@ -70,57 +70,6 @@ def run(point_set_1: np.ndarray,
     return R, t.reshape((-1, 1))
 
 
-def run_with_config(point_set_1: np.ndarray,
-                    point_set_2: np.ndarray,
-                    algorithm_config: Dict[str, Any]
-                    ) -> Tuple[np.ndarray, np.ndarray]:
-    """Creates GRPC request to poitn registration service with handed parameters
-    and returns a rotation matrix R and a translation vector t
-
-    It is tried to align Point set 1 with Point set 2. Hence 1->2 is the direction
-    of rotational alignment
-
-    The algorithm_config contains information about the algorithm to be performed
-    on the point_sets. A blueprint looks as follows:
-
-    algorithm_dict={
-        "type": "ARUN"#"OPENCV", "KABSCH", "UMEYAMA"  are also options though the later two
-        are repetition
-        "optimize": True #boolean, False
-        "ranscac": [threshold, confidence] #list of floats
-    }
-
-    Args:
-        point_set_1 (np.ndarray): point set 1
-        point_set_2 (np.ndarray): point set 2
-        algorithm_config (Dict[str,str]): configuration describing the algorithm
-
-    Returns:
-        Tuple[np.ndarray,np.ndarray]: R, t
-    """
-    # just build the configuration from the dict and then use the run function
-    logger.info("Starting the building the config from the dictionary")
-    logger.debug(f"{algorithm_config=}")
-    optimize: bool = algorithm_config.get("optimize", False)
-    ransac_parameters: List[float, float] = algorithm_config.get("ransac", None)
-    type: str = algorithm_config.get("type", "ARUN")
-
-    if ransac_parameters is not None:
-        algorithm = Algorithm(type=Algorithm.Type.Value(type),
-                              optimize=optimize,
-                              ransac=RANSACParameters(
-            threshold=ransac_parameters[0],
-            confidence=ransac_parameters[1]
-        )
-        )
-        return run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algorithm)
-    else:
-        algorithm = Algorithm(type=Algorithm.Type.Value(type),
-                              optimize=optimize,
-                              )
-        return run(point_set_1=point_set_1, point_set_2=point_set_2, algorithm=algorithm)
-
-
 def get_vive_data(date, experiment):
     from read_file import get_calibration_points, get_vive_calibration_positions
     data = get_vive_calibration_positions(date=date, experiment_number=experiment)
