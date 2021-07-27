@@ -4,6 +4,7 @@ It takes both point sets and the R, t from the point alignment algorithm and com
 
 """
 import numpy as np
+from loguru import logger
 
 
 def check_adjust_dimension(point_set: np.ndarray) -> np.ndarray:
@@ -40,6 +41,11 @@ def check_cost_function(point_set_1: np.ndarray,
     # first transform into nx3 because i like this better also a bit easier looping
     p1 = check_adjust_dimension(point_set=point_set_1)
     p2 = check_adjust_dimension(point_set=point_set_2)
+    from backend_utils.linear_algebra_helper import calc_reprojection_error, combine_to_homogeneous_matrix
+    hom_matrix = combine_to_homogeneous_matrix(R, t)
+    rmse, mae, std = calc_reprojection_error(point_set_a=p1, point_set_b=p2, hom_matrix=hom_matrix)
+    logger.info(f"{rmse=}    {mae=}  {std=}")
+    return mae
     # each row is corresponding to another one in the other point set
     sum = 0
     length = p1.shape[0]
