@@ -32,7 +32,7 @@ def get_new_filename(folder_dir: str) -> str:
     return f"calibration_point_{max_number+1}.txt"
 
 
-def take_measurements(filename: str, freq: float = 100, num_measurements: int = 1000,):
+def take_measurements(filename: str, freq: float = 100, num_measurements: int = 500,):
     v = triad_openvr()
     v.print_discovered_objects()
     counter = 0
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # v = triad_openvr()
     # v.print_discovered_objects()
     # run script with date/num correct=>
-    date: str = "20210408"
+    date: str = "20210727"
     exp_num: int = 1
 
     file_dir = f"./vive_calibration_data/{date}_CalibrationSet_{exp_num}"  # CCR 05
