@@ -30,6 +30,23 @@ import point_set_registration_pb2_grpc
 from config.consts import POINT_REGISTER_HOST, POINT_REGISTER_PORT
 from utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
+from read_file import get_robot_endeff_lh_kos, get_robot_endeff_rob_kos
+from read_file import get_robot_calibration_pose, get_vive_calibration_pose
+
+tracker2Endeffektor = """
+0 1 0 0
+1 0 0 0 
+0 0 -1 68
+0 0 0 1
+"""
+tracker2Endeffektor = """
+0 0 -1 0
+-1 0 0 0 
+0 1 0 68
+0 0 0 1
+"""
+tracker2Endeffektor = np.fromstring(tracker2Endeffektor, dtype=float, sep=" ").reshape((4, 4))
+
 
 def run(point_set_1: np.ndarray,
         point_set_2: np.ndarray,
@@ -70,59 +87,92 @@ def run(point_set_1: np.ndarray,
     return R, t.reshape((-1, 1))
 
 
-def get_vive_data(date, experiment):
-    from read_file import get_calibration_points, get_vive_calibration_positions
-    data = get_vive_calibration_positions(date=date, experiment_number=experiment)
-    return get_calibration_points(data)
-
-
-def calc_reprojection_error(point_set1: np.ndarray,
-                            point_set2: np.ndarray,
-                            hom_matrix: np.ndarray
-                            ):
-    """root mean squared distance between expected point and transformed point
-    diff=>square=>sum=>average=>root
-    """
-    # point sets are nx4=>already augmented
-    num_points = point_set1.shape[0]
-    sum = 0
-    for test_point, expected_point in zip(point_set1, point_set2):
-        transformed_point = hom_matrix@test_point
-        error = np.linalg.norm(expected_point-transformed_point.flatten())
-        sum += error
-    sum = sum/num_points
-    return np.sqrt(sum)
-
-
-if __name__ == "__main__":
-    from read_file import get_robot_data
-    logger.info("Running client directly")
-    experiment = "1"
-    date = "20210408"
+def point_corres_method(date, experiment_number, rob_file_name):
     algo = Algorithm(
         type=Algorithm.Type.ARUN,
         optimize=False,
         ransac=RANSACParameters(threshold=1, confidence=0.95)
     )
-    point_set_1 = get_vive_data(date=date, experiment=experiment)  # *1000  # mm
-    point_set_2 = get_robot_data(date, experiment)
-    R, t = run(point_set_1=point_set_1[:21, :], point_set_2=point_set_2[:21, :], algorithm=algo)
+    point_set_1 = get_robot_endeff_lh_kos(date, experiment, 68)  # *1000  # *1000  # mm
+    point_set_2 = get_robot_endeff_rob_kos(file_name="20210727_CalibrationSet_1")
+    num_for_algo = 9
+    R, t = run(
+        point_set_1=point_set_1[: num_for_algo, :],
+        point_set_2=point_set_2[: num_for_algo, :],
+        algorithm=algo)
     # print(R, t)
     reprojection_error = list()
-    for i in range(24):
+    for i in range(21):
 
         v = R@point_set_1[i].reshape([-1, 1])+t
-        # print(v)
-        # print(point_set_1[0])
-        if i == 0:
-            print(point_set_1[i])
-            print(v)
-            print(point_set_2[i])
-            print(v-point_set_2[i].reshape([-1, 1]))
-            print(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
-        reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
-    print(np.mean(np.array(reprojection_error)))
 
+        reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
+    print(reprojection_error)
+    print(np.mean(reprojection_error))
+    test_reprojection_error = list()
+    for i in range(16, 21):
+        v = R@point_set_1[i].reshape([-1, 1])+t
+        test_reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
+    print(test_reprojection_error)
+
+
+def direct_hom_lh_2_robot(date, experiment_number, rob_file_name):
+    """takes the three rotation matrices (tracker->lh, tracker->endeff, endeff->base)
+    to calculate the lh->base
+
+    transforms the tracker->lh to milimeters and returns such a matrix as well
+    So check if using affine!!
+
+    Args:
+        date ([type]): [description]
+        experiment_number ([type]): [description]
+        rob_file_name ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    lh2robo_list = list()
+    tracker2lh_list = get_vive_calibration_pose(date, experiment_number)
+    endeff2base_list = get_robot_calibration_pose(rob_file_name)
+    # print(tracker2lh_list[1])
+    # for i in tracker2lh_list:
+    #     i[:3, 3] = i[:3, 3]*1000
+    # print(tracker2lh_list[1])
+    for tracker2vive, endeff2base in zip(tracker2lh_list, endeff2base_list):
+        lh2robot = endeff2base@tracker2Endeffektor@np.linalg.inv(tracker2vive)
+        lh2robo_list.append(lh2robot)
+    return lh2robo_list
+
+
+def direct_method(date, experiment_number, rob_file_name):
+    lh2robo_list = direct_hom_lh_2_robot(date, experiment_number, rob_file_name)
+    num_points = len(lh2robo_list)
+    point_set_1 = get_robot_endeff_lh_kos(date, experiment, 68)  # *1000  # *1000  # mm
+    point_set_2 = get_robot_endeff_rob_kos(file_name="20210727_CalibrationSet_1")
+    matrix_err_list = list()
+
+    for j in range(1):
+        err_list = list()
+        print(lh2robo_list[j])
+        for i in range(1):
+            print(point_set_1[i])
+            temp = lh2robo_list[j]@np.append(point_set_1[i], 1)
+            print(temp)
+            err = point_set_2-temp[:3]
+            err = np.linalg.norm(err)
+            err_list.append(err)
+        matrix_err_list.append(np.mean(err_list))
+    print(matrix_err_list)
+    print(np.mean(matrix_err_list))
+
+
+if __name__ == "__main__":
+    logger.info("Running client directly")
+    experiment = 1
+    date = "20210727"
+    rob_file_name = "20210727_CalibrationSet_1"
+    # point_corres_method(date, experiment, rob_file_name)
+    direct_method(date, experiment, rob_file_name)
     # print(reprojection_error)
     # print(R)
     # print(t)
