@@ -35,16 +35,16 @@ from read_file import get_robot_calibration_pose, get_vive_calibration_pose
 
 tracker2Endeffektor = """
 0 1 0 0
-1 0 0 0 
-0 0 -1 68
+1 0 0 0
+0 0 -1 80
 0 0 0 1
 """
-tracker2Endeffektor = """
-0 0 -1 0
--1 0 0 0 
-0 1 0 68
-0 0 0 1
-"""
+# tracker2Endeffektor = """
+# 0 0 -1 0
+# -1 0 0 0
+# 0 1 0 80
+# 0 0 0 1
+# """
 tracker2Endeffektor = np.fromstring(tracker2Endeffektor, dtype=float, sep=" ").reshape((4, 4))
 
 
@@ -57,13 +57,13 @@ def run(point_set_1: np.ndarray,
 
         Transformation is from Set 1 to Set 2
     Args:
-        point_set_1 (np.ndarray): nx3 set of points in Frame A
-        point_set_2 (np.ndarray): nx3 set of points in Frame B
-        algorithm (point_set_registration_pb2.Algorithm): GRPC object defining the Algorithm
+        point_set_1(np.ndarray): nx3 set of points in Frame A
+        point_set_2(np.ndarray): nx3 set of points in Frame B
+        algorithm(point_set_registration_pb2.Algorithm): GRPC object defining the Algorithm
 
     Returns:
-        R (np.ndarray): 3x3 rotation matrix
-        t (np.ndarray): 3x1 translation vector
+        R(np.ndarray): 3x3 rotation matrix
+        t(np.ndarray): 3x1 translation vector
     """
     with grpc.insecure_channel(f"{POINT_REGISTER_HOST}:{POINT_REGISTER_PORT}") as channel:
         stub = point_set_registration_pb2_grpc.PointSetRegisteringStub(channel)
@@ -89,16 +89,17 @@ def run(point_set_1: np.ndarray,
 
 def point_corres_method(date, experiment_number, rob_file_name):
     algo = Algorithm(
-        type=Algorithm.Type.ARUN,
+        type=Algorithm.Type.KABSCH,
         optimize=False,
         ransac=RANSACParameters(threshold=1, confidence=0.95)
     )
-    point_set_1 = get_robot_endeff_lh_kos(date, experiment, 68)  # *1000  # *1000  # mm
-    point_set_2 = get_robot_endeff_rob_kos(file_name="20210727_CalibrationSet_1")
-    num_for_algo = 9
+    point_set_1 = get_robot_endeff_lh_kos(date, experiment_number, 80)  # *1000  # *1000  # mm
+    point_set_2 = get_robot_endeff_rob_kos(file_name=rob_file_name)
+    print(point_set_1)
+    num_for_algo = 11
     R, t = run(
-        point_set_1=point_set_1[: num_for_algo, :],
-        point_set_2=point_set_2[: num_for_algo, :],
+        point_set_1=point_set_1[3: num_for_algo, :],
+        point_set_2=point_set_2[3:num_for_algo, :],
         algorithm=algo)
     # print(R, t)
     reprojection_error = list()
@@ -110,23 +111,24 @@ def point_corres_method(date, experiment_number, rob_file_name):
     print(reprojection_error)
     print(np.mean(reprojection_error))
     test_reprojection_error = list()
-    for i in range(16, 21):
+    for i in range(12, 21):
         v = R@point_set_1[i].reshape([-1, 1])+t
         test_reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
     print(test_reprojection_error)
+    print(np.mean(test_reprojection_error))
 
 
 def direct_hom_lh_2_robot(date, experiment_number, rob_file_name):
-    """takes the three rotation matrices (tracker->lh, tracker->endeff, endeff->base)
-    to calculate the lh->base
+    """takes the three rotation matrices(tracker -> lh, tracker -> endeff, endeff -> base)
+    to calculate the lh -> base
 
-    transforms the tracker->lh to milimeters and returns such a matrix as well
+    transforms the tracker -> lh to milimeters and returns such a matrix as well
     So check if using affine!!
 
     Args:
-        date ([type]): [description]
-        experiment_number ([type]): [description]
-        rob_file_name ([type]): [description]
+        date([type]): [description]
+        experiment_number([type]): [description]
+        rob_file_name([type]): [description]
 
     Returns:
         [type]: [description]
@@ -168,11 +170,11 @@ def direct_method(date, experiment_number, rob_file_name):
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    experiment = 1
-    date = "20210727"
-    rob_file_name = "20210727_CalibrationSet_1"
-    # point_corres_method(date, experiment, rob_file_name)
-    direct_method(date, experiment, rob_file_name)
+    experiment = 9
+    date = "20210728"
+    rob_file_name = "20210728_CalibrationSet_2"
+    point_corres_method(date, experiment, rob_file_name)
+    # direct_method(date, experiment, rob_file_name)
     # print(reprojection_error)
     # print(R)
     # print(t)
