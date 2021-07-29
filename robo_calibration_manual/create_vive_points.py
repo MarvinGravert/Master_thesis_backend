@@ -68,8 +68,8 @@ if __name__ == "__main__":
     # v = triad_openvr()
     # v.print_discovered_objects()
     # run script with date/num correct=>
-    date: str = "20210728"
-    exp_num: int = 9
+    date: str = "20210729"
+    exp_num: int = 1
 
     file_dir = f"./vive_calibration_data/{date}_CalibrationSet_{exp_num}"  # CCR 05
     file_name = file_dir+"/"+get_new_filename(file_dir)
