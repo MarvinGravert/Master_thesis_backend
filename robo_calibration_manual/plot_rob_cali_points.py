@@ -41,7 +41,7 @@ for i, row in enumerate(robo_data):
         ax.scatter(row[0], row[1], row[2], c="g")
     else:
         ax.scatter(row[0], row[1], row[2], c="r")
-    # ax.annotate(f"{i}", (row[0], row[1], row[2]))
+    ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
 
 ax.set_xlabel('X [mm]')
 ax.set_ylabel('Y [mm]')
