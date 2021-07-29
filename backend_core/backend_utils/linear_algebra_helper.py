@@ -187,3 +187,52 @@ def get_angle_from_rot_matrix(rot_matrix) -> float:
     # https://en.wikipedia.org/wiki/Rotation_matrix#Determining_the_angle
     temp = (np.trace(rot_matrix)-1)/2
     return 1/np.cos(temp)
+
+
+def build_coordinate_system_via_3_points(origin, x_axis_point, y_axis_point) -> np.ndarray:
+    """utilising 3 non colinear points build a coordinate system with its origin
+    and axis lying at the coordinates handed over
+
+
+    Args:
+        origin (np.ndarray): 3D point
+        x_axis_point (np.ndarray): 3D point along the new axis
+        y_axis_point (np.ndarray): 3D point along the new yaxis
+
+    Returns:
+        np.ndarray: Returns the transformation from new to old coordinate system
+    """
+    x_axis = x_axis_point-origin
+    x_axis = x_axis/np.linalg.norm(x_axis)
+    y_axis = y_axis_point-origin
+    y_axis = y_axis/np.linalg.norm(y_axis)
+    # build z axis
+    z_axis = np.cross(x_axis, y_axis)
+    y_axis = np.cross(z_axis, x_axis)  # make sure 90° between x and y
+    rot = np.column_stack((x_axis, y_axis, z_axis))
+    return combine_to_homogeneous_matrix(rotation_matrix=rot, translation_vector=origin)
+
+
+def distance_between_coord_sys(hom_matrix_b, hom_matrix_c) -> Tuple[float]:
+    """calculates the distances between two coordiante systems which are related 
+    by a common system. The homogenous transformatino matrix are handed over and
+    the angle and distance are calculated (axis independent)
+    (axis could be changed quickly though)
+
+    IMPORTANT:
+    first hom B->A 
+    second hom C->A 
+    results in B->C (translative and rotational distance)
+
+    Args:
+        hom_matrix_b ([type]): [description]
+        hom_matrix_c ([type]): [description]
+
+    Returns:
+        Tuple[float]: distance, angle
+    """
+    hom_matrixb2c = np.linalg.inv(hom_matrix_c)@hom_matrix_b
+    R, t = separate_from_homogeneous_matrix(hom_matrixb2c)
+    angle = get_angle_from_rot_matrix(R)
+    dist = np.linalg.norm(t)  # if axis required dont norm and just return the vector
+    return dist, angle
