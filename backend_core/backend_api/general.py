@@ -2,9 +2,10 @@ from typing import Any, Dict, List
 import asyncio
 from enum import Enum
 from dataclasses import dataclass, fields
+from backend_utils.linear_algebra_helper import transform_to_homogenous_matrix
 
 from loguru import logger
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation as R, rotation
 import numpy as np
 
 
@@ -53,3 +54,7 @@ class Waypoint():
         # t=R@offset+t
         # Need to transform the local point into lighthouse-kos and then add to already existing position
         self.position = self.position+r.as_matrix()@offset
+
+    def as_hom_matrix(self):
+
+        return transform_to_homogenous_matrix(position=self.position, quaternion=self.rotation)
