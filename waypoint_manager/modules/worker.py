@@ -53,6 +53,7 @@ class WorkerClass():
                 continue
             for waypoint in path:
                 waypoint.apply_offset(np.array([0, -0.0145, 0.1735]))  # offset in m!
+                waypoint.position = waypoint.position*1000  # change to mm
             logger.info(f"The path is:\n {path}")
 
             """

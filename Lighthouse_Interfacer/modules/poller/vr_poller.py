@@ -63,6 +63,7 @@ class VRPoller(BasePoller):
             # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
             # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
             button_state = self.v.devices["controller_1"].get_controller_inputs()
+            # print(button_state)
             # turn trigger floating point value to boolean
             if button_state["trigger"] < 0.5:
                 button_state["trigger"] = False
@@ -87,6 +88,44 @@ class VRPoller(BasePoller):
         except KeyError as e:
             logger.warning(f"Controller wasnt found: {e}")
 
+        """
+        ----------
+        TestController
+        ----------
+        """
+        try:
+            # get the position and rotation
+
+            [x, y, z, w, i, j, k] = self.v.devices["handheld"].get_pose_quaternion()
+            # [x, y, z, w, i, j, k] = self.inject_calibration([x, y, z, w, i, j, k])
+            # Now get the button states. An Example printed below
+            # {'unPacketNum': 362, 'trigger': 0.0, 'trackpad_x': 0.0, 'trackpad_y': 0.0,
+            # 'ulButtonPressed': 0, 'ulButtonTouched': 0, 'menu_button': False, 'trackpad_pressed': False, 'trackpad_touched': False, 'grip_button': False}
+            button_state = self.v.devices["handheld"].get_controller_inputs()
+            # print(button_state)
+            # turn trigger floating point value to boolean
+            if button_state["trigger"] < 0.5:
+                button_state["trigger"] = False
+            else:
+                button_state["trigger"] = True
+            # turn all button states into string
+            button_state = {key: str(value) for key, value in button_state.items()}
+
+            controller_list.append(
+                Controller(
+                    name="testController",
+                    rotation=[i, j, k, w],
+                    position=[x, y, z],
+                    button_state=button_state)
+            )
+        except (TypeError, ZeroDivisionError) as e:
+            # this occurs when connection to device is lost
+            # just use the previously detected pose
+            # Zero divisoin error can happen during conversion to quaternion
+            logger.error(e)
+            pass
+        except KeyError as e:
+            logger.warning(f"Controller wasnt found: {e}")
         """
         ----------
         Holo Tracker

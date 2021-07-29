@@ -28,7 +28,7 @@ from point_set_registration_pb2 import Algorithm, Vector, Input, RANSACParameter
 import point_set_registration_pb2_grpc
 
 from config.consts import POINT_REGISTER_HOST, POINT_REGISTER_PORT
-from utils.linear_algebra_helper import separate_from_homogeneous_matrix
+from backend_utils.linear_algebra_helper import separate_from_homogeneous_matrix
 
 from read_file import get_robot_endeff_lh_kos, get_robot_endeff_rob_kos
 from read_file import get_robot_calibration_pose, get_vive_calibration_pose
@@ -103,10 +103,11 @@ def point_corres_method(date, experiment_number, rob_file_name):
         algorithm=algo)
     # print(R, t)
     reprojection_error = list()
+    projected_vive_points = list()
     for i in range(21):
 
         v = R@point_set_1[i].reshape([-1, 1])+t
-
+        projected_vive_points.append(v)
         reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
     print(reprojection_error)
     print(np.mean(reprojection_error))
@@ -116,6 +117,10 @@ def point_corres_method(date, experiment_number, rob_file_name):
         test_reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
     print(test_reprojection_error)
     print(np.mean(test_reprojection_error))
+    from plot_rob_cali_points import plot_calibration_points
+    print(R)
+    print(t)
+    # plot_calibration_points(point_set_2, np.array(projected_vive_points))
 
 
 def direct_hom_lh_2_robot(date, experiment_number, rob_file_name):
@@ -170,8 +175,8 @@ def direct_method(date, experiment_number, rob_file_name):
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    experiment = 9
-    date = "20210728"
+    experiment = 1
+    date = "20210729"
     rob_file_name = "20210728_CalibrationSet_2"
     point_corres_method(date, experiment, rob_file_name)
     # direct_method(date, experiment, rob_file_name)
