@@ -4,12 +4,12 @@
 from typing import List
 import os
 from pathlib import Path
-from utils.linear_algebra_helper import combine_to_homogeneous_matrix
 
 from loguru import logger
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
+from backend_utils.linear_algebra_helper import combine_to_homogeneous_matrix
 from backend_utils.linear_algebra_helper import transform_to_homogenous_matrix
 
 from config.consts import PATH_TO_VIVE_CALIBRATION, DISTANCE_VIVE_ENDEFFECTOR, PATH_TO_ROBOT_CALIBRATION
