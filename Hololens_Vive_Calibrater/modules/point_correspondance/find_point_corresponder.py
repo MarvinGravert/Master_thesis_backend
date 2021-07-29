@@ -39,6 +39,78 @@ class BaseCalibrationObject(ABC):
         raise NotImplementedError
 
 
+class SecondCalibrationObject(BaseCalibrationObject):
+    """first prototype built.
+    we take 16 points
+    Front is defined as the location the viewer is facing the four walls directly
+    Starting lower base (the ground facing base):
+    1. Point. left front 
+    2. Point. right front
+    3. Point right back 
+    4. Point left back
+    Middle base (there the incline begins)
+    5. Point. left front
+    6.->8. Point anti clockwise
+    Upper Base
+    9. Point left front
+    10.->12. Point anti clockwise
+    Center (along the center line)
+    13. Point lower front center (ground facing )
+    14. Point lower back center
+    15. Point upper front center
+    16. Point upper back center    
+    """
+
+    def get_points_unity_ref(self) -> np.ndarray:
+        # the points we receive are in unity units which in standard settings are=1m
+        # as the vive also works in meters we wont transform
+        logger.error("using second prototype!!")
+        points = [
+            [0.08, -0.05, -0.001],  # 1 Point
+            [-0.08, -0.05, -0.001],
+            [-0.08, 0.05, -0.001],
+            [0.08, 0.05, -0.001],
+            [0.08, -0.05, 0.06],   # 5 Point
+            [-0.08, -0.05, 0.06],
+            [-0.08, 0.05, 0.06],
+            [0.08, 0.05, 0.06],
+            [0.015, -0.05, 0.1252],  # 9 Point
+            [-0.015, -0.05, 0.1252],
+            [-0.015, 0.05, 0.1252],
+            [0.015, 0.05, 0.1252],
+            [0, -0.05, -0.007],  # 13 Point
+            [0, 0.05, -0.007],
+            [0, -0.05, 0.1252],
+            [0, 0.05, 0.1252],
+        ]
+        return np.array(points)
+
+    def get_points_vive_ref(self) -> np.ndarray:
+        """coordinate systems of the tracker is flush with its base z-axis pointing downwards
+        y- axis pointing in direction of led/powerplug
+        done in meters
+        """
+        points = [
+            [0.08, -0.05, 0.127],  # 1 Point
+            [-0.08, -0.05, 0.127],
+            [-0.08, 0.05, 0.127],
+            [0.08, 0.05, 0.127],
+            [0.08, -0.05, 0.067],  # 5 Point
+            [-0.08, -0.05, 0.067],
+            [-0.08, 0.05, 0.067],
+            [0.08, 0.05, 0.067],
+            [0.015, -0.05, 0],  # 9 Point
+            [-0.015, -0.05, 0],
+            [-0.015, 0.05, 0],
+            [0.015, 0.05, 0],
+            [0, -0.05, 0.127],  # 13 Point
+            [0, 0.05, 0.127],
+            [0, -0.05, 0],
+            [0, 0.05, 0],
+        ]
+        return np.array(points)
+
+
 class FirstCalibrationObject(BaseCalibrationObject):
     """first prototype built.
     we take 16 points
@@ -64,6 +136,7 @@ class FirstCalibrationObject(BaseCalibrationObject):
     def get_points_unity_ref(self) -> np.ndarray:
         # the points we receive are in unity units which in standard settings are=1m
         # as the vive also works in meters we wont transform
+
         points = [
             [0.04, -0.015, -0.007],  # 1 Point
             [-0.04, -0.015, -0.007],
@@ -85,8 +158,8 @@ class FirstCalibrationObject(BaseCalibrationObject):
         return np.array(points)
 
     def get_points_vive_ref(self) -> np.ndarray:
-        """return calibration points inthe tracker frame. This uses the KOS
-        as noted by the libsurvive team. The origin is assumed to be at the bore hole
+        """return calibration points inthe tracker frame.
+        The origin is assumed to be at the bore hole
         and flush with the ground
 
         Returns:
@@ -117,13 +190,15 @@ def _get_active_calibration_object() -> Union[FirstCalibrationObject]:
     from config.api import CalibrationObject
     from config.const import CALIBRATION_OBJECT
     lookup_table: Dict[CalibrationObject, Union[FirstCalibrationObject]] = {
-        CalibrationObject.FIRSTPROTOTYPE: FirstCalibrationObject()
+        CalibrationObject.FIRSTPROTOTYPE: FirstCalibrationObject(),
+        CalibrationObject.PROTOTYPEV2: SecondCalibrationObject()
     }
     return lookup_table[CALIBRATION_OBJECT]
 
 
 def get_points_tracker_kos(hom_matrix: np.ndarray) -> List[np.ndarray]:
     calib_obj = FirstCalibrationObject()
+    calib_obj = SecondCalibrationObject()
     points = calib_obj.get_points_vive_ref()
     points_in_lh = list()
     for p in points:
@@ -134,6 +209,7 @@ def get_points_tracker_kos(hom_matrix: np.ndarray) -> List[np.ndarray]:
 
 def get_points_unity_kos(hom_matrix: np.ndarray) -> List[np.ndarray]:
     calib_obj = FirstCalibrationObject()
+    calib_obj = SecondCalibrationObject()
     points = calib_obj.get_points_unity_ref()
     points_in_unity = list()
     for p in points:
