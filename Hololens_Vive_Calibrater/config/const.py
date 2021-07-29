@@ -7,4 +7,4 @@ TCP_PORT = config("TCP_PORT", cast=int, default=15005)
 POINT_REGISTER_HOST = config("POINT_REGISTER_HOST", cast=str, default="[::1]")
 POINT_REGISTER_PORT = config("POINT_REGISTER_PORT", cast=int, default=50052)
 
-CALIBRATION_OBJECT = config("CALIBRATION_OBJECT", cast=CalibrationObject, default="firstprototype")
+CALIBRATION_OBJECT = config("CALIBRATION_OBJECT", cast=CalibrationObject, default="secondprototype")
