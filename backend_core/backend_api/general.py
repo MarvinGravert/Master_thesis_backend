@@ -8,6 +8,8 @@ from loguru import logger
 from scipy.spatial.transform import Rotation as R, rotation
 import numpy as np
 
+from backend_utils.linear_algebra_helper import transform_to_homogenous_matrix
+
 
 class Calibration():
     """class to hold the calibration matrices (e.g. LH to robot and LH to virtual center)
@@ -56,5 +58,7 @@ class Waypoint():
         self.position = self.position+r.as_matrix()@offset
 
     def as_hom_matrix(self):
-
-        return transform_to_homogenous_matrix(position=self.position, quaternion=self.rotation)
+        return transform_to_homogenous_matrix(
+            position=self.position,
+            quaternion=self.rotation
+        )
