@@ -89,17 +89,17 @@ def run(point_set_1: np.ndarray,
 
 def point_corres_method(date, experiment_number, rob_file_name):
     algo = Algorithm(
-        type=Algorithm.Type.KABSCH,
+        type=Algorithm.Type.UMEYAMA,
         optimize=False,
-        ransac=RANSACParameters(threshold=1, confidence=0.95)
+        ransac=RANSACParameters(threshold=6, confidence=0.70)
     )
     point_set_1 = get_robot_endeff_lh_kos(date, experiment_number, 80)  # *1000  # *1000  # mm
     point_set_2 = get_robot_endeff_rob_kos(file_name=rob_file_name)
     print(point_set_1)
     num_for_algo = 11
     R, t = run(
-        point_set_1=point_set_1[3: num_for_algo, :],
-        point_set_2=point_set_2[3:num_for_algo, :],
+        point_set_1=point_set_1[: num_for_algo, :],
+        point_set_2=point_set_2[:num_for_algo, :],
         algorithm=algo)
     # print(R, t)
     reprojection_error = list()
@@ -120,7 +120,7 @@ def point_corres_method(date, experiment_number, rob_file_name):
     from plot_rob_cali_points import plot_calibration_points
     print(R)
     print(t)
-    # plot_calibration_points(point_set_2, np.array(projected_vive_points))
+    plot_calibration_points(point_set_2, np.array(projected_vive_points))
 
 
 def direct_hom_lh_2_robot(date, experiment_number, rob_file_name):
@@ -175,8 +175,8 @@ def direct_method(date, experiment_number, rob_file_name):
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    experiment = 1
-    date = "20210729"
+    experiment = 5
+    date = "20210730"
     rob_file_name = "20210728_CalibrationSet_2"
     point_corres_method(date, experiment, rob_file_name)
     # direct_method(date, experiment, rob_file_name)
