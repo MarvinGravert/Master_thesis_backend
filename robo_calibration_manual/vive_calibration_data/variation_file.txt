@@ -1,0 +1,9 @@
+Alle Experimente nach 20210728 Exp 2 (also ab Exp 3 ) verwenden das Robot punkteset Cali_2 
+Kein Hardwaredefekt (tracker geändert)
+Roboterpunkteset geändert 
+am 28 in einem Set nur mit einem LH 
+
+
+Die letzten drei Sets am 29.=> Variation der LHS
+Das sclechte von den dreien war mit einem LH verdeckt durch Roboter
+Variert LH Position (single double) Variert Tracker
