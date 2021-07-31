@@ -9,7 +9,7 @@ from backend_utils.linear_algebra_helper import build_coordinate_system_via_3_po
 
 
 def get_data_base_path() -> Path:
-    return Path("./laser_data")
+    return Path("./overall_acc_data")
 
 
 def read_laser_data(path2file: Path) -> np.ndarray:
@@ -57,7 +57,7 @@ def process_laser_data(laser_data: np.ndarray) -> List[np.ndarray]:
     Args:
         laser_data (np.ndarray): [description]
     """
-    hom_matrix_list=list()
+    hom_matrix_list = list()
     for origin, x_axis, y_axis, _ in grouper(laser_data, 4):
         hom_point2laser = build_coordinate_system_via_3_points(
             origin=origin,
@@ -68,34 +68,31 @@ def process_laser_data(laser_data: np.ndarray) -> List[np.ndarray]:
     return hom_matrix_list
 
 
-def calculate_distance_points(date:str,exp_num:int):
-    # tip of tcp in roboter_laser_kos 
-    tcp_tip=np.array([0,0,36,1])
-    # target location for waypoint 
-    target_loc=np.array([62,62,-10,1])
+def calculate_distance_points(date: str, exp_num: int):
+    # tip of tcp in roboter_laser_kos
+    tcp_tip = np.array([51, 51, 93-10, 1])
+    # target location for waypoint
+    target_loc = np.array([132, 132, -10, 1])
 
-    laser_data=get_laser_data(date, experiment_number=exp_num)
-    laser_data=pre_process_laser_data(laser_data)
-    list_hom_matrix=process_laser_data(laser_data)
+    laser_data = get_laser_data(date, experiment_number=exp_num)
+    laser_data = pre_process_laser_data(laser_data)
+    print(laser_data)
+    list_hom_matrix = process_laser_data(laser_data)
 
-    distance_list=list()
-    for  hom_target2laser,hom_rob2laser in grouper(list_hom_matrix,2):
+    distance_list = list()
+    for hom_target2laser, hom_rob2laser in grouper(list_hom_matrix, 2):
         # target shuold be first
-        target_in_laser=hom_target2laser@target_loc
-        tcp_tip_in_laser=hom_rob2laser@tcp_tip
+        target_in_laser = hom_target2laser@target_loc
+        tcp_tip_in_laser = hom_rob2laser@tcp_tip
 
-        dist=np.linalg.norm(target_in_laser-tcp_tip_in_laser)
+        dist = np.linalg.norm(target_in_laser-tcp_tip_in_laser)
         distance_list.append(dist)
-    
+
     print(distance_list)
     print(f"{np.mean(distance_list)} \u00B1 {np.std(distance_list)}")
-    
-
-    
 
 
-
-if __name__=="__main__":
-    date="20210729"
-    exp_num=1
-    calculate_distance_points(date,exp_num)
+if __name__ == "__main__":
+    date = "20210730"
+    exp_num = 1
+    calculate_distance_points(date, exp_num)
