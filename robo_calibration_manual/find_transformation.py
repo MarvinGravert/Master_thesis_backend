@@ -89,7 +89,7 @@ def run(point_set_1: np.ndarray,
 
 def point_corres_method(date, experiment_number, rob_file_name):
     algo = Algorithm(
-        type=Algorithm.Type.UMEYAMA,
+        type=Algorithm.Type.KABSCH,
         optimize=False,
         ransac=RANSACParameters(threshold=6, confidence=0.70)
     )
@@ -175,8 +175,8 @@ def direct_method(date, experiment_number, rob_file_name):
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    experiment = 5
-    date = "20210730"
+    experiment = 7
+    date = "20210731"
     rob_file_name = "20210728_CalibrationSet_2"
     point_corres_method(date, experiment, rob_file_name)
     # direct_method(date, experiment, rob_file_name)

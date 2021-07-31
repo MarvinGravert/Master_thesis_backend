@@ -2,6 +2,7 @@ import time
 import os
 import sys
 
+import numpy as np
 from loguru import logger
 from triad_openvr import triad_openvr
 from datetime import datetime
@@ -32,10 +33,11 @@ def get_new_filename(folder_dir: str) -> str:
     return f"calibration_point_{max_number+1}.txt"
 
 
-def take_measurements(filename: str, freq: float = 100, num_measurements: int = 100):
+def take_measurements(filename: str, freq: float = 100, num_measurements: int = 200):
     v = triad_openvr()
     v.print_discovered_objects()
     counter = 0
+    collector = list()
     with open(filename, 'w') as f:
         # quaternion
         # s = "# x y z w j i k Freq: "+str(freq)+" current Time: " + \
@@ -50,6 +52,7 @@ def take_measurements(filename: str, freq: float = 100, num_measurements: int = 
             poseDataQuat = v.devices["tracker_1"].get_pose_quaternion()
             poseData = v.devices["tracker_1"].get_pose_matrix()
             print("trackerPose: ", poseDataQuat)
+            collector.append(poseDataQuat)
 
             s = str(poseData).strip("[] ]").replace(",", "").replace("]", "").replace("[", "")
             f.write(s+"\n")
@@ -61,6 +64,8 @@ def take_measurements(filename: str, freq: float = 100, num_measurements: int = 
 
             if timeDif <= 1/freq:
                 time.sleep((1/freq-timeDif))
+        print(np.mean(collector, 0))
+        print(np.std(collector, 0)*1000)
 
 
 if __name__ == "__main__":
@@ -68,8 +73,8 @@ if __name__ == "__main__":
     # v = triad_openvr()
     # v.print_discovered_objects()
     # run script with date/num correct=>
-    date: str = "20210729"
-    exp_num: int = 1
+    date: str = "20210731"
+    exp_num: int = 7
 
     file_dir = f"./vive_calibration_data/{date}_CalibrationSet_{exp_num}"  # CCR 05
     file_name = file_dir+"/"+get_new_filename(file_dir)

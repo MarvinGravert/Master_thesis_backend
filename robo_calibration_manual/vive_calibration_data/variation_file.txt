@@ -7,3 +7,23 @@ am 28 in einem Set nur mit einem LH
 Die letzten drei Sets am 29.=> Variation der LHS
 Das sclechte von den dreien war mit einem LH verdeckt durch Roboter
 Variert LH Position (single double) Variert Tracker
+
+
+am 31 juli Testsets 1-4 waren mit kabellosen Tracker gemacht
+ 
+2-4 nur ein Lighthuose
+2: LH ohne Klebeband
+3: LH mit Klebeband
+4. LH mit Klebeband und Roboter komplett abgekleppt
+Während der Messungen 2-4 auffällig schlechte Präzision und auch lange Zeit bis die Messung sich einstellt (Messwert uzr Ruhe kommt)
+
+Testset 5 und 6: 
+Mit Kabel
+
+1. waren beiden LH und gute Werte (obwohl kabellos) 
+evtl ein SYstem was die Verbindung stört (der Lasertracker? der nachträglich gestartet wurde)
+evtl. defekter Empfänger oder Sender (konnte nicht überprüft werden da anderer Tracker Sender bereits bei Lieferung defekt)
+
+Man sollte Kalibrierung mit Kabel ausführen wenn Störquen
+
+Set 100 ist ein VariationSet indem Punkt 21 variert wurde

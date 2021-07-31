@@ -76,7 +76,7 @@ def calculate_distance_points(date: str, exp_num: int):
 
     laser_data = get_laser_data(date, experiment_number=exp_num)
     laser_data = pre_process_laser_data(laser_data)
-    print(laser_data)
+    # print(laser_data)
     list_hom_matrix = process_laser_data(laser_data)
 
     distance_list = list()
@@ -93,6 +93,6 @@ def calculate_distance_points(date: str, exp_num: int):
 
 
 if __name__ == "__main__":
-    date = "20210730"
+    date = "20210731"
     exp_num = 1
     calculate_distance_points(date, exp_num)

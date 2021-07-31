@@ -6,9 +6,9 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 hom_matrix_lh2robot = """
-    0.77452248  0.01779656  0.63229603 1189.11499023
-    0.63231397  0.00531408 -0.77469403 -1272.83557129
-    -0.01714696  0.9998275  -0.00713714 1205.47021484
+-0.91787392  0.03214808  0.39556789 1231.7869873
+  0.39598042  0.00740866  0.91822904 1607.19287109
+  0.02658867  0.99945563 -0.01953023  1319.4855957
      0 0 0 1
          """
 # hom_matrix_lh2robot = """
@@ -23,11 +23,8 @@ hom_matrix_LH_Robo = np.ndarray = np.fromstring(hom_matrix_lh2robot,
 
 
 waypoint_matrix = """
-0.35851979 -0.60233247 -1.37997055  0.71165089  0.662407    0.18081498 -0.14857095
-0.36067755 -0.60197859 -1.37912985  0.70778262  0.66455595  0.18011435 -0.15800904
-0.35981989 -0.60244846 -1.37230483  0.69610235  0.67966354  0.17849034 -0.14709623
-0.35964191 -0.60286862 -1.37343518  0.69805448  0.67826323  0.17745402 -0.14556274
-0.36019615 -0.60279196 -1.37688909  0.70127833  0.67151669  0.18256854 -0.15473011
+0.16607491 -0.53677225 -1.88800999  0.6213734   0.59419598 -0.37261992
+  0.34924167
 """
 
 waypoint_matrix = np.ndarray = np.fromstring(waypoint_matrix,
@@ -61,7 +58,7 @@ def get_pos_rot_in_kuka_kos(waypoint: Waypoint, lh2robot):
     # waypoint
     rot_base_waypoint = np.linalg.inv(rot)
     euler = R.from_matrix(rot_base_waypoint)
-    angles = euler.as_euler('zyx', degrees=True)
+    angles = euler.as_euler('xyz', degrees=True)
     return t, angles
 
 
