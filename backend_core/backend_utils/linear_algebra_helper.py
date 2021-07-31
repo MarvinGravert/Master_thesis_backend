@@ -213,7 +213,7 @@ def build_coordinate_system_via_3_points(origin, x_axis_point, y_axis_point) -> 
     return combine_to_homogeneous_matrix(rotation_matrix=rot, translation_vector=origin)
 
 
-def distance_between_coord_sys(hom_matrix_b, hom_matrix_c) -> Tuple[float]:
+def distance_between_hom_matrices(hom_matrix_b, hom_matrix_c) -> Tuple[float]:
     """calculates the distances between two coordiante systems which are related 
     by a common system. The homogenous transformatino matrix are handed over and
     the angle and distance are calculated (axis independent)
