@@ -131,13 +131,14 @@ class VRPoller(BasePoller):
         Holo Tracker
         ----------
         """
+
         try:
             # get the position and rotation
             [x, y, z, w, i, j, k] = self.v.devices["holo_tracker"].get_pose_quaternion()
             tracker_list.append(Tracker(
                 name="holoTracker",
                 rotation=[i, j, k, w],
-                poosition=[x, y, z],))
+                position=[x, y, z],))
         except (TypeError, ZeroDivisionError):
             # this occurs when connection to device is lost
             # just use the previously detected pose
@@ -164,6 +165,24 @@ class VRPoller(BasePoller):
             pass
         except KeyError as e:
             logger.warning(f"CalibrationTracker wasnt found: {e}")
+        """
+        ----------
+        Robot
+        ----------
+        """
+        # try:
+        #     # get the position and rotation
+        #     x, y, z = [1, 2, 3]
+        #     i, j, k, w = [0, 0, 0, 1]
+        #     tracker_list.append(Tracker(
+        #         name="robot",
+        #         rotation=[i, j, k, w],
+        #         position=[x, y, z],))
+        # except (TypeError, ZeroDivisionError):
+        #     # this occurs when connection to device is lost
+        #     # just use the previously detected pose
+        #     # Zero divisoin error can happen during conversion to quaternion
+        #     pass
         return tracker_list, controller_list
 
     def inject_calibration(self, data: List[float]) -> List[float]:
