@@ -123,6 +123,32 @@ def calc_reprojection_error(
     mae = sum_error/num_points
     return rmse, mae, std
 
+def eval_error_list(error_list)->Tuple[float]:
+    """calculates rmse mae and std of the error list handed in.
+    Error list is assumed to be the magnitude of the difference between predicted-actual
+
+    rmse=root mean squared error
+    mae=mean absolute error
+    std= standard deviation of the non squared error
+    Args:
+        error_list ([type]): 1dim array of error values
+
+    Returns:
+        Tuple[float]: rmse, mae and std
+    """
+    num_points=len(error_list)
+    sum_squared_error = 0
+    sum_error = 0
+    err_list = list()
+    for err in error_list:
+        err_list.append(err)
+        sum_error += err
+        sum_squared_error += err**2
+    std = np.std(err_list)
+
+    rmse = np.sqrt(sum_squared_error/num_points)
+    mae = sum_error/num_points
+    return rmse, mae, std
 
 def single_reprojection_error(point_a, point_b, hom_matrix) -> float:
     """calculates the reprojection error for given hom matrix between
@@ -186,7 +212,7 @@ def reprojection_error_axis_depending(point_set_a: np.ndarray,
 def get_angle_from_rot_matrix(rot_matrix) -> float:
     # https://en.wikipedia.org/wiki/Rotation_matrix#Determining_the_angle
     temp = (np.trace(rot_matrix)-1)/2
-    return 1/np.cos(temp)
+    return np.arccos(temp)
 
 
 def build_coordinate_system_via_3_points(origin, x_axis_point, y_axis_point) -> np.ndarray:
