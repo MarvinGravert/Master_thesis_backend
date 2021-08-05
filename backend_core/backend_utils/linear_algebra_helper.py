@@ -79,7 +79,7 @@ def calc_reprojection_error(
     hom_matrix: np.ndarray
 ) -> Tuple[float]:
     """calculates the reprojection error of a transformation between two point
-    sets
+    sets and returns root mean squared, absolute mean, max deviation and standard deviation
 
     a={a_i}, b={b_i}
     e_i=||b_i-T*a_i|| # T:4x4 hom matrix
@@ -92,7 +92,7 @@ def calc_reprojection_error(
         hom_matrix (np.ndarray): 4x4 homogenous matrix mapping from a->b
 
     Returns:
-        Tuple[float,float]: root mean square error, mean average error
+        Tuple[float]: root mean square error, mean average error, max, std
     """
     num_points = point_set_a.shape[0]
     # First check and possible augment
@@ -118,12 +118,12 @@ def calc_reprojection_error(
         sum_squared_error += err_mag**2
 
     std = np.std(err_list)
-
     rmse = np.sqrt(sum_squared_error/num_points)
     mae = sum_error/num_points
-    return rmse, mae, std
+    return rmse, mae, max(np.abs(err_list)), std
 
-def eval_error_list(error_list)->Tuple[float]:
+
+def eval_error_list(error_list) -> Tuple[float]:
     """calculates rmse mae and std of the error list handed in.
     Error list is assumed to be the magnitude of the difference between predicted-actual
 
@@ -136,7 +136,7 @@ def eval_error_list(error_list)->Tuple[float]:
     Returns:
         Tuple[float]: rmse, mae and std
     """
-    num_points=len(error_list)
+    num_points = len(error_list)
     sum_squared_error = 0
     sum_error = 0
     err_list = list()
@@ -149,6 +149,7 @@ def eval_error_list(error_list)->Tuple[float]:
     rmse = np.sqrt(sum_squared_error/num_points)
     mae = sum_error/num_points
     return rmse, mae, std
+
 
 def single_reprojection_error(point_a, point_b, hom_matrix) -> float:
     """calculates the reprojection error for given hom matrix between
