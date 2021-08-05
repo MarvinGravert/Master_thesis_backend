@@ -1,4 +1,5 @@
 from pathlib import Path
+from more_itertools.more import only
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -26,7 +27,8 @@ def import_measurement_data(exp_num):
 
 
 def eval():
-    listy = [1, 2, 3, 4, 5, "5_half", 6]
+    # listy = [1,2, 3, 4, 5, "5_half", 6] # 1 is the small clib obj
+    listy = [2, 3, 4, 5, 6, "5_half"]
     data_list = list()
     for ele in listy:
         data_list.append(import_measurement_data(ele))
@@ -53,10 +55,28 @@ def eval():
     # print(dist_err_list)
     # print(np.rad2deg(np.mean(angle_err_list)))
     # print(np.rad2deg(angle_err_list))
+    half_5 = np.array(np.rad2deg(angle_err_list))[-2:]
+    # half_5 = np.array(dist_err_list)[-2:]
     from backend_utils.linear_algebra_helper import eval_error_list
-    test = np.array(dist_err_list)
-    print(eval_error_list(test[:5]))
-    print(eval_error_list(test[5:]))
+    test = np.array(np.rad2deg(angle_err_list))[:-2]
+    # test = np.array(dist_err_list)[:-2]
+
+    zero_list = list()
+    one_list = list()
+    two_list = list()
+    three_list = list()
+    four_list = list()
+    for zero, one, two, three, four in grouper(test, 5):
+        zero_list.append(zero)
+        one_list.append(one)
+        two_list.append(two)
+        three_list.append(three)
+        four_list.append(four)
+    zero_list.append(half_5[0])
+    one_list.append(half_5[1])
+
+    print(np.around(np.array(eval_error_list(zero_list)), 3))
+    print(np.around(max(zero_list), 3))
 
 
 if __name__ == "__main__":
