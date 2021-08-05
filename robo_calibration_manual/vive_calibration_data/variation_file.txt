@@ -26,4 +26,5 @@ evtl. defekter Empfänger oder Sender (konnte nicht überprüft werden da andere
 
 Man sollte Kalibrierung mit Kabel ausführen wenn Störquen
 
-Set 100 ist ein VariationSet indem Punkt 21 variert wurde
+Testset 6 für Endabgabe verwendet (Kalibrierung hielt für mehrere Stunden stand)
+Testset 7 für Video 
