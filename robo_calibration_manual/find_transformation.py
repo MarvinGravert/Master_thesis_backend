@@ -121,6 +121,18 @@ def point_corres_method(date, experiment_number, rob_file_name):
     print(R)
     print(t)
     plot_calibration_points(point_set_2, np.array(projected_vive_points))
+    # from backend_utils.linear_algebra_helper import combine_to_homogeneous_matrix, calc_reprojection_error
+    # homy = combine_to_homogeneous_matrix(
+    #     rotation_matrix=R,
+    #     translation_vector=t
+    # )
+    # test = calc_reprojection_error(
+    #     point_set_a=point_set_1[:],
+    #     point_set_b=point_set_2[:],
+    #     hom_matrix=homy
+    # )
+    # print(test)
+    # return test
 
 
 def direct_hom_lh_2_robot(date, experiment_number, rob_file_name):
@@ -175,10 +187,16 @@ def direct_method(date, experiment_number, rob_file_name):
 
 if __name__ == "__main__":
     logger.info("Running client directly")
-    experiment = 7
+    experiment = 6
     date = "20210731"
     rob_file_name = "20210728_CalibrationSet_2"
     point_corres_method(date, experiment, rob_file_name)
+    # err_list = list()
+    # for i in range(1, 8):
+    #     err = point_corres_method(date, i, rob_file_name)
+    #     err_list.append(err)
+    # print(err_list)
+
     # direct_method(date, experiment, rob_file_name)
     # print(reprojection_error)
     # print(R)

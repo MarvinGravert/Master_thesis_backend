@@ -102,21 +102,25 @@ def plot_calibration_points(robo_data, vive_data):
 
     for i, (rob_row, vive_row) in enumerate(zip(robo_data, vive_data)):
 
-        ax.scatter(rob_row[0], rob_row[1], rob_row[2], c="g", label='Roboter')
+        ax.scatter(rob_row[0], rob_row[1], rob_row[2], c="r",
+                   label='Roboter' if i == 0 else "_nolegend_")
 
-        ax.scatter(vive_row[0], vive_row[1], vive_row[2], c="r", label='Vive')
+        ax.scatter(vive_row[0], vive_row[1], vive_row[2], c="green",
+                   label='Lighthouse' if i == 0 else "_nolegend_")
         # ax.scatter(rob_row[0], rob_row[1], rob_row[2],
         #            vive_row[0], vive_row[1], vive_row[2],
-        #            #    color=("g", "r"),
+        #            #   color=("g", "r"),
         #            label=("Roboter", "Vive")
-        #            )
+        #    )
         # plt.legend(loc=1)
         ax.text(rob_row[0], rob_row[1], rob_row[2],  '%s' %
                 (str(i+1)), size=10, zorder=1,  color='k')
 
-    ax.set_xlabel('X [mm]')
-    ax.set_ylabel('Y [mm]')
-    ax.set_zlabel('Z [mm]')
+    ax.set_xlabel('x [mm]', fontsize=15)
+    ax.set_ylabel('y [mm]', fontsize=15)
+    import upsidedown
+    test = upsidedown.transform('z [mm]')
+    ax.set_zlabel(test, fontsize=15)
     # BUILD CUBE
     center = min+(max-min)/2
     size = max-min+[20, 20, 20]
@@ -152,8 +156,8 @@ def plot_calibration_points(robo_data, vive_data):
     # right surface
     ax.plot_wireframe(x32, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
 
-    plt.title("Punktekorrespondenzen")
-    # plt.legend(loc='upper left', fontsize=8, bbox_to_anchor=(0, 0))
+    # plt.title("Punktekorrespondenzen")
+    plt.legend(loc='right', fontsize=11, prop={'size': 15})
     plt.show()
 
 

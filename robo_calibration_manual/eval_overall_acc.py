@@ -128,10 +128,10 @@ def calculate_distance_points(date: str, exp_num: int):
     # print(distance_list)
     # print(len(distance_list))
     # print(f"{np.mean(distance_list)} \u00B1 {np.std(distance_list)}")
-    print(stats.ttest_1samp(distance_list, 0))
-    # plot_waypoint_error(distance_list)
+    # print(stats.ttest_1samp(distance_list, 0))
+    plot_waypoint_error(distance_list)
     # print(np.mean(distance_list))
-    print(np.std(distance_list, ddof=1))
+    # print(np.std(distance_list, ddof=1))
     # print(max(distance_list))
     # test = np.array(distance_list)
     # test = test**2
@@ -239,12 +239,12 @@ def plot_waypoint_error(error_list: List[float]):
     fig = plt.figure(figsize=(4, 4))
 
     ax = fig.add_subplot(111, projection='3d')
-    ax.set_xlabel("x [mm]", rotation=180)
+    ax.set_xlabel("x [mm]", fontsize=15)
 
-    ax.set_ylabel("y [mm]")
+    ax.set_ylabel("y [mm]", fontsize=15)
     import upsidedown
     test = upsidedown.transform('z [mm]')
-    ax.set_zlabel(test)
+    ax.set_zlabel(test, fontsize=15)
     scatter = ax.scatter(
         xs=data[:, 0],
         ys=data[:, 1],
@@ -260,7 +260,7 @@ def plot_waypoint_error(error_list: List[float]):
     labels = ['$\\mathdefault{3,94 mm}$',
               '$\\mathdefault{10,42 mm}$', '$\\mathdefault{15,55 mm}$']
     legend2 = ax.legend(handles, labels,
-                        loc="right")
+                        loc="right", prop={'size': 15})
     # print(scatter.legend_elements(**kw))
     ax.add_artist(legend2)
     # plt.title("Abweichung zwischen angezielten \nund angefahrenen Wegpunkt")
@@ -310,7 +310,7 @@ def plot_waypoint_error(error_list: List[float]):
 if __name__ == "__main__":
     date = "20210731"
     exp_num = 1
-    # calculate_distance_points(date, exp_num)
+    calculate_distance_points(date, exp_num)
     # calculate_axis_distance(date, exp_num)
-    get_user_placement_error()
+    # get_user_placement_error()
     # get_user_hand_jitter()
