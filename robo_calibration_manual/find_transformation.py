@@ -102,6 +102,7 @@ def point_corres_method(date, experiment_number, rob_file_name):
         point_set_2=point_set_2[:num_for_algo, :],
         algorithm=algo)
     # print(R, t)
+    logger.error(len(point_set_1[: num_for_algo, :]))
     reprojection_error = list()
     projected_vive_points = list()
     for i in range(21):
@@ -112,15 +113,30 @@ def point_corres_method(date, experiment_number, rob_file_name):
     print(reprojection_error)
     print(np.mean(reprojection_error))
     test_reprojection_error = list()
-    for i in range(12, 21):
+    test_direction_bias_test = list()  # prüfmenge
+    test_direction_bias_calib = list()  # kalibriermenge
+    for i in range(11, 21):
         v = R@point_set_1[i].reshape([-1, 1])+t
         test_reprojection_error.append(np.linalg.norm(v-point_set_2[i].reshape([-1, 1])))
+        test_direction_bias_test.append(v-point_set_2[i].reshape([-1, 1]))
+    for i in range(11):
+        v = R@point_set_1[i].reshape([-1, 1])+t
+        test_direction_bias_calib.append(v-point_set_2[i].reshape([-1, 1]))
     print(test_reprojection_error)
     print(np.mean(test_reprojection_error))
-    from plot_rob_cali_points import plot_calibration_points
-    print(R)
-    print(t)
-    plot_calibration_points(point_set_2, np.array(projected_vive_points))
+    print(f"direction bias:")
+    print(np.array(test_direction_bias_calib))
+    from backend_utils.linear_algebra_helper import eval_error_list
+    print(eval_error_list(np.array(test_direction_bias_test)[:, 2]))
+
+    from scipy import stats
+    print(stats.ttest_1samp(np.array(test_direction_bias_test)[:, 2], 0))
+    print(np.array(test_direction_bias_test)[:, 1])
+    # from plot_rob_cali_points import plot_calibration_points
+    # print(R)
+    # print(t)
+    # plot_calibration_points(point_set_2, np.array(projected_vive_points))
+
     # from backend_utils.linear_algebra_helper import combine_to_homogeneous_matrix, calc_reprojection_error
     # homy = combine_to_homogeneous_matrix(
     #     rotation_matrix=R,
@@ -170,14 +186,14 @@ def direct_method(date, experiment_number, rob_file_name):
     point_set_2 = get_robot_endeff_rob_kos(file_name="20210727_CalibrationSet_1")
     matrix_err_list = list()
 
-    for j in range(1):
+    for j in range(num_points):
         err_list = list()
-        print(lh2robo_list[j])
-        for i in range(1):
-            print(point_set_1[i])
+        # print(lh2robo_list[j])
+        for i in range(num_points):
+            # print(point_set_1[i])
             temp = lh2robo_list[j]@np.append(point_set_1[i], 1)
-            print(temp)
-            err = point_set_2-temp[:3]
+            # print(temp)
+            err = point_set_2[i]-temp[:3]
             err = np.linalg.norm(err)
             err_list.append(err)
         matrix_err_list.append(np.mean(err_list))

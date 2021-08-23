@@ -169,12 +169,14 @@ def calculate_axis_distance(date: str, exp_num: int):
     print(len(err_vec_list))
     # print(stats.ttest_1samp(test[:, 2], 0))
     ##
-    axis = overall_err_vec_matrix[:, 2]
+    axis = overall_err_vec_matrix[:, 1]
+    print(axis)
     test = np.array(axis)
     test = test**2
     print(np.sqrt(np.mean(test)))
     print(np.mean(axis))
     print(max(np.abs(axis)))
+    print(min(axis))
     print(np.std(axis, ddof=1))
     print(stats.ttest_1samp(axis, 0))
 

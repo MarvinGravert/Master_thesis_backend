@@ -43,7 +43,8 @@ def check_cost_function(point_set_1: np.ndarray,
     p2 = check_adjust_dimension(point_set=point_set_2)
     from backend_utils.linear_algebra_helper import calc_reprojection_error, combine_to_homogeneous_matrix
     hom_matrix = combine_to_homogeneous_matrix(R, t)
-    rmse, mae, std = calc_reprojection_error(point_set_a=p1, point_set_b=p2, hom_matrix=hom_matrix)
+    rmse, mae, max, std = calc_reprojection_error(
+        point_set_a=p1, point_set_b=p2, hom_matrix=hom_matrix)
     logger.info(f"{rmse=}    {mae=}  {std=}")
     return mae
     # each row is corresponding to another one in the other point set

@@ -124,7 +124,7 @@ def calc_reprojection_error(
 
 
 def eval_error_list(error_list) -> Tuple[float]:
-    """calculates rmse mae and std of the error list handed in.
+    """calculates rmse mae average_error, std and max of the error list handed in.
     Error list is assumed to be the magnitude of the difference between predicted-actual
 
     rmse=root mean squared error
@@ -134,21 +134,20 @@ def eval_error_list(error_list) -> Tuple[float]:
         error_list ([type]): 1dim array of error values
 
     Returns:
-        Tuple[float]: rmse, mae and std
+        Tuple[float]: rmse, mae, avg_error std and max
     """
     num_points = len(error_list)
     sum_squared_error = 0
-    sum_error = 0
     err_list = list()
     for err in error_list:
         err_list.append(err)
-        sum_error += err
         sum_squared_error += err**2
     std = np.std(err_list)
 
     rmse = np.sqrt(sum_squared_error/num_points)
-    mae = sum_error/num_points
-    return rmse, mae, std
+    mae = np.mean(np.abs(err_list))
+    avg_error = np.mean(err_list)
+    return rmse, mae, avg_error, std, max(np.abs(err_list))
 
 
 def single_reprojection_error(point_a, point_b, hom_matrix) -> float:

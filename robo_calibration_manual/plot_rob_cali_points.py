@@ -1,10 +1,11 @@
+from loguru import logger
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product, combinations
 from mpl_toolkits.mplot3d import Axes3D
 
 
-robo_data = """
+robo_calib_data = """
 442.60 298.69 426.56 109.76 80.69 100.43
 505.68 214.48 533.05 109.76 80.69 100.43
 434.65 233.41 588.10 14.99 42.90 15.68
@@ -27,28 +28,32 @@ robo_data = """
 353.71 187.52 592.06 91.24 25.03 76.01
 377.28 -105.08 608.19 46.89 23.70 73.68
 """
-robo_data = np.fromstring(robo_data, dtype=float, sep=' ').reshape((-1, 6))
-robo_data = robo_data[:, :3]
+robo_calib_data = np.fromstring(robo_calib_data, dtype=float, sep=' ').reshape((-1, 6))
+robo_calib_data = robo_calib_data[:, :3]
 
 
 def plot_robo_calibration_points(rob_points):
-    min = np.amin(robo_data, axis=0)
-    max = np.amax(robo_data, axis=0)
+    min = np.amin(robo_calib_data, axis=0)
+    max = np.amax(robo_calib_data, axis=0)
 
+    # fig = plt.figure(figsize=(16, 9), dpi=150)
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
+    ax.view_init(elev=18, azim=-159)
 
-    for i, row in enumerate(robo_data):
-        if i < 12:
-            ax.scatter(row[0], row[1], row[2], c="g")
-        else:
-            ax.scatter(row[0], row[1], row[2], c="r")
-        ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
+    # for i, row in enumerate(robo_data):
+    #     if i < 11:
+    #         ax.scatter(row[0], row[1], row[2], c="g")
+    #     else:
+    #         ax.scatter(row[0], row[1], row[2], c="r")
+    #     ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
 
-    ax.set_xlabel('X [mm]')
-    ax.set_ylabel('Y [mm]')
-    ax.set_zlabel('Z [mm]')
-
+    ax.set_xlabel('x [mm]', fontsize=10)
+    ax.set_ylabel('y [mm]', fontsize=10)
+    import upsidedown
+    test = upsidedown.transform('z [mm]')
+    ax.set_zlabel(test, fontsize=10)
+    # ax.set_zticks([0, 400, 500, 600, 700, 800])
     # BUILD CUBE
     center = min+(max-min)/2
     size = max-min+[20, 20, 20]
@@ -56,6 +61,7 @@ def plot_robo_calibration_points(rob_points):
 
     ox, oy, oz = center
     l, w, h = size
+    logger.error(f"{ox}, {oy}, {oz}")
 
     x = np.linspace(ox-l/2, ox+l/2, num=2)
     y = np.linspace(oy-w/2, oy+w/2, num=2)
@@ -94,11 +100,12 @@ def plot_calibration_points(robo_data, vive_data):
         robo_data ([type]): nx3
         vive_data ([type]): nx3
     """
-    min = np.amin(robo_data, axis=0)
-    max = np.amax(robo_data, axis=0)
+    min = np.amin(robo_calib_data, axis=0)
+    max = np.amax(robo_calib_data, axis=0)
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
+    ax.view_init(elev=18, azim=-159)
 
     for i, (rob_row, vive_row) in enumerate(zip(robo_data, vive_data)):
 
@@ -128,6 +135,7 @@ def plot_calibration_points(robo_data, vive_data):
 
     ox, oy, oz = center
     l, w, h = size
+    logger.error(f"{ox}, {oy}, {oz}")
 
     x = np.linspace(ox-l/2, ox+l/2, num=2)
     y = np.linspace(oy-w/2, oy+w/2, num=2)
