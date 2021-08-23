@@ -126,16 +126,16 @@ def point_corres_method(date, experiment_number, rob_file_name):
     print(np.mean(test_reprojection_error))
     print(f"direction bias:")
     print(np.array(test_direction_bias_calib))
-    from backend_utils.linear_algebra_helper import eval_error_list
-    print(eval_error_list(np.array(test_direction_bias_test)[:, 2]))
+    # from backend_utils.linear_algebra_helper import eval_error_list
+    # print(eval_error_list(np.array(test_direction_bias_test)[:, 2]))
 
-    from scipy import stats
-    print(stats.ttest_1samp(np.array(test_direction_bias_test)[:, 2], 0))
-    print(np.array(test_direction_bias_test)[:, 1])
-    # from plot_rob_cali_points import plot_calibration_points
-    # print(R)
-    # print(t)
-    # plot_calibration_points(point_set_2, np.array(projected_vive_points))
+    # from scipy import stats
+    # print(stats.ttest_1samp(np.array(test_direction_bias_test)[:, 2], 0))
+    # print(np.array(test_direction_bias_test)[:, 1])
+    from plot_rob_cali_points import plot_calibration_points
+    print(R)
+    print(t)
+    plot_calibration_points(point_set_2, np.array(projected_vive_points))
 
     # from backend_utils.linear_algebra_helper import combine_to_homogeneous_matrix, calc_reprojection_error
     # homy = combine_to_homogeneous_matrix(

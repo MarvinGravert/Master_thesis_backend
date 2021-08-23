@@ -33,20 +33,21 @@ robo_calib_data = robo_calib_data[:, :3]
 
 
 def plot_robo_calibration_points(rob_points):
-    min = np.amin(robo_calib_data, axis=0)
-    max = np.amax(robo_calib_data, axis=0)
+    min = np.amin(rob_points, axis=0)
+    max = np.amax(rob_points, axis=0)
 
-    # fig = plt.figure(figsize=(16, 9), dpi=150)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6), dpi=150)
+    # fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.view_init(elev=18, azim=-159)
 
-    # for i, row in enumerate(robo_data):
-    #     if i < 11:
-    #         ax.scatter(row[0], row[1], row[2], c="g")
-    #     else:
-    #         ax.scatter(row[0], row[1], row[2], c="r")
-    #     ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
+    for i, row in enumerate(rob_points):
+        if i < 11:
+            ax.scatter(row[0], row[1], row[2], c="orange")
+            # ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
+        else:
+            ax.scatter(row[0], row[1], row[2], c="brown")
+        ax.text(row[0], row[1], row[2],  '%s' % (str(i+1)), size=10, zorder=1,  color='k')
 
     ax.set_xlabel('x [mm]', fontsize=10)
     ax.set_ylabel('y [mm]', fontsize=10)
@@ -102,8 +103,8 @@ def plot_calibration_points(robo_data, vive_data):
     """
     min = np.amin(robo_calib_data, axis=0)
     max = np.amax(robo_calib_data, axis=0)
-
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6), dpi=150)
+    # fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.view_init(elev=18, azim=-159)
 
@@ -123,11 +124,11 @@ def plot_calibration_points(robo_data, vive_data):
         ax.text(rob_row[0], rob_row[1], rob_row[2],  '%s' %
                 (str(i+1)), size=10, zorder=1,  color='k')
 
-    ax.set_xlabel('x [mm]', fontsize=15)
-    ax.set_ylabel('y [mm]', fontsize=15)
+    ax.set_xlabel('x [mm]', fontsize=10)
+    ax.set_ylabel('y [mm]', fontsize=10)
     import upsidedown
     test = upsidedown.transform('z [mm]')
-    ax.set_zlabel(test, fontsize=15)
+    ax.set_zlabel(test, fontsize=10)
     # BUILD CUBE
     center = min+(max-min)/2
     size = max-min+[20, 20, 20]
@@ -165,9 +166,9 @@ def plot_calibration_points(robo_data, vive_data):
     ax.plot_wireframe(x32, y3, z3, color='b', rstride=1, cstride=1, alpha=0.6)
 
     # plt.title("Punktekorrespondenzen")
-    plt.legend(loc='right', fontsize=11, prop={'size': 15})
+    plt.legend(loc='right', fontsize=11, prop={'size': 10})
     plt.show()
 
 
 if __name__ == "__main__":
-    plot_robo_calibration_points(rob_points=robo_data)
+    plot_robo_calibration_points(rob_points=robo_calib_data)

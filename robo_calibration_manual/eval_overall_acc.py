@@ -129,7 +129,10 @@ def calculate_distance_points(date: str, exp_num: int):
     # print(len(distance_list))
     # print(f"{np.mean(distance_list)} \u00B1 {np.std(distance_list)}")
     # print(stats.ttest_1samp(distance_list, 0))
+    print(distance_list)
+    print(type(distance_list))
     plot_waypoint_error(distance_list)
+
     # print(np.mean(distance_list))
     # print(np.std(distance_list, ddof=1))
     # print(max(distance_list))
@@ -159,17 +162,18 @@ def calculate_axis_distance(date: str, exp_num: int):
         err_vec = tcp_in_target-target_loc
         err_vec_list.append(err_vec)
 
-    overall_err_vec_matrix = np.array(err_vec_list)[:3]
+    overall_err_vec_matrix = np.array(err_vec_list)[:, :3]
     print(np.mean(overall_err_vec_matrix, 0))
     print(np.std(overall_err_vec_matrix, 0))
     # print(stats.kstest(overall_err_vec_matrix[:, 1], "norm"))
     # print(stats.ttest_1samp(overall_err_vec_matrix[:, 2], 0))
-    del err_vec_list[3]
-    test = np.array(err_vec_list)[:3]
+    # del err_vec_list[3]  # delete the one point where the tripod z wasnt aligned with the robot z
+    test = np.array(err_vec_list)[:, :3]
     print(len(err_vec_list))
     # print(stats.ttest_1samp(test[:, 2], 0))
-    ##
-    axis = overall_err_vec_matrix[:, 1]
+    #
+    all_axis = np.array(err_vec_list)[:, :3]
+    axis = all_axis[:, 2]
     print(axis)
     test = np.array(axis)
     test = test**2
@@ -178,7 +182,12 @@ def calculate_axis_distance(date: str, exp_num: int):
     print(max(np.abs(axis)))
     print(min(axis))
     print(np.std(axis, ddof=1))
+
     print(stats.ttest_1samp(axis, 0))
+    # print(err_vec_list)
+
+    print(list(all_axis[:, 2]))
+    plot_waypoint_error(list(all_axis[:, 2]))
 
 
 def get_std_data():
@@ -241,6 +250,7 @@ def plot_waypoint_error(error_list: List[float]):
     fig = plt.figure(figsize=(4, 4))
 
     ax = fig.add_subplot(111, projection='3d')
+    ax.view_init(elev=18, azim=-159)
     ax.set_xlabel("x [mm]", fontsize=15)
 
     ax.set_ylabel("y [mm]", fontsize=15)
@@ -252,7 +262,6 @@ def plot_waypoint_error(error_list: List[float]):
         ys=data[:, 1],
         zs=data[:, 2],
         s=0.1 * (np.array(error_list)*3)**2)
-
     # print(error_list)
     # print(0.1 * (np.array(error_list)*3)**2)
     kw = dict(prop="sizes", num=3, color=scatter.cmap(0.35),
@@ -312,7 +321,7 @@ def plot_waypoint_error(error_list: List[float]):
 if __name__ == "__main__":
     date = "20210731"
     exp_num = 1
-    calculate_distance_points(date, exp_num)
-    # calculate_axis_distance(date, exp_num)
+    # calculate_distance_points(date, exp_num)
+    calculate_axis_distance(date, exp_num)
     # get_user_placement_error()
     # get_user_hand_jitter()
